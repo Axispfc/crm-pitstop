@@ -7,56 +7,44 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="login-page">
-    <section class="brand-side">
-      <div class="logo-box">
-        <div class="logo-icon">PS</div>
-        <div>
-          <h1>PIT STOP</h1>
-          <span>ESTACIONAMENTO E LAVA-RÁPIDO</span>
-        </div>
+
+  <div class="container">
+
+    <!-- LADO ESQUERDO (IMAGEM) -->
+    <div class="left-side"></div>
+
+    <!-- LADO DIREITO (LOGIN) -->
+    <div class="right-side">
+      <div class="login-box">
+
+        <h2>Bem-vindo!</h2>
+        <p>Acesse o sistema do Lava Rápido Pit Stop</p>
+
+        <form id="loginForm">
+
+          <label>Usuário</label>
+          <input type="text" placeholder="Digite seu usuário" required />
+
+          <label>Senha</label>
+          <input type="password" placeholder="Digite sua senha" required />
+
+          <div class="options">
+            <input type="checkbox" />
+            <span>Lembrar de mim</span>
+          </div>
+
+          <button type="submit">ENTRAR NO SISTEMA</button>
+
+        </form>
+
+        <a href="#">Esqueci minha senha</a>
+
+        <small>© 2025 Lava Rápido Pit Stop</small>
+
       </div>
+    </div>
 
-      <h2>Gestão inteligente para lava rápido</h2>
-      <p>Controle veículos, serviços, caixa e atendimento em uma única tela.</p>
-
-      <div class="stats">
-        <div>
-          <strong>+ Controle</strong>
-          <small>Fila em tempo real</small>
-        </div>
-        <div>
-          <strong>+ Lucro</strong>
-          <small>Caixa organizado</small>
-        </div>
-        <div>
-          <strong>+ Agilidade</strong>
-          <small>Atendimento rápido</small>
-        </div>
-      </div>
-    </section>
-
-    <section class="login-card">
-      <div class="card-header">
-        <h3>Acessar sistema</h3>
-        <p>Entre para gerenciar o lava rápido</p>
-      </div>
-
-      <form id="loginForm">
-        <label>Usuário</label>
-        <input type="text" placeholder="Digite seu usuário" required />
-
-        <label>Senha</label>
-        <input type="password" placeholder="Digite sua senha" required />
-
-        <button type="submit">Entrar no CRM</button>
-      </form>
-
-      <small class="footer-text">
-        Sistema desenvolvido por Axis Performance Comercial
-      </small>
-    </section>
-  </main>
+  </div>
 
   <script src="script.js"></script>
 </body>
