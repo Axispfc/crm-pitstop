@@ -6,22 +6,26 @@
 }
 
 body {
-  height: 100vh;
+  min-height: 100vh;
+  background: #061212;
+  color: #fff;
 }
 
-/* LAYOUT */
+.hidden {
+  display: none !important;
+}
+
+/* LOGIN */
 .container {
   display: flex;
   height: 100vh;
 }
 
-/* IMAGEM ESQUERDA */
 .left-side {
   width: 50%;
   background: url("bg-login.jpg") center/cover no-repeat;
 }
 
-/* LADO DIREITO */
 .right-side {
   width: 50%;
   display: flex;
@@ -30,7 +34,6 @@ body {
   background: linear-gradient(135deg, #061212, #0c1f20);
 }
 
-/* CARD LOGIN */
 .login-box {
   width: 380px;
   padding: 40px;
@@ -41,7 +44,6 @@ body {
   box-shadow: 0 0 60px rgba(32, 240, 207, 0.1);
 }
 
-/* TÍTULO (AGORA CORRIGIDO) */
 .login-box h2 {
   font-size: 34px;
   font-weight: 900;
@@ -51,73 +53,193 @@ body {
   margin-bottom: 10px;
 }
 
-/* SUBTEXTO */
 .login-box p {
   color: #aaa;
   margin-bottom: 25px;
 }
 
-/* FORM */
+/* SISTEMA */
+.system {
+  min-height: 100vh;
+  display: flex;
+  background: #071314;
+}
+
+.sidebar {
+  width: 280px;
+  padding: 28px;
+  background: #041011;
+  border-right: 1px solid rgba(32, 240, 207, 0.14);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 45px;
+}
+
+.brand-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #20f0cf, #84ffee);
+  color: #031010;
+  font-weight: 900;
+}
+
+.brand h1 {
+  font-size: 22px;
+}
+
+.brand span {
+  color: #20f0cf;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+nav a {
+  padding: 14px 16px;
+  border-radius: 14px;
+  color: #9db0b1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+nav a.active,
+nav a:hover {
+  background: rgba(32, 240, 207, 0.12);
+  color: #20f0cf;
+}
+
+.content {
+  flex: 1;
+  padding: 34px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.topbar h2 {
+  font-size: 34px;
+}
+
+.topbar p {
+  color: #8fa4a5;
+  margin-top: 6px;
+}
+
+.logout {
+  width: auto;
+  padding: 0 22px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+}
+
+.panel,
+.coupon {
+  padding: 28px;
+  border-radius: 24px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(32, 240, 207, 0.14);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+}
+
+.panel h3,
+.coupon h3 {
+  font-size: 24px;
+  margin-bottom: 22px;
+}
+
 form {
   display: flex;
   flex-direction: column;
 }
 
-/* LABEL */
 label {
   margin-top: 15px;
-  margin-bottom: 5px;
-  color: #ddd;
+  margin-bottom: 7px;
+  color: #d8eeee;
+  font-size: 14px;
 }
 
-/* INPUTS */
-input[type="text"],
-input[type="password"] {
-  height: 45px;
-  border-radius: 10px;
-  border: 1px solid #333;
-  padding: 10px;
+input,
+select {
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 0 14px;
   background: #0b1b1c;
   color: white;
   outline: none;
-  transition: 0.2s;
 }
 
-/* FOCO INPUT */
-input:focus {
+input:focus,
+select:focus {
   border-color: #20f0cf;
-  box-shadow: 0 0 10px rgba(32, 240, 207, 0.3);
+  box-shadow: 0 0 10px rgba(32, 240, 207, 0.25);
 }
 
-/* CHECKBOX */
-.options {
+.choice-row {
+  display: flex;
+  gap: 14px;
+}
+
+.choice {
+  flex: 1;
+  height: 52px;
+  margin-top: 0;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: #0b1b1c;
+  border: 1px solid rgba(255,255,255,0.12);
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 15px;
-  color: #aaa;
-}
-
-/* BOTÃO */
-button {
-  margin-top: 20px;
-  height: 45px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #16c7a8, #20f0cf);
-  color: black;
-  font-weight: bold;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-/* HOVER BOTÃO */
+.choice input {
+  height: auto;
+}
+
+.primary-btn,
+.print-btn,
+button {
+  height: 50px;
+  margin-top: 24px;
+  border: none;
+  border-radius: 15px;
+  background: linear-gradient(90deg, #16c7a8, #20f0cf);
+  color: #031010;
+  font-weight: 900;
+  cursor: pointer;
+}
+
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 15px rgba(32, 240, 207, 0.5);
+  box-shadow: 0 0 18px rgba(32, 240, 207, 0.35);
 }
 
-/* LINK */
 a {
   display: block;
   margin-top: 15px;
@@ -126,10 +248,64 @@ a {
   text-decoration: none;
 }
 
-/* RODAPÉ */
 small {
   display: block;
   margin-top: 20px;
   text-align: center;
   color: #777;
+}
+
+.wash-options {
+  margin-top: 10px;
+  padding-top: 8px;
+}
+
+.coupon {
+  align-self: start;
+}
+
+.coupon-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.coupon-line span {
+  color: #91a6a7;
+}
+
+.coupon-line strong {
+  text-align: right;
+}
+
+.print-btn {
+  width: 100%;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #coupon,
+  #coupon * {
+    visibility: visible;
+  }
+
+  #coupon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 320px;
+    background: white;
+    color: black;
+    border: none;
+    box-shadow: none;
+  }
+
+  .print-btn {
+    display: none;
+  }
 }
