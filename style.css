@@ -1,1 +1,188 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
 
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #1be7c6 0%, transparent 28%),
+              linear-gradient(135deg, #050b0c 0%, #0a1819 45%, #061112 100%);
+  color: #fff;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 40px;
+  padding: 60px;
+}
+
+.brand-side {
+  max-width: 720px;
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 70px;
+}
+
+.logo-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 26px;
+  color: #041011;
+  background: linear-gradient(135deg, #20f0cf, #9fffee);
+  box-shadow: 0 0 35px rgba(32, 240, 207, 0.45);
+}
+
+.logo-box h1 {
+  font-size: 42px;
+  letter-spacing: 2px;
+}
+
+.logo-box span {
+  color: #20f0cf;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 3px;
+}
+
+.brand-side h2 {
+  font-size: 58px;
+  line-height: 1.05;
+  max-width: 650px;
+  margin-bottom: 20px;
+}
+
+.brand-side p {
+  font-size: 19px;
+  color: #b8c7c8;
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+.stats {
+  display: flex;
+  gap: 18px;
+  margin-top: 45px;
+}
+
+.stats div {
+  padding: 20px;
+  min-width: 160px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(32,240,207,0.18);
+  backdrop-filter: blur(12px);
+}
+
+.stats strong {
+  display: block;
+  color: #20f0cf;
+  margin-bottom: 6px;
+}
+
+.stats small {
+  color: #a7b5b6;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 430px;
+  justify-self: center;
+  padding: 38px;
+  border-radius: 28px;
+  background: rgba(6, 20, 21, 0.86);
+  border: 1px solid rgba(32, 240, 207, 0.22);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+}
+
+.card-header {
+  margin-bottom: 30px;
+}
+
+.card-header h3 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.card-header p {
+  color: #95a8a9;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 14px;
+  color: #d8eeee;
+  margin-bottom: 8px;
+  margin-top: 18px;
+}
+
+input {
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  padding: 0 16px;
+  color: #fff;
+  outline: none;
+  font-size: 15px;
+}
+
+input:focus {
+  border-color: #20f0cf;
+  box-shadow: 0 0 0 3px rgba(32,240,207,0.12);
+}
+
+button {
+  height: 54px;
+  margin-top: 28px;
+  border: none;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #20f0cf, #75ffe8);
+  color: #031010;
+  font-weight: 900;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 12px 35px rgba(32,240,207,0.28);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+.footer-text {
+  display: block;
+  margin-top: 24px;
+  text-align: center;
+  color: #789091;
+}
+
+@media (max-width: 900px) {
+  .login-page {
+    grid-template-columns: 1fr;
+    padding: 30px;
+  }
+
+  .brand-side h2 {
+    font-size: 40px;
+  }
+
+  .stats {
+    flex-direction: column;
+  }
+}
