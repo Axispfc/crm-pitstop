@@ -4,24 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CRM Pit Stop</title>
-  <link rel="stylesheet" href="style.cssv=2?" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
-  <div class="container">
-
-    <!-- LADO ESQUERDO (IMAGEM) -->
+  <section id="loginScreen" class="container">
     <div class="left-side"></div>
 
-    <!-- LADO DIREITO (LOGIN) -->
     <div class="right-side">
       <div class="login-box">
-
         <h2>Bem-vindo!</h2>
         <p>Acesse o sistema do Lava Rápido Pit Stop</p>
 
         <form id="loginForm">
-
           <label>Usuário</label>
           <input type="text" placeholder="Digite seu usuário" required />
 
@@ -34,18 +29,133 @@
           </div>
 
           <button type="submit">ENTRAR NO SISTEMA</button>
-
         </form>
 
         <a href="#">Esqueci minha senha</a>
-
         <small>© 2025 Lava Rápido Pit Stop</small>
-
       </div>
     </div>
+  </section>
 
-  </div>
+  <section id="systemScreen" class="system hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">PS</div>
+        <div>
+          <h1>Pit Stop</h1>
+          <span>Estética Automotiva</span>
+        </div>
+      </div>
 
-  <script src="script.js"></script>
+      <nav>
+        <a class="active">Cadastro de veículos</a>
+        <a>Fila de atendimento</a>
+        <a>Caixa do dia</a>
+        <a>Clientes</a>
+        <a>Relatórios</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h2>Cadastro de Veículos</h2>
+          <p>Registre entradas para estacionamento ou lavagem.</p>
+        </div>
+        <button id="logoutBtn" class="logout">Sair</button>
+      </header>
+
+      <div class="grid">
+        <section class="panel">
+          <h3>Dados do cliente</h3>
+
+          <form id="vehicleForm">
+            <label>Nome</label>
+            <input id="nome" type="text" placeholder="Nome do cliente" required />
+
+            <label>Placa</label>
+            <input id="placa" type="text" placeholder="ABC-1234" required />
+
+            <label>Telefone de contato</label>
+            <input id="telefone" type="text" placeholder="(11) 99999-9999" required />
+
+            <label>Tipo de entrada</label>
+            <div class="choice-row">
+              <label class="choice">
+                <input type="radio" name="tipoEntrada" value="Estacionamento" checked />
+                Estacionamento
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoEntrada" value="Lavagem" />
+                Lavagem
+              </label>
+            </div>
+
+            <div id="washOptions" class="wash-options hidden">
+              <label>Tipo do veículo</label>
+              <select id="tipoVeiculo">
+                <option value="">Selecione</option>
+                <option>Sedan</option>
+                <option>SUV</option>
+                <option>Hatch</option>
+              </select>
+
+              <label>Serviço</label>
+              <select id="servico">
+                <option value="">Selecione</option>
+                <option>Lavagem completa</option>
+                <option>Lavagem simples</option>
+                <option>Higienização</option>
+                <option>Cera com cristalização</option>
+                <option>Ducha rápida</option>
+                <option>Ducha com secagem</option>
+              </select>
+            </div>
+
+            <button type="submit" class="primary-btn">Cadastrar veículo</button>
+          </form>
+        </section>
+
+        <section id="coupon" class="coupon hidden">
+          <h3>Cupom de Entrada</h3>
+
+          <div class="coupon-line">
+            <span>Cliente</span>
+            <strong id="cupomNome">-</strong>
+          </div>
+
+          <div class="coupon-line">
+            <span>Placa</span>
+            <strong id="cupomPlaca">-</strong>
+          </div>
+
+          <div class="coupon-line">
+            <span>Telefone</span>
+            <strong id="cupomTelefone">-</strong>
+          </div>
+
+          <div class="coupon-line">
+            <span>Tipo</span>
+            <strong id="cupomTipo">-</strong>
+          </div>
+
+          <div class="coupon-line">
+            <span>Data</span>
+            <strong id="cupomData">-</strong>
+          </div>
+
+          <div class="coupon-line">
+            <span>Horário</span>
+            <strong id="cupomHora">-</strong>
+          </div>
+
+          <button id="printBtn" class="print-btn">Imprimir cupom</button>
+        </section>
+      </div>
+    </main>
+  </section>
+
+  <script src="script.js?v=3"></script>
 </body>
 </html>
