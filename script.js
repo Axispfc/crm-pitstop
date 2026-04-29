@@ -210,7 +210,7 @@ function gerarCupomSaidaEstacionamento(veiculo, saida, valor) {
     <p><strong>Telefone:</strong> ${veiculo.telefone}</p>
     <p><strong>Entrada:</strong> ${formatarData(veiculo.entrada)} às ${formatarHora(veiculo.entrada)}</p>
     <p><strong>Saída:</strong> ${formatarData(saida)} às ${formatarHora(saida)}</p>
-    <p><strong>Valor total:</strong> ${formatarValor(valor)}</p>
+    <p><strong>TOTAL</strong> ${formatarValor(valor)}</p>
   `;
 }
 
@@ -228,7 +228,7 @@ function gerarCupomLavagem(dados) {
     <p><strong>Cera:</strong> ${dados.cera ? "Sim (+R$10,00)" : "Não"}</p>
     <p><strong>Data:</strong> ${formatarData(dados.data)}</p>
     <p><strong>Horário:</strong> ${formatarHora(dados.data)}</p>
-    <p><strong>Valor total:</strong> ${formatarValor(dados.valor)}</p>
+    <p><strong>TOTAL</strong> ${formatarValor(dados.valor)}</p>
   `;
 }
 
