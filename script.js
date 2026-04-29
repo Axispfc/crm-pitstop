@@ -161,8 +161,11 @@ function atualizarListaEstacionamento() {
     item.innerHTML = `
       <strong>${veiculo.placa}</strong>
       <span>${veiculo.nome}</span>
-      <small>Entrada: ${formatarHora(veiculo.entrada)}</small>
-      <button onclick="encerrarEstacionamento(${veiculo.id})">Encerrar</button>
+      <div class="status">Em aberto</div>
+      <small id="tempo-${veiculo.id}">Calculando...</small>
+      <button onclick="encerrarEstacionamento(${veiculo.id})">
+        Encerrar atendimento
+      </button>
     `;
 
     listaEstacionamento.appendChild(item);
@@ -228,3 +231,25 @@ function gerarCupomLavagem(dados) {
     <p><strong>Valor total:</strong> ${formatarValor(dados.valor)}</p>
   `;
 }
+
+function atualizarTempos() {
+  estacionados.forEach((veiculo) => {
+    const agora = new Date();
+    const diffMs = agora - veiculo.entrada;
+
+    const minutos = Math.floor(diffMs / (1000 * 60));
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+
+    const texto = horas > 0
+      ? `${horas}h ${mins}min`
+      : `${mins} min`;
+
+    const el = document.getElementById(`tempo-${veiculo.id}`);
+    if (el) {
+      el.textContent = `Estacionado há: ${texto}`;
+    }
+  });
+}
+
+setInterval(atualizarTempos, 60000);
