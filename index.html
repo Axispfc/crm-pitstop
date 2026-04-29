@@ -4,158 +4,140 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CRM Pit Stop</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
 
-  <section id="loginScreen" class="container">
-    <div class="left-side"></div>
+<!-- LOGIN -->
+<section id="loginScreen" class="container">
+  <div class="left-side"></div>
+  <div class="right-side">
+    <div class="login-box">
+      <h2>Bem-vindo!</h2>
+      <form id="loginForm">
+        <input type="text" placeholder="Usuário" required />
+        <input type="password" placeholder="Senha" required />
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+</section>
 
-    <div class="right-side">
-      <div class="login-box">
-        <h2>Bem-vindo!</h2>
-        <p>Acesse o sistema do Lava Rápido Pit Stop</p>
+<!-- SISTEMA -->
+<section id="systemScreen" class="system hidden">
 
-        <form id="loginForm">
-          <label>Usuário</label>
-          <input type="text" placeholder="Digite seu usuário" required />
+  <aside class="sidebar">
+    <h2>Pit Stop</h2>
+    <nav>
+      <a class="active">Cadastro</a>
+      <a>Fila</a>
+      <a>Caixa</a>
+    </nav>
+  </aside>
 
-          <label>Senha</label>
-          <input type="password" placeholder="Digite sua senha" required />
+  <main class="content">
 
-          <div class="options">
-            <input type="checkbox" />
-            <span>Lembrar de mim</span>
+    <header class="topbar">
+      <h2>Cadastro de Veículos</h2>
+      <button id="logoutBtn">Sair</button>
+    </header>
+
+    <div class="grid">
+
+      <!-- FORM -->
+      <section class="panel">
+        <h3>Entrada</h3>
+
+        <form id="vehicleForm">
+
+          <input id="nome" placeholder="Nome" required />
+          <input id="placa" placeholder="Placa" required />
+          <input id="telefone" placeholder="Telefone" required />
+
+          <h4>Tipo</h4>
+
+          <div class="choice-row">
+            <label class="choice">
+              <input type="radio" name="tipoEntrada" value="Estacionamento" checked />
+              Estacionamento
+            </label>
+
+            <label class="choice">
+              <input type="radio" name="tipoEntrada" value="Lavagem" />
+              Lavagem
+            </label>
           </div>
 
-          <button type="submit">ENTRAR NO SISTEMA</button>
-        </form>
+          <!-- LAVAGEM -->
+          <div id="washOptions" class="hidden">
 
-        <a href="#">Esqueci minha senha</a>
-        <small>© 2025 Lava Rápido Pit Stop</small>
-      </div>
-    </div>
-  </section>
+            <h4>Tipo de veículo</h4>
 
-  <section id="systemScreen" class="system hidden">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-icon">PS</div>
-        <div>
-          <h1>Pit Stop</h1>
-          <span>Estética Automotiva</span>
-        </div>
-      </div>
-
-      <nav>
-        <a class="active">Cadastro de veículos</a>
-        <a>Fila de atendimento</a>
-        <a>Caixa do dia</a>
-        <a>Clientes</a>
-        <a>Relatórios</a>
-      </nav>
-    </aside>
-
-    <main class="content">
-      <header class="topbar">
-        <div>
-          <h2>Cadastro de Veículos</h2>
-          <p>Registre entradas para estacionamento ou lavagem.</p>
-        </div>
-        <button id="logoutBtn" class="logout">Sair</button>
-      </header>
-
-      <div class="grid">
-        <section class="panel">
-          <h3>Dados do cliente</h3>
-
-          <form id="vehicleForm">
-            <label>Nome</label>
-            <input id="nome" type="text" placeholder="Nome do cliente" required />
-
-            <label>Placa</label>
-            <input id="placa" type="text" placeholder="ABC-1234" required />
-
-            <label>Telefone de contato</label>
-            <input id="telefone" type="text" placeholder="(11) 99999-9999" required />
-
-            <label>Tipo de entrada</label>
             <div class="choice-row">
               <label class="choice">
-                <input type="radio" name="tipoEntrada" value="Estacionamento" checked />
-                Estacionamento
+                <input type="radio" name="tipoVeiculo" value="Hatch" />
+                Hatch
               </label>
 
               <label class="choice">
-                <input type="radio" name="tipoEntrada" value="Lavagem" />
-                Lavagem
+                <input type="radio" name="tipoVeiculo" value="Sedan" />
+                Sedan
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="SUV" />
+                SUV
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="Moto" />
+                Moto
               </label>
             </div>
 
-            <div id="washOptions" class="wash-options hidden">
-              <label>Tipo do veículo</label>
-              <select id="tipoVeiculo">
-                <option value="">Selecione</option>
-                <option>Sedan</option>
-                <option>SUV</option>
-                <option>Hatch</option>
-              </select>
+            <h4>Serviço</h4>
 
-              <label>Serviço</label>
-              <select id="servico">
-                <option value="">Selecione</option>
-                <option>Lavagem completa</option>
-                <option>Lavagem simples</option>
-                <option>Higienização</option>
-                <option>Cera com cristalização</option>
-                <option>Ducha rápida</option>
-                <option>Ducha com secagem</option>
-              </select>
-            </div>
+            <select id="servico">
+              <option value="">Selecione</option>
+              <option>Lavagem completa</option>
+              <option>Lavagem rápida</option>
+              <option>Ducha com secagem</option>
+            </select>
 
-            <button type="submit" class="primary-btn">Cadastrar veículo</button>
-          </form>
-        </section>
+            <label class="choice">
+              <input type="checkbox" id="cera" />
+              Adicionar cera (+R$10)
+            </label>
 
-        <section id="coupon" class="coupon hidden">
-          <h3>Cupom de Entrada</h3>
-
-          <div class="coupon-line">
-            <span>Cliente</span>
-            <strong id="cupomNome">-</strong>
           </div>
 
-          <div class="coupon-line">
-            <span>Placa</span>
-            <strong id="cupomPlaca">-</strong>
-          </div>
+          <button type="submit">Cadastrar</button>
 
-          <div class="coupon-line">
-            <span>Telefone</span>
-            <strong id="cupomTelefone">-</strong>
-          </div>
+        </form>
+      </section>
 
-          <div class="coupon-line">
-            <span>Tipo</span>
-            <strong id="cupomTipo">-</strong>
-          </div>
+      <!-- LISTA ESTACIONAMENTO -->
+      <section class="panel">
+        <h3>Veículos Estacionados</h3>
 
-          <div class="coupon-line">
-            <span>Data</span>
-            <strong id="cupomData">-</strong>
-          </div>
+        <div id="listaEstacionamento"></div>
+      </section>
 
-          <div class="coupon-line">
-            <span>Horário</span>
-            <strong id="cupomHora">-</strong>
-          </div>
+      <!-- CUPOM -->
+      <section id="coupon" class="coupon hidden">
+        <h3>Comanda</h3>
 
-          <button id="printBtn" class="print-btn">Imprimir cupom</button>
-        </section>
-      </div>
-    </main>
-  </section>
+        <div id="cupomConteudo"></div>
 
-  <script src="script.js?v=3"></script>
+        <button onclick="window.print()">Imprimir</button>
+      </section>
+
+    </div>
+
+  </main>
+
+</section>
+
+<script src="script.js?v=5"></script>
 </body>
 </html>
