@@ -139,5 +139,23 @@
 </section>
 
 <script src="script.js?v=5"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBZ5ASFYLuFNB-sDQLZMIYqO5btdZGMGg",
+    authDomain: "crm-pitstop.firebaseapp.com",
+    projectId: "crm-pitstop",
+    storageBucket: "crm-pitstop.firebasestorage.app",
+    messagingSenderId: "216473066500",
+    appId: "1:216473066500:web:f67c0541cb5a1bbe8edc41",
+    measurementId: "G-9R569LYB6K"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
 </body>
 </html>
