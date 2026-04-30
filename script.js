@@ -17,6 +17,7 @@ loginForm.addEventListener("submit", function (e) {
   e.preventDefault();
   loginScreen.classList.add("hidden");
   systemScreen.classList.remove("hidden");
+  carregarEstacionamentosAbertos();
 });
 
 logoutBtn.addEventListener("click", function () {
@@ -62,9 +63,7 @@ function calcularEstacionamento(entrada, saida) {
   const diffMs = saida - entrada;
   const diffHoras = diffMs / (1000 * 60 * 60);
 
-  if (diffHoras <= 1) {
-    return 10;
-  }
+  if (diffHoras <= 1) return 10;
 
   const horasAdicionais = Math.ceil(diffHoras - 1);
   return 10 + horasAdicionais * 3;
@@ -89,8 +88,35 @@ function formatarValor(valor) {
   });
 }
 
+/* CARREGAR ESTACIONAMENTOS ABERTOS */
+async function carregarEstacionamentosAbertos() {
+  const snapshot = await db
+    .collection("atendimentos")
+    .where("tipoEntrada", "==", "Estacionamento")
+    .where("status", "==", "Aberto")
+    .get();
+
+  estacionados = [];
+
+  snapshot.forEach((doc) => {
+    const dados = doc.data();
+
+    estacionados.push({
+      id: doc.id,
+      nome: dados.nome,
+      placa: dados.placa,
+      telefone: dados.telefone,
+      entrada: dados.entrada.toDate(),
+      status: dados.status,
+    });
+  });
+
+  atualizarListaEstacionamento();
+  atualizarTempos();
+}
+
 /* CADASTRAR */
-vehicleForm.addEventListener("submit", function (e) {
+vehicleForm.addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const nome = document.getElementById("nome").value;
@@ -101,8 +127,18 @@ vehicleForm.addEventListener("submit", function (e) {
   const agora = new Date();
 
   if (tipoEntrada === "Estacionamento") {
+    const docRef = await db.collection("atendimentos").add({
+      nome,
+      placa,
+      telefone,
+      tipoEntrada: "Estacionamento",
+      status: "Aberto",
+      entrada: agora,
+      criadoEm: new Date(),
+    });
+
     const veiculo = {
-      id: Date.now(),
+      id: docRef.id,
       nome,
       placa,
       telefone,
@@ -112,7 +148,6 @@ vehicleForm.addEventListener("submit", function (e) {
 
     estacionados.push(veiculo);
     atualizarListaEstacionamento();
-
     gerarCupomEntradaEstacionamento(veiculo);
   }
 
@@ -132,14 +167,31 @@ vehicleForm.addEventListener("submit", function (e) {
     }
 
     const tipoVeiculo = tipoVeiculoSelecionado.value;
+    const servicoFinal = tipoVeiculo === "Moto" ? "Lavagem de moto" : servico;
     const valor = calcularLavagem(tipoVeiculo, servico, cera);
+
+    const dadosLavagem = {
+      nome,
+      placa,
+      telefone,
+      tipoEntrada: "Lavagem",
+      tipoVeiculo,
+      servico: servicoFinal,
+      cera,
+      valor,
+      status: "Finalizado",
+      entrada: agora,
+      criadoEm: new Date(),
+    };
+
+    await db.collection("atendimentos").add(dadosLavagem);
 
     gerarCupomLavagem({
       nome,
       placa,
       telefone,
       tipoVeiculo,
-      servico: tipoVeiculo === "Moto" ? "Lavagem de moto" : servico,
+      servico: servicoFinal,
       cera,
       valor,
       data: agora,
@@ -163,7 +215,7 @@ function atualizarListaEstacionamento() {
       <span>${veiculo.nome}</span>
       <div class="status">Em aberto</div>
       <small id="tempo-${veiculo.id}">Calculando...</small>
-      <button onclick="encerrarEstacionamento(${veiculo.id})">
+      <button onclick="encerrarEstacionamento('${veiculo.id}')">
         Encerrar atendimento
       </button>
     `;
@@ -173,10 +225,23 @@ function atualizarListaEstacionamento() {
 }
 
 /* ENCERRAR ESTACIONAMENTO */
-function encerrarEstacionamento(id) {
+async function encerrarEstacionamento(id) {
   const veiculo = estacionados.find((item) => item.id === id);
+
+  if (!veiculo) {
+    alert("Veículo não encontrado.");
+    return;
+  }
+
   const saida = new Date();
   const valor = calcularEstacionamento(veiculo.entrada, saida);
+
+  await db.collection("atendimentos").doc(id).update({
+    status: "Finalizado",
+    saida,
+    valor,
+    finalizadoEm: new Date(),
+  });
 
   gerarCupomSaidaEstacionamento(veiculo, saida, valor);
 
@@ -232,6 +297,7 @@ function gerarCupomLavagem(dados) {
   `;
 }
 
+/* TEMPO AO VIVO */
 function atualizarTempos() {
   estacionados.forEach((veiculo) => {
     const agora = new Date();
@@ -241,9 +307,7 @@ function atualizarTempos() {
     const horas = Math.floor(minutos / 60);
     const mins = minutos % 60;
 
-    const texto = horas > 0
-      ? `${horas}h ${mins}min`
-      : `${mins} min`;
+    const texto = horas > 0 ? `${horas}h ${mins}min` : `${mins} min`;
 
     const el = document.getElementById(`tempo-${veiculo.id}`);
     if (el) {
