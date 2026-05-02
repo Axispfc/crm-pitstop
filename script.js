@@ -317,3 +317,7 @@ function atualizarTempos() {
 }
 
 setInterval(atualizarTempos, 60000);
+
+function irParaCaixa() {
+  window.location.href = "caixa.html";
+}
