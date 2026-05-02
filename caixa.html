@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Fluxo de Caixa - Pit Stop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h1>💰 Fluxo de Caixa</h1>
+
+  <!-- RESUMO -->
+  <div class="cards">
+    <div class="card">
+      <h3>Faturamento do dia</h3>
+      <p id="faturamento">R$ 0,00</p>
+    </div>
+
+    <div class="card">
+      <h3>Lavagens</h3>
+      <p id="lavagens">0</p>
+    </div>
+
+    <div class="card">
+      <h3>Estacionamentos</h3>
+      <p id="estacionamentos">0</p>
+    </div>
+
+    <div class="card">
+      <h3>Ticket médio</h3>
+      <p id="ticket">R$ 0,00</p>
+    </div>
+  </div>
+
+  <!-- MOVIMENTAÇÕES -->
+  <div class="box">
+    <h2>📋 Movimentações do dia</h2>
+    <div id="movimentacoes"></div>
+  </div>
+
+  <!-- DESPESAS -->
+  <div class="box">
+    <h2>➖ Despesas</h2>
+
+    <input type="text" id="descDespesa" placeholder="Descrição">
+    <input type="number" id="valorDespesa" placeholder="Valor">
+    <button onclick="adicionarDespesa()">Adicionar</button>
+
+    <div id="listaDespesas"></div>
+  </div>
+
+  <!-- FECHAMENTO -->
+  <div class="box">
+    <h2>🔚 Fechamento</h2>
+
+    <p>Entradas: <span id="totalEntradas">R$ 0,00</span></p>
+    <p>Saídas: <span id="totalSaidas">R$ 0,00</span></p>
+    <p><strong>Saldo: <span id="saldo">R$ 0,00</span></strong></p>
+
+    <button onclick="fecharCaixa()">FECHAR CAIXA</button>
+  </div>
+
+</div>
+
+<script src="caixa.js"></script>
+
+</body>
+</html>
