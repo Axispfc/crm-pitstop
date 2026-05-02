@@ -1,70 +1,189 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fluxo de Caixa - Pit Stop</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="caixa.css?v=1" />
 </head>
 <body>
 
-<div class="container">
+<div class="cash-layout">
 
-  <h1>💰 Fluxo de Caixa</h1>
-
-  <!-- RESUMO -->
-  <div class="cards">
-    <div class="card">
-      <h3>Faturamento do dia</h3>
-      <p id="faturamento">R$ 0,00</p>
+  <aside class="cash-sidebar">
+    <div class="cash-logo">
+      <div class="cash-logo-icon">PS</div>
+      <div>
+        <h2>PIT STOP</h2>
+        <span>LAVA RÁPIDO</span>
+      </div>
     </div>
 
-    <div class="card">
-      <h3>Lavagens</h3>
-      <p id="lavagens">0</p>
-    </div>
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="index.html">Atendimentos</a>
+      <a href="index.html">Veículos Estacionados</a>
+      <a href="index.html">Lava Rápido</a>
+      <a class="active">Caixa</a>
+      <a>Relatórios</a>
+      <a>Despesas</a>
+      <a>Clientes</a>
+      <a>Configurações</a>
+    </nav>
 
-    <div class="card">
-      <h3>Estacionamentos</h3>
-      <p id="estacionamentos">0</p>
-    </div>
+    <a class="cash-exit" href="index.html">Sair</a>
+  </aside>
 
-    <div class="card">
-      <h3>Ticket médio</h3>
-      <p id="ticket">R$ 0,00</p>
-    </div>
-  </div>
+  <main class="cash-main">
 
-  <!-- MOVIMENTAÇÕES -->
-  <div class="box">
-    <h2>📋 Movimentações do dia</h2>
-    <div id="movimentacoes"></div>
-  </div>
+    <header class="cash-header">
+      <div>
+        <h1>Fluxo de Caixa</h1>
+        <p>Controle financeiro diário do Lava Rápido Pit Stop</p>
+      </div>
 
-  <!-- DESPESAS -->
-  <div class="box">
-    <h2>➖ Despesas</h2>
+      <div class="cash-user">
+        <span>Administrador</span>
+        <div class="avatar">A</div>
+      </div>
+    </header>
 
-    <input type="text" id="descDespesa" placeholder="Descrição">
-    <input type="number" id="valorDespesa" placeholder="Valor">
-    <button onclick="adicionarDespesa()">Adicionar</button>
+    <section class="cash-cards">
+      <div class="cash-card">
+        <div class="icon green">💰</div>
+        <div>
+          <span>Faturamento do dia</span>
+          <strong id="faturamento">R$ 0,00</strong>
+          <small>Entradas</small>
+        </div>
+      </div>
 
-    <div id="listaDespesas"></div>
-  </div>
+      <div class="cash-card">
+        <div class="icon blue">🚗</div>
+        <div>
+          <span>Lavagens</span>
+          <strong id="lavagens">0</strong>
+          <small>Finalizadas</small>
+        </div>
+      </div>
 
-  <!-- FECHAMENTO -->
-  <div class="box">
-    <h2>🔚 Fechamento</h2>
+      <div class="cash-card">
+        <div class="icon yellow">🅿️</div>
+        <div>
+          <span>Estacionamentos</span>
+          <strong id="estacionamentos">0</strong>
+          <small>Encerrados</small>
+        </div>
+      </div>
 
-    <p>Entradas: <span id="totalEntradas">R$ 0,00</span></p>
-    <p>Saídas: <span id="totalSaidas">R$ 0,00</span></p>
-    <p><strong>Saldo: <span id="saldo">R$ 0,00</span></strong></p>
+      <div class="cash-card">
+        <div class="icon purple">📈</div>
+        <div>
+          <span>Ticket médio</span>
+          <strong id="ticket">R$ 0,00</strong>
+          <small>Por atendimento</small>
+        </div>
+      </div>
+    </section>
 
-    <button onclick="fecharCaixa()">FECHAR CAIXA</button>
-  </div>
+    <section class="cash-grid">
 
+      <div class="cash-panel movements">
+        <div class="panel-title">
+          <h2>Movimentações do dia</h2>
+          <select>
+            <option>Todos os tipos</option>
+            <option>Lavagem</option>
+            <option>Estacionamento</option>
+          </select>
+        </div>
+
+        <div class="table-head">
+          <span>Horário</span>
+          <span>Cliente</span>
+          <span>Placa</span>
+          <span>Tipo</span>
+          <span>Serviço</span>
+          <span>Valor</span>
+        </div>
+
+        <div id="movimentacoes" class="table-body"></div>
+      </div>
+
+      <div class="cash-panel expenses">
+        <div class="panel-title">
+          <h2>Despesas do dia</h2>
+          <button>+ Nova despesa</button>
+        </div>
+
+        <div id="listaDespesas" class="expense-list">
+          <p class="empty">Nenhuma despesa lançada.</p>
+        </div>
+
+        <h3>Adicionar despesa</h3>
+
+        <input type="text" id="descDespesa" placeholder="Descrição da despesa" />
+        <input type="number" id="valorDespesa" placeholder="Valor (R$)" />
+
+        <button class="add-expense" onclick="adicionarDespesa()">Adicionar despesa</button>
+      </div>
+
+    </section>
+
+    <section class="closing-panel">
+      <div class="closing-left">
+        <h2>Fechamento de Caixa</h2>
+
+        <div class="closing-cards">
+          <div>
+            <span>Entradas</span>
+            <strong id="totalEntradas">R$ 0,00</strong>
+          </div>
+
+          <b>-</b>
+
+          <div>
+            <span>Saídas</span>
+            <strong class="red" id="totalSaidas">R$ 0,00</strong>
+          </div>
+
+          <b>=</b>
+
+          <div>
+            <span>Saldo final</span>
+            <strong class="green-text" id="saldo">R$ 0,00</strong>
+          </div>
+        </div>
+      </div>
+
+      <button class="close-cash" onclick="fecharCaixa()">
+        FECHAR CAIXA
+        <small>Encerrar e gerar relatório do dia</small>
+      </button>
+    </section>
+
+  </main>
 </div>
 
-<script src="caixa.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBZ5ASFYLuFNB-sDQLZMIYqO5btdZGMGg",
+    authDomain: "crm-pitstop.firebaseapp.com",
+    projectId: "crm-pitstop",
+    storageBucket: "crm-pitstop.firebasestorage.app",
+    messagingSenderId: "216473066500",
+    appId: "1:216473066500:web:f67c0541cb5a1bbe8edc41",
+    measurementId: "G-9R569LYB6K"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
+<script src="caixa.js?v=2"></script>
 
 </body>
 </html>
