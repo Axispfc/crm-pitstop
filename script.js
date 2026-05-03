@@ -329,3 +329,7 @@ setInterval(atualizarTempos, 60000);
 function irParaCaixa() {
   window.location.href = "caixa.html";
 }
+
+  function irParaUsuarios() {
+  window.location.href = "usuario.html";
+}
