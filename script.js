@@ -103,7 +103,7 @@ async function carregarEstacionamentosAbertos() {
 
     estacionados.push({
       id: doc.id,
-      nome: dados.nome,
+      veiculo: dados.veiculo,
       placa: dados.placa,
       telefone: dados.telefone,
       entrada: dados.entrada.toDate(),
@@ -120,6 +120,7 @@ vehicleForm.addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const nome = document.getElementById("nome").value;
+  const veiculo = document.getElementById("veiculo").value;
   const placa = document.getElementById("placa").value.toUpperCase();
   const telefone = document.getElementById("telefone").value;
   const tipoEntrada = document.querySelector("input[name='tipoEntrada']:checked").value;
@@ -129,6 +130,7 @@ vehicleForm.addEventListener("submit", async function (e) {
   if (tipoEntrada === "Estacionamento") {
     const docRef = await db.collection("atendimentos").add({
       nome,
+      veiculo,
       placa,
       telefone,
       tipoEntrada: "Estacionamento",
@@ -137,18 +139,19 @@ vehicleForm.addEventListener("submit", async function (e) {
       criadoEm: new Date(),
     });
 
-    const veiculo = {
+    const veiculoObj = {
       id: docRef.id,
       nome,
+      veiculo,
       placa,
       telefone,
       entrada: agora,
       status: "Aberto",
     };
 
-    estacionados.push(veiculo);
+    estacionados.push(veiculoObj);
     atualizarListaEstacionamento();
-    gerarCupomEntradaEstacionamento(veiculo);
+    gerarCupomEntradaEstacionamento(veiculoObj);
   }
 
   if (tipoEntrada === "Lavagem") {
@@ -172,6 +175,7 @@ vehicleForm.addEventListener("submit", async function (e) {
 
     const dadosLavagem = {
       nome,
+      veiculo,
       placa,
       telefone,
       tipoEntrada: "Lavagem",
@@ -188,6 +192,7 @@ vehicleForm.addEventListener("submit", async function (e) {
 
     gerarCupomLavagem({
       nome,
+      veiculo,
       placa,
       telefone,
       tipoVeiculo,
@@ -255,6 +260,7 @@ function gerarCupomEntradaEstacionamento(veiculo) {
 
   cupomConteudo.innerHTML = `
     <p><strong>Tipo:</strong> Entrada estacionamento</p>
+    <p><strong>Veiculo:</strong> ${veiculo.veiculo}</p>
     <p><strong>Cliente:</strong> ${veiculo.nome}</p>
     <p><strong>Placa:</strong> ${veiculo.placa}</p>
     <p><strong>Telefone:</strong> ${veiculo.telefone}</p>
@@ -270,6 +276,7 @@ function gerarCupomSaidaEstacionamento(veiculo, saida, valor) {
 
   cupomConteudo.innerHTML = `
     <p><strong>Tipo:</strong> Encerramento estacionamento</p>
+    <p><strong>Veículo:</strong> ${veiculo.veiculo}</p>
     <p><strong>Cliente:</strong> ${veiculo.nome}</p>
     <p><strong>Placa:</strong> ${veiculo.placa}</p>
     <p><strong>Telefone:</strong> ${veiculo.telefone}</p>
@@ -285,6 +292,7 @@ function gerarCupomLavagem(dados) {
 
   cupomConteudo.innerHTML = `
     <p><strong>Tipo:</strong> Lava rápido</p>
+    <p><strong>Veiculo:</strong> ${dados.veiculo}</p>
     <p><strong>Cliente:</strong> ${dados.nome}</p>
     <p><strong>Placa:</strong> ${dados.placa}</p>
     <p><strong>Telefone:</strong> ${dados.telefone}</p>
@@ -317,3 +325,4 @@ function atualizarTempos() {
 }
 
 setInterval(atualizarTempos, 60000);
+
