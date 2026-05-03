@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CRM Pit Stop</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
 
@@ -30,8 +30,8 @@
     <h2>Pit Stop</h2>
     <nav>
       <a class="active">Cadastro</a>
+      <a>Fila</a>
       <a>Caixa</a>
-      <a href="usuario.html">Usuários</a>
     </nav>
   </aside>
 
@@ -119,16 +119,13 @@
       <!-- LISTA ESTACIONAMENTO -->
       <section class="panel">
         <h3>Veículos Estacionados</h3>
-
         <div id="listaEstacionamento"></div>
       </section>
 
       <!-- CUPOM -->
       <section id="coupon" class="coupon hidden">
         <h3>Comanda</h3>
-
         <div id="cupomConteudo"></div>
-
         <button onclick="window.print()">Imprimir</button>
       </section>
 
@@ -138,7 +135,7 @@
 
 </section>
 
-<script src="/script.js"></script>
+<script src="script.js?v=7"></script>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -157,7 +154,5 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 </script>
-
-
 </body>
 </html>

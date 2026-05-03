@@ -475,3 +475,55 @@ small {
     display: none;
   }
 }
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  color: white;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.cards {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.card {
+  flex: 1;
+  background: #111;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #00ffc3;
+}
+
+.card p {
+  font-size: 22px;
+  margin-top: 10px;
+}
+
+.box {
+  background: #111;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #00ffc3;
+}
+
+button {
+  background: #00ffc3;
+  border: none;
+  padding: 10px 15px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+input {
+  padding: 10px;
+  margin: 5px;
+}
