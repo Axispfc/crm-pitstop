@@ -95,5 +95,5 @@ function irParaUsuarios() {
   window.location.href = "usuario.html";
 }
 function irParaDashboard() {
-  window.location.href = "dashboard.html";
+  window.location.href = "index.html";
 }

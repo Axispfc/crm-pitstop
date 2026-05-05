@@ -8,6 +8,17 @@
 </head>
 <body>
     
+  <section id="systemScreen" class="container">
+  <aside class="sidebar">
+    <h2>Pit Stop</h2>
+    <nav>
+      <a class="active">Cadastro</a>
+      <a>Veiculos Estacionados</a>
+      <a onclick="irParaCaixa()">Caixa</a>
+      <a onclick="irParaUsuarios()">Usuários</a>
+    </nav>
+  </aside>
+
     <main class="content">
 
     <header class="topbar">
@@ -89,11 +100,7 @@
         </form>
       </section>
 
-      <!-- LISTA ESTACIONAMENTO -->
-      <section class="panel">
-        <h3>Veículos Estacionados</h3>
-        <div id="listaEstacionamento"></div>
-      </section>
+     
 
       <!-- CUPOM -->
       <section id="coupon" class="coupon hidden">
@@ -109,38 +116,6 @@
 
 
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
- const firebaseConfig = {
-    apiKey: "AIzaSyBBZ5ASFYLuFNB-sDQLZMIYqO5btdZGMGg",
-    authDomain: "crm-pitstop.firebaseapp.com",
-    projectId: "crm-pitstop",
-    storageBucket: "crm-pitstop.firebasestorage.app",
-    messagingSenderId: "216473066500",
-    appId: "1:216473066500:web:f67c0541cb5a1bbe8edc41",
-    measurementId: "G-9R569LYB6K"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  // VERIFICA SE ESTÁ LOGADO
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "index.html";
-    }
-  });
-
-  // LOGOUT
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  logoutBtn.addEventListener("click", () => {
-    signOut(auth).then(() => {
-      window.location.href = "index.html";
-    });
-  });
-</script>
 </body>
 </html>

@@ -15,7 +15,7 @@
     <div class="login-box">
       <h2>Bem-vindo!</h2>
       <form id="loginForm">
-        <input type="email" placeholder="Email" required />
+        <input type="text" placeholder="Usuário" required />
         <input type="password" placeholder="Senha" required />
         <button type="submit">Entrar</button>
       </form>
@@ -23,15 +23,124 @@
   </div>
 </section>
 
+<!-- SISTEMA -->
+<section id="systemScreen" class="system hidden">
+
+  <aside class="sidebar">
+    <h2>Pit Stop</h2>
+    <nav>
+      <a class="active">Cadastro</a>
+      <a>Fila</a>
+      <a onclick="irParaCaixa()">Caixa</a>
+      <a onclick="irParaUsuarios()">Usuários</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+
+    <header class="topbar">
+      <h2>Cadastro de Veículos</h2>
+      <button class="btn-exit" id="logoutBtn">Sair</button>
+    </header>
+
+    <div class="grid">
+
+      <!-- FORM -->
+      <section class="panel">
+        <h3>Entrada</h3>
+
+        <form id="vehicleForm">
+          <input id="nome" placeholder="Cliente" required />
+          <input id="veiculo" placeholder="Veículo" required />
+          <input id="placa" placeholder="Placa" required />
+          <input id="telefone" placeholder="Telefone" required />
+
+          <h4>Tipo</h4>
+
+          <div class="choice-row">
+            <label class="choice">
+              <input type="radio" name="tipoEntrada" value="Estacionamento" checked />
+              Estacionamento
+            </label>
+
+            <label class="choice">
+              <input type="radio" name="tipoEntrada" value="Lavagem" />
+              Lavagem
+            </label>
+          </div>
+
+          <!-- LAVAGEM -->
+          <div id="washOptions" class="hidden">
+
+            <h4>Tipo de veículo</h4>
+
+            <div class="choice-row">
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="Hatch" />
+                Hatch
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="Sedan" />
+                Sedan
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="SUV" />
+                SUV
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="Moto" />
+                Moto
+              </label>
+            </div>
+
+            <h4>Serviço</h4>
+
+            <select id="servico">
+              <option value="">Selecione</option>
+              <option>Lavagem completa</option>
+              <option>Lavagem rápida</option>
+              <option>Ducha com secagem</option>
+            </select>
+
+            <label class="choice">
+              <input type="checkbox" id="cera" />
+              Adicionar cera (+R$10)
+            </label>
+
+          </div>
+
+          <button class="btn-register" type="submit">Cadastrar</button>
+
+        </form>
+      </section>
+
+      <!-- LISTA ESTACIONAMENTO -->
+      <section class="panel">
+        <h3>Veículos Estacionados</h3>
+        <div id="listaEstacionamento"></div>
+      </section>
+
+      <!-- CUPOM -->
+      <section id="coupon" class="coupon hidden">
+        <h3>Comanda</h3>
+        <div id="cupomConteudo"></div>
+        <button onclick="window.print()">Imprimir</button>
+      </section>
+
+    </div>
+
+  </main>
+
+</section>
 
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-
-<script type="module">
-  // Import Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyBBZ5ASFYLuFNB-sDQLZMIYqO5btdZGMGg",
     authDomain: "crm-pitstop.firebaseapp.com",
@@ -42,28 +151,9 @@
     measurementId: "G-9R569LYB6K"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  // LOGIN
-  const loginForm = document.getElementById("loginForm");
-
-  loginForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const email = e.target[0].value;
-    const senha = e.target[1].value;
-
-    signInWithEmailAndPassword(auth, email, senha)
-      .then((userCredential) => {
-        // Login OK
-        window.location.href = "dashboard.html";
-      })
-      .catch((error) => {
-        alert("Erro no login: " + error.message);
-      });
-  });
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 </script>
-
+<script src="script.js?v=7"></script>
 </body>
 </html>
