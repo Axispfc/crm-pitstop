@@ -328,7 +328,7 @@ function irParaCaixa() {
 }
 
 function irParaVeiculos() {
-  window.location.href = "/pages/veiculos.html";
+  window.location.href = "veiculos.html";
 }
 
 function logout() {
