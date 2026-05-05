@@ -89,3 +89,11 @@ function fecharCaixa() {
 
 /* INIT */
 carregarCaixa();
+
+/*Navegação */
+function irParaUsuarios() {
+  window.location.href = "usuario.html";
+}
+function irParaDashboard() {
+  window.location.href = "dashboard.html";
+}

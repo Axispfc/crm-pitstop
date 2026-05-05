@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CRM PitStop</title>
+    <link rel="stylesheet" href="style.css?v=6" />
+</head>
+<body>
+    
+    <main class="content">
+
+    <header class="topbar">
+      <h2>Cadastro de Veículos</h2>
+      <button class="btn-exit" id="logoutBtn">Sair</button>
+    </header>
+
+    <div class="grid">
+
+      <!-- FORM -->
+      <section class="panel">
+        <h3>Entrada</h3>
+
+        <form id="vehicleForm">
+          <input id="nome" placeholder="Cliente" required />
+          <input id="veiculo" placeholder="Veículo" required />
+          <input id="placa" placeholder="Placa" required />
+          <input id="telefone" placeholder="Telefone" required />
+
+          <h4>Tipo</h4>
+
+          <div class="choice-row">
+            <label class="choice">
+              <input type="radio" name="tipoEntrada" value="Estacionamento" checked />
+              Estacionamento
+            </label>
+
+            <label class="choice">
+              <input type="radio" name="tipoEntrada" value="Lavagem" />
+              Lavagem
+            </label>
+          </div>
+
+          <!-- LAVAGEM -->
+          <div id="washOptions" class="hidden">
+
+            <h4>Tipo de veículo</h4>
+
+            <div class="choice-row">
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="Hatch" />
+                Hatch
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="Sedan" />
+                Sedan
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="SUV" />
+                SUV
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="Moto" />
+                Moto
+              </label>
+            </div>
+
+            <h4>Serviço</h4>
+
+            <select id="servico">
+              <option value="">Selecione</option>
+              <option>Lavagem completa</option>
+              <option>Lavagem rápida</option>
+              <option>Ducha com secagem</option>
+            </select>
+
+            <label class="choice">
+              <input type="checkbox" id="cera" />
+              Adicionar cera (+R$10)
+            </label>
+
+          </div>
+
+          <button class="btn-register" type="submit">Cadastrar</button>
+
+        </form>
+      </section>
+
+      <!-- LISTA ESTACIONAMENTO -->
+      <section class="panel">
+        <h3>Veículos Estacionados</h3>
+        <div id="listaEstacionamento"></div>
+      </section>
+
+      <!-- CUPOM -->
+      <section id="coupon" class="coupon hidden">
+        <h3>Comanda</h3>
+        <div id="cupomConteudo"></div>
+        <button onclick="window.print()">Imprimir</button>
+      </section>
+
+    </div>
+
+  </main>
+</section>
+
+
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+ const firebaseConfig = {
+    apiKey: "AIzaSyBBZ5ASFYLuFNB-sDQLZMIYqO5btdZGMGg",
+    authDomain: "crm-pitstop.firebaseapp.com",
+    projectId: "crm-pitstop",
+    storageBucket: "crm-pitstop.firebasestorage.app",
+    messagingSenderId: "216473066500",
+    appId: "1:216473066500:web:f67c0541cb5a1bbe8edc41",
+    measurementId: "G-9R569LYB6K"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // VERIFICA SE ESTÁ LOGADO
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "index.html";
+    }
+  });
+
+  // LOGOUT
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "index.html";
+    });
+  });
+</script>
+</body>
+</html>
