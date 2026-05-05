@@ -105,7 +105,8 @@ async function carregarEstacionamentosAbertos() {
 }
 
 /* CADASTRAR */
-vehicleForm.addEventListener("submit", async function (e) {
+if (vehicleForm) {
+  vehicleForm.addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const nome = document.getElementById("nome").value;
@@ -195,6 +196,7 @@ vehicleForm.addEventListener("submit", async function (e) {
   vehicleForm.reset();
   washOptions.classList.add("hidden");
 });
+}
 
 /* LISTA ESTACIONADOS */
 function atualizarListaEstacionamento() {
@@ -311,6 +313,10 @@ function atualizarTempos() {
       el.textContent = `Estacionado há: ${texto}`;
     }
   });
+}
+
+if (listaEstacionamento) {
+  carregarEstacionamentosAbertos();
 }
 
 setInterval(atualizarTempos, 60000);
