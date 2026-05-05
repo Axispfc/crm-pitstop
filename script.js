@@ -12,18 +12,7 @@ const cupomConteudo = document.getElementById("cupomConteudo");
 
 let estacionados = [];
 
-/* LOGIN */
-loginForm.addEventListener("submit", function (e) {
-  e.preventDefault();
-  loginScreen.classList.add("hidden");
-  systemScreen.classList.remove("hidden");
-  carregarEstacionamentosAbertos();
-});
 
-logoutBtn.addEventListener("click", function () {
-  systemScreen.classList.add("hidden");
-  loginScreen.classList.remove("hidden");
-});
 
 /* MOSTRAR LAVAGEM */
 tipoEntradaInputs.forEach((input) => {
@@ -326,6 +315,10 @@ function atualizarTempos() {
 
 setInterval(atualizarTempos, 60000);
 
+function irParaDashboard() {
+  window.location.href = "dashboard.html";
+}
+
 function irParaCaixa() {
   window.location.href = "caixa.html";
 }
@@ -333,3 +326,12 @@ function irParaCaixa() {
   function irParaUsuarios() {
   window.location.href = "usuario.html";
 }
+
+function irParaVeiculos() {
+  window.location.href = "/pages/veiculos.html";
+}
+
+function logout() {
+    firebase.auth().signOut().then(() => {
+        window.location.href = "index.html";
+    }); }

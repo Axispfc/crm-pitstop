@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veículos - CRM PitStop</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<!-- SISTEMA -->
+<section id="systemScreen" class="container">
+
+  <aside class="sidebar">
+    <h2>Pit Stop</h2>
+    <nav>
+      <a onclick="irParaDashboard()">Cadastro</a>
+      <a class="active">Veiculos Estacionados</a>
+      <a onclick="irParaCaixa()">Caixa</a>
+      <a onclick="irParaUsuarios()">Usuários</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+
+    <header class="topbar">
+      <h2>Veículos Estacionados</h2>
+      <button class="btn-exit" id="logoutBtn">Sair</button>
+    </header>
+
+    <div class="grid">
+
+      <!-- LISTA ESTACIONAMENTO -->
+      <section class="panel">
+        <h3>Veículos Estacionados</h3>
+        <div id="listaEstacionamento"></div>
+      </section>
+
+    </div>
+
+  </main>
+
+</section>
+
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
+<script>
+  // Configuração do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBZ5ASFYLufNB-sDQlZMIVqO5btdZGMGg",
+    authDomain: "crm-pitstop.firebaseapp.com",
+    projectId: "crm-pitstop",
+    storageBucket: "crm-pitstop.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abcdef1234567890abcdef12"
+  };
+  
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  </script>
+
+<script src="/script.js"></script>
+</body>
+</html>
