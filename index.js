@@ -1,3 +1,11 @@
+firebase.auth().onAuthStateChanged(user => {
+
+    if (user) {
+        window.location.href = "dashboard.html";
+    }
+
+});
+
 function onChangeEmail() {
     toggleButtonsDisable();
     toggleEmailErrors();
@@ -40,12 +48,10 @@ function togglePasswordErrors() {
 }
 
 function toggleButtonsDisable() {
-    const emailValid = isEmailValid();
-    form.recoverPasswordButton().disabled = !emailValid;
-
-    const passwordValid = isPasswordValid();
-    form.loginButton().disabled = !emailValid || !passwordValid;
+    form.loginButton().disabled =
+        !isEmailValid() || !isPasswordValid();
 }
+
 
 function isEmailValid() {
     const email = form.email().value;
@@ -61,9 +67,21 @@ function isPasswordValid() {
 
 const form = {
     email: () => document.getElementById("email"),
+
+    emailRequiredError: () =>
+        document.getElementById("email-required-error"),
+
+    emailInvalidError: () =>
+        document.getElementById("email-invalid-error"),
+
+    loginButton: () =>
+        document.getElementById("login-button"),
+
+    password: () =>
+        document.getElementById("password"),
+
+    passwordRequiredError: () =>
+        document.getElementById("password-required-error"),
+
     
-    loginButton: () => document.getElementById("login-button"),
-    password: () => document.getElementById("password"),
-    passwordRequiredError: () => document.getElementById("password-required-error"),
-    recoverPasswordButton: () => document.getElementById("recover-password-button"),
 }

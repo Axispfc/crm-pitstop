@@ -1,3 +1,5 @@
+
+
 let entradas = [];
 let despesas = [];
 
@@ -95,5 +97,13 @@ function irParaUsuarios() {
   window.location.href = "usuario.html";
 }
 function irParaDashboard() {
-  window.location.href = "index.html";
+  window.location.href = "dashboard.html";
 }
+function logout(){
+  firebase.auth().signOut().then(() => {
+    window.location.href = "index.html";
+  }).catch((error) => {
+    alert("Erro ao sair: " + error.message);
+  });
+}
+

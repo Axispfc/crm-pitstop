@@ -11,22 +11,18 @@
 <div class="cash-layout">
 
   <aside class="cash-sidebar">
-    <div class="cash-logo">
-      <div class="cash-logo-icon">PS</div>
+    
+      <img src="pitstop.png" alt="Logo Pit Stop" class="logo" />
       <div>
-        <h2>PIT STOP</h2>
-        <span>LAVA RÁPIDO</span>
-      </div>
-    </div>
-
+       
     <nav>
       <a onclick="irParaDashboard()">Dashboard</a>
-      <a href="index.html">Veículos Estacionados</a>
+      <a href="veiculos.html">Veículos Estacionados</a>
       <a class="active">Caixa</a>
       <a onclick="irParaUsuarios()">Usuários</a>
     </nav>
 
-    <a class="cash-exit" href="index.html">Sair</a>
+    <a class="cash-exit">Sair</a>
   </aside>
 
   <main class="cash-main">
@@ -162,6 +158,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
 
 <script>
   const firebaseConfig = {
@@ -178,7 +175,9 @@
   const db = firebase.firestore();
 </script>
 
-<script src="caixa.js?v=2"></script>
+<script src="caixa.js"></script>
 
 </body>
+
+
 </html>

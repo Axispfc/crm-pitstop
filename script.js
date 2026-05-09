@@ -12,16 +12,10 @@ const cupomConteudo = document.getElementById("cupomConteudo");
 
 let estacionados = [];
 
-
-
 /* MOSTRAR LAVAGEM */
 tipoEntradaInputs.forEach((input) => {
   input.addEventListener("change", function () {
-    if (this.value === "Lavagem") {
-      washOptions.classList.remove("hidden");
-    } else {
-      washOptions.classList.add("hidden");
-    }
+    washOptions.classList.toggle("hidden", this.value !== "Lavagem");
   });
 });
 
@@ -37,307 +31,269 @@ function calcularLavagem(tipoVeiculo, servico, cera) {
       if (tipoVeiculo === "Sedan") valor = 50;
       if (tipoVeiculo === "SUV") valor = 60;
     }
-
     if (servico === "Lavagem rápida") valor = 20;
     if (servico === "Ducha com secagem") valor = 30;
   }
 
   if (cera) valor += 10;
-
   return valor;
 }
 
 /* PREÇO ESTACIONAMENTO */
 function calcularEstacionamento(entrada, saida) {
-  const diffMs = saida - entrada;
-  const diffHoras = diffMs / (1000 * 60 * 60);
-
+  const diffHoras = (saida - entrada) / (1000 * 60 * 60);
   if (diffHoras <= 1) return 10;
-
-  const horasAdicionais = Math.ceil(diffHoras - 1);
-  return 10 + horasAdicionais * 3;
+  return 10 + Math.ceil(diffHoras - 1) * 3;
 }
 
-/* FORMATAR */
-function formatarData(data) {
-  return data.toLocaleDateString("pt-BR");
-}
+/* FORMATADORES */
+const formatarData = (d) => d.toLocaleDateString("pt-BR");
+const formatarHora = (d) =>
+  d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+const formatarValor = (v) =>
+  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-function formatarHora(data) {
-  return data.toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatarValor(valor) {
-  return valor.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-}
-
-/* CARREGAR ESTACIONAMENTOS ABERTOS */
-async function carregarEstacionamentosAbertos() {
-  const snapshot = await db
-    .collection("atendimentos")
-    .where("tipoEntrada", "==", "Estacionamento")
+/* CARREGAR ABERTOS */
+function carregarEstacionamentosAbertos() {
+  db.collection("atendimentos")
     .where("status", "==", "Aberto")
-    .get();
+    .onSnapshot((snapshot) => {
+      estacionados = [];
 
-  estacionados = [];
+      snapshot.forEach((doc) => {
+        const d = doc.data();
 
-  snapshot.forEach((doc) => {
-    const dados = doc.data();
+        estacionados.push({
+          id: doc.id,
+          nome: d.nome,
+          veiculo: d.veiculo,
+          placa: d.placa,
+          telefone: d.telefone,
+          entrada: d.entrada.toDate(),
+          status: d.status,
+          tipoEntrada: d.tipoEntrada,
+          // 👇 ADICIONE ISSO
+          servico: d.servico,
+          
+          cera: d.cera || false,
+          valor: d.valor || null
+        });
+      });
 
-    estacionados.push({
-      id: doc.id,
-      veiculo: dados.veiculo,
-      placa: dados.placa,
-      telefone: dados.telefone,
-      entrada: dados.entrada.toDate(),
-      status: dados.status,
+      atualizarListaEstacionamento();
     });
-  });
-
-  atualizarListaEstacionamento();
-  atualizarTempos();
 }
 
-/* CADASTRAR */
+/* CADASTRO */
 if (vehicleForm) {
   vehicleForm.addEventListener("submit", async function (e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  const nome = document.getElementById("nome").value;
-  const veiculo = document.getElementById("veiculo").value;
-  const placa = document.getElementById("placa").value.toUpperCase();
-  const telefone = document.getElementById("telefone").value;
-  const tipoEntrada = document.querySelector("input[name='tipoEntrada']:checked").value;
+    const nome = document.getElementById("nome").value;
+    const veiculo = document.getElementById("veiculo").value;
+    const placa = document.getElementById("placa").value.toUpperCase();
+    const telefone = document.getElementById("telefone").value;
+    const tipoEntrada = document.querySelector("input[name='tipoEntrada']:checked").value;
 
-  const agora = new Date();
+    const agora = new Date();
 
-  if (tipoEntrada === "Estacionamento") {
-    const docRef = await db.collection("atendimentos").add({
-      nome,
-      veiculo,
-      placa,
-      telefone,
-      tipoEntrada: "Estacionamento",
-      status: "Aberto",
-      entrada: agora,
-      criadoEm: new Date(),
-    });
+    /* ESTACIONAMENTO */
+    if (tipoEntrada === "Estacionamento") {
+      const docRef = await db.collection("atendimentos").add({
+        nome,
+        veiculo,
+        placa,
+        telefone,
+        tipoEntrada,
+        status: "Aberto",
+        entrada: agora,
+        criadoEm: agora,
+      });
 
-    const veiculoObj = {
-      id: docRef.id,
-      nome,
-      veiculo,
-      placa,
-      telefone,
-      entrada: agora,
-      status: "Aberto",
-    };
+      const obj = { id: docRef.id, nome, veiculo, placa, telefone, entrada: agora, status: "Aberto", tipoEntrada };
 
-    estacionados.push(veiculoObj);
-    atualizarListaEstacionamento();
-    gerarCupomEntradaEstacionamento(veiculoObj);
-  }
-
-  if (tipoEntrada === "Lavagem") {
-    const tipoVeiculoSelecionado = document.querySelector("input[name='tipoVeiculo']:checked");
-    const servico = document.getElementById("servico").value;
-    const cera = document.getElementById("cera").checked;
-
-    if (!tipoVeiculoSelecionado) {
-      alert("Selecione o tipo de veículo.");
-      return;
+      
+      gerarCupomEntrada(obj);
     }
 
-    if (tipoVeiculoSelecionado.value !== "Moto" && !servico) {
-      alert("Selecione o serviço.");
-      return;
+    /* LAVAGEM */
+    if (tipoEntrada === "Lavagem") {
+      const tipoVeiculo = document.querySelector("input[name='tipoVeiculo']:checked")?.value;
+      const servico = document.getElementById("servico").value;
+      const cera = document.getElementById("cera").checked;
+
+      if (!tipoVeiculo) return alert("Selecione o tipo de veículo.");
+      if (tipoVeiculo !== "Moto" && !servico) return alert("Selecione o serviço.");
+
+      const valor = calcularLavagem(tipoVeiculo, servico, cera);
+
+      const docRef = await db.collection("atendimentos").add({
+        nome,
+        veiculo,
+        placa,
+        telefone,
+        tipoEntrada,
+        tipoVeiculo,
+        servico,
+        cera,
+        valor,
+        status: "Aberto",
+        entrada: agora,
+        criadoEm: agora,
+      });
+
+      const obj = { id: docRef.id, nome, veiculo, placa, telefone, entrada: agora, status: "Aberto", tipoEntrada };
+
+      
+      
+      gerarCupomLavagem({ nome, veiculo, placa, telefone, tipoVeiculo, servico, cera, valor, data: agora });
     }
 
-    const tipoVeiculo = tipoVeiculoSelecionado.value;
-    const servicoFinal = tipoVeiculo === "Moto" ? "Lavagem de moto" : servico;
-    const valor = calcularLavagem(tipoVeiculo, servico, cera);
-
-    const dadosLavagem = {
-      nome,
-      veiculo,
-      placa,
-      telefone,
-      tipoEntrada: "Lavagem",
-      tipoVeiculo,
-      servico: servicoFinal,
-      cera,
-      valor,
-      status: "Finalizado",
-      entrada: agora,
-      criadoEm: new Date(),
-    };
-
-    await db.collection("atendimentos").add(dadosLavagem);
-
-    gerarCupomLavagem({
-      nome,
-      veiculo,
-      placa,
-      telefone,
-      tipoVeiculo,
-      servico: servicoFinal,
-      cera,
-      valor,
-      data: agora,
-    });
-  }
-
-  vehicleForm.reset();
-  washOptions.classList.add("hidden");
-});
+    vehicleForm.reset();
+    washOptions.classList.add("hidden");
+  });
 }
 
-/* LISTA ESTACIONADOS */
+/* LISTA */
 function atualizarListaEstacionamento() {
   listaEstacionamento.innerHTML = "";
 
-  estacionados.forEach((veiculo) => {
-    const item = document.createElement("div");
-    item.className = "parking-card";
+  estacionados.forEach((v) => {
+    const tempo = v.tipoEntrada === "Estacionamento"
+      ? (() => {
+          const m = Math.floor((Date.now() - v.entrada) / 60000);
+          return m >= 60 ? `${Math.floor(m/60)}h ${m%60}m` : `${m}m`;
+        })()
+      : "-";
 
-    item.innerHTML = `
-      <strong>${veiculo.placa}</strong>
-      <span>${veiculo.nome}</span>
-      <div class="status">Em aberto</div>
-      <small id="tempo-${veiculo.id}">Calculando...</small>
-      <button onclick="encerrarEstacionamento('${veiculo.id}')">
-        Encerrar atendimento
-      </button>
+    const row = document.createElement("div");
+    row.className = "table-row";
+
+    row.innerHTML = `
+      <span>${v.placa}</span>
+      <span>${v.veiculo}</span>
+      <span>${v.nome}</span>
+      <span class="tipo ${v.tipoEntrada === 'Lavagem' ? 'lavagem' : 'estacionamento'}">${v.tipoEntrada}</span>
+      <span>${tempo}</span>
+      <span class="status aberto">${v.status}</span>
+      <span class="actions">
+        <button onclick="verCupom('${v.id}')">🧾</button>
+        ${
+          v.tipoEntrada === "Estacionamento"
+            ? `<button onclick="encerrarEstacionamento('${v.id}')">🗑</button>`
+            : `<button onclick="finalizarLavagem('${v.id}')">✔</button>`
+        }
+      </span>
     `;
 
-    listaEstacionamento.appendChild(item);
+    listaEstacionamento.appendChild(row);
   });
+}
+
+/* CUPOM */
+function verCupom(id) {
+  const v = estacionados.find(i => i.id === id);
+  if (!v) return alert("Não encontrado");
+
+  coupon.classList.remove("hidden");
+
+  cupomConteudo.innerHTML = `
+    <p><strong>Tipo:</strong> ${v.tipoEntrada}</p>
+    <p><strong>Serviços:</strong> ${v.servico}</p>
+    <p><strong>Cliente:</strong> ${v.nome}</p>
+    <p><strong>Veículo:</strong> ${v.veiculo}</p>
+    <p><strong>Telefone:</strong> ${v.telefone}</p>
+    <p><strong>Placa:</strong> ${v.placa}</p>
+    <p><strong>Entrada:</strong> ${formatarData(v.entrada)} ${formatarHora(v.entrada)}</p>
+
+  `;
+}
+
+function fecharCupom() {
+  coupon.classList.add("hidden");
 }
 
 /* ENCERRAR ESTACIONAMENTO */
 async function encerrarEstacionamento(id) {
-  const veiculo = estacionados.find((item) => item.id === id);
-
-  if (!veiculo) {
-    alert("Veículo não encontrado.");
-    return;
-  }
-
+  const v = estacionados.find(i => i.id === id);
   const saida = new Date();
-  const valor = calcularEstacionamento(veiculo.entrada, saida);
+  const valor = calcularEstacionamento(v.entrada, saida);
 
   await db.collection("atendimentos").doc(id).update({
     status: "Finalizado",
     saida,
     valor,
-    finalizadoEm: new Date(),
   });
 
-  gerarCupomSaidaEstacionamento(veiculo, saida, valor);
-
-  estacionados = estacionados.filter((item) => item.id !== id);
+  gerarCupomSaida(v, saida, valor);
+  estacionados = estacionados.filter(i => i.id !== id);
   atualizarListaEstacionamento();
 }
 
-/* CUPOM ENTRADA */
-function gerarCupomEntradaEstacionamento(veiculo) {
-  coupon.classList.remove("hidden");
+/* FINALIZAR LAVAGEM */
+async function finalizarLavagem(id) {
+  const v = estacionados.find(i => i.id === id);
 
-  cupomConteudo.innerHTML = `
-    <p><strong>Tipo:</strong> Entrada estacionamento</p>
-    <p><strong>Veiculo:</strong> ${veiculo.veiculo}</p>
-    <p><strong>Cliente:</strong> ${veiculo.nome}</p>
-    <p><strong>Placa:</strong> ${veiculo.placa}</p>
-    <p><strong>Telefone:</strong> ${veiculo.telefone}</p>
-    <p><strong>Data:</strong> ${formatarData(veiculo.entrada)}</p>
-    <p><strong>Horário de entrada:</strong> ${formatarHora(veiculo.entrada)}</p>
-    <p><strong>Status:</strong> Aberto</p>
-  `;
-}
-
-/* CUPOM SAÍDA */
-function gerarCupomSaidaEstacionamento(veiculo, saida, valor) {
-  coupon.classList.remove("hidden");
-
-  cupomConteudo.innerHTML = `
-    <p><strong>Tipo:</strong> Encerramento estacionamento</p>
-    <p><strong>Veículo:</strong> ${veiculo.veiculo}</p>
-    <p><strong>Cliente:</strong> ${veiculo.nome}</p>
-    <p><strong>Placa:</strong> ${veiculo.placa}</p>
-    <p><strong>Telefone:</strong> ${veiculo.telefone}</p>
-    <p><strong>Entrada:</strong> ${formatarData(veiculo.entrada)} às ${formatarHora(veiculo.entrada)}</p>
-    <p><strong>Saída:</strong> ${formatarData(saida)} às ${formatarHora(saida)}</p>
-    <p><strong>TOTAL</strong> ${formatarValor(valor)}</p>
-  `;
-}
-
-/* CUPOM LAVAGEM */
-function gerarCupomLavagem(dados) {
-  coupon.classList.remove("hidden");
-
-  cupomConteudo.innerHTML = `
-    <p><strong>Tipo:</strong> Lava rápido</p>
-    <p><strong>Veiculo:</strong> ${dados.veiculo}</p>
-    <p><strong>Cliente:</strong> ${dados.nome}</p>
-    <p><strong>Placa:</strong> ${dados.placa}</p>
-    <p><strong>Telefone:</strong> ${dados.telefone}</p>
-    <p><strong>Veículo:</strong> ${dados.tipoVeiculo}</p>
-    <p><strong>Serviço:</strong> ${dados.servico}</p>
-    <p><strong>Cera:</strong> ${dados.cera ? "Sim (+R$10,00)" : "Não"}</p>
-    <p><strong>Data:</strong> ${formatarData(dados.data)}</p>
-    <p><strong>Horário:</strong> ${formatarHora(dados.data)}</p>
-    <p><strong>TOTAL</strong> ${formatarValor(dados.valor)}</p>
-  `;
-}
-
-/* TEMPO AO VIVO */
-function atualizarTempos() {
-  estacionados.forEach((veiculo) => {
-    const agora = new Date();
-    const diffMs = agora - veiculo.entrada;
-
-    const minutos = Math.floor(diffMs / (1000 * 60));
-    const horas = Math.floor(minutos / 60);
-    const mins = minutos % 60;
-
-    const texto = horas > 0 ? `${horas}h ${mins}min` : `${mins} min`;
-
-    const el = document.getElementById(`tempo-${veiculo.id}`);
-    if (el) {
-      el.textContent = `Estacionado há: ${texto}`;
-    }
+  await db.collection("atendimentos").doc(id).update({
+    status: "Finalizado",
+    finalizadoEm: new Date(),
   });
+
+  gerarCupomLavagemFinal(v);
+  estacionados = estacionados.filter(i => i.id !== id);
+  atualizarListaEstacionamento();
 }
 
-if (listaEstacionamento) {
-  carregarEstacionamentosAbertos();
+/* CUPONS */
+function gerarCupomEntrada(v) {
+  coupon.classList.remove("hidden");
+  cupomConteudo.innerHTML = `<p>Entrada registrada - ${v.placa}</p>`;
 }
 
-setInterval(atualizarTempos, 60000);
-
-function irParaDashboard() {
-  window.location.href = "dashboard.html";
+function gerarCupomSaida(v, s, val) {
+  coupon.classList.remove("hidden");
+  cupomConteudo.innerHTML = `<p>Total: ${formatarValor(val)}</p>`;
 }
 
-function irParaCaixa() {
-  window.location.href = "caixa.html";
+function gerarCupomLavagem(d) {
+  coupon.classList.remove("hidden");
+
+  cupomConteudo.innerHTML = `
+    <p><strong>Tipo:</strong> Lavagem</p>
+    <p><strong>Cliente:</strong> ${d.nome}</p>
+    <p><strong>Veículo:</strong> ${d.veiculo}</p>
+    <p><strong>Placa:</strong> ${d.placa}</p>
+    <p><strong>Tipo do veículo:</strong> ${d.tipoVeiculo}</p>
+    <p><strong>Serviço:</strong> ${d.servico}</p>
+    <p><strong>Cera:</strong> ${d.cera ? "Sim (+R$10)" : "Não"}</p>
+    <p><strong>Data:</strong> ${formatarData(d.data)}</p>
+    <p><strong>Horário:</strong> ${formatarHora(d.data)}</p>
+    <hr>
+    <p><strong>Total:</strong> ${formatarValor(d.valor)}</p>
+  `;
 }
 
-  function irParaUsuarios() {
-  window.location.href = "usuario.html";
+function gerarCupomLavagemFinal(v) {
+  const agora = new Date();
+
+  coupon.classList.remove("hidden");
+
+  cupomConteudo.innerHTML = `
+    <p><strong>Tipo:</strong> Lavagem Finalizada</p>
+    <p><strong>Cliente:</strong> ${v.nome}</p>
+    <p><strong>Veículo:</strong> ${v.veiculo}</p>
+    <p><strong>Placa:</strong> ${v.placa}</p>
+    <p><strong>Data:</strong> ${formatarData(agora)}</p>
+    <p><strong>Horário:</strong> ${formatarHora(agora)}</p>
+  `;
 }
 
-function irParaVeiculos() {
-  window.location.href = "veiculos.html";
-}
+/* INIT */
+document.addEventListener("DOMContentLoaded", () => {
+  if (listaEstacionamento) carregarEstacionamentosAbertos();
+});
 
+/* LOGOUT */
 function logout() {
-    firebase.auth().signOut().then(() => {
-        window.location.href = "index.html";
-    }); }
+  firebase.auth().signOut().then(() => window.location.href = "index.html");
+}
