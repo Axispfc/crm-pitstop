@@ -58,6 +58,23 @@ function atualizarTela() {
   document.getElementById("estacionamentos").textContent = estacionamentos;
   document.getElementById("ticket").textContent = formatarValor(ticket);
 
+  let dinheiro = 0;
+  let pix = 0;
+  let debito = 0;
+  let credito = 0;
+
+  entradas.forEach(item => {
+  const valor = item.valor || 0;
+  const pagamento = item.pagamento || "Dinheiro";
+
+  if (pagamento === "Dinheiro") dinheiro += valor;
+  if (pagamento === "Pix") pix += valor;
+  if (pagamento === "Débito") debito += valor;
+  if (pagamento === "Crédito") credito += valor;
+});
+
+atualizarGraficoPagamentos(dinheiro, pix, debito, credito);
+
   atualizarResumo();
 }
 
