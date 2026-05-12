@@ -363,3 +363,50 @@ body {
   font-weight: 400;
   color: #dffff8;
 }
+
+.cash-cards {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.payment-card {
+  min-width: 260px;
+}
+
+.payment-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.payment-bars div {
+  display: grid;
+  grid-template-columns: 65px 1fr 70px;
+  align-items: center;
+  gap: 8px;
+}
+
+.payment-bars small {
+  font-size: 11px;
+  color: #c8d4d8;
+}
+
+.payment-bars b {
+  font-size: 12px;
+  color: #fff;
+}
+
+.bar {
+  height: 8px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #20f0cf, #0aa3ff);
+}
