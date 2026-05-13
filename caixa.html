@@ -19,7 +19,7 @@
       <a onclick="irParaDashboard()">Dashboard</a>
       <a href="veiculos.html">Veículos Estacionados</a>
       <a class="active">Caixa</a>
-      <a onclick="irParaUsuarios()">Usuários</a>
+      
     </nav>
 
     <a class="cash-exit">Sair</a>
@@ -147,6 +147,12 @@
         </div>
       </div>
 
+
+      <button class="close-cash" onclick="irParaHistorico()">
+        HISTÓRICO
+        <small>Relatório de movimentações</small>
+      </button>
+
       <button class="close-cash" onclick="fecharCaixa()">
         FECHAR CAIXA
         <small>Encerrar e gerar relatório do dia</small>
@@ -159,6 +165,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
   const firebaseConfig = {
@@ -176,6 +183,7 @@
 </script>
 
 <script src="caixa.js"></script>
+<script src="navigation/navigation.js"></script>
 
 </body>
 

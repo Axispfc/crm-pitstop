@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veículos - CRM PitStop</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
 
@@ -17,7 +17,7 @@
       <a onclick="irParaDashboard()">Dashboard</a>
       <a class="active">Veiculos Estacionados</a>
       <a onclick="irParaCaixa()">Caixa</a>
-      <a onclick="irParaUsuarios()">Usuários</a>
+      
     </nav>
   </aside>
 
@@ -28,9 +28,36 @@
     <button class="btn-exit" id="logoutBtn" onclick="logout()">Sair</button>
   </header>
 
-  <section class="panel">
-    <div id="listaEstacionamento"></div>
-  </section>
+  <div class="table">
+
+  <div class="table-header">
+    <span>Placa</span>
+    <span>Veículo</span>
+    <span>Cliente</span>
+    <span>Tipo</span>
+    <span id="{veiculo.id}">Tempo</span>
+    <span>Status</span>
+   
+    
+  </div>
+
+  <div id="listaEstacionamento"></div>
+
+</div>
+<section id="coupon" class="coupon hidden">
+  <div class="coupon-box">
+    <h3>Comanda</h3>
+    <div id="cupomConteudo"></div>
+
+    <p>
+      Rua Mauá, 123 - São Paulo/SP <br>
+      CNPJ: 12.345.678/0001-90
+    </p>
+
+    <button onclick="window.print()">Imprimir</button>
+    <button onclick="fecharCupom()">Fechar</button>
+  </div>
+</section>
 
 </main>
 
@@ -57,6 +84,7 @@
 
 <script src="script.js"></script>
 <script src="navigation/navigation.js"></script>
+<script src="auth-guard.js"></script>
 </body>
 
 </html>

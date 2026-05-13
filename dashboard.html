@@ -19,7 +19,8 @@
       <a class="active">Dashboard</a>
       <a onclick="irParaVeiculos()">Veiculos Estacionados</a>
       <a onclick="irParaCaixa()">Caixa</a>
-      <a onclick="irParaUsuarios()">Usuários</a>
+      <a onclick="irParaHistorico()">Histórico</a>
+      
     </nav>
   </aside>
 
@@ -41,6 +42,7 @@
           <input id="veiculo" placeholder="Veículo" required />
           <input id="placa" placeholder="Placa" required />
           <input id="telefone" placeholder="Telefone" required />
+          
 
           <h4>Tipo</h4>
 
@@ -81,20 +83,25 @@
                 <input type="radio" name="tipoVeiculo" value="Moto" />
                 Moto
               </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoVeiculo" value="Caminhonete" />
+                Caminhonete
+              </label>
             </div>
 
             <h4>Serviço</h4>
 
-            <select id="servico">
-              <option value="">Selecione</option>
-              <option>Lavagem completa</option>
-              <option>Lavagem rápida</option>
-              <option>Ducha com secagem</option>
+            <select class="form-control" id="servico">
+              <option class="control"value="">Selecione</option>
+            <option class="control">Lavagem completa</option>
+              <option class="control">Lavagem rápida</option>
+              <option class="control">Ducha com secagem</option>
             </select>
 
-            <label class="choice">
-              <input type="checkbox" id="cera" />
-              Adicionar cera (+R$10)
+            <label class="choicec">
+              <input type="checkbox" name="servicoAdicional" value="cera" />
+               Cera (R$10)
             </label>
 
           </div>

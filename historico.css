@@ -1,0 +1,118 @@
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(135deg, #021d1d, #001010);
+  color: #fff;
+}
+
+/* LAYOUT PRINCIPAL */
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #031f1f;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 10px;
+  color: #ccc;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.sidebar nav a:hover,
+.sidebar nav .active {
+  background: #00c896;
+  color: #000;
+}
+
+/* CONTEÚDO */
+.content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* HEADER */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.card.red { color: #ff4d4d; }
+.card.green { color: #00ff99; }
+.card.blue { color: #00ccff; }
+
+/* TABELA */
+.table {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+
+.table-head, .row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 12px;
+}
+
+.table-head {
+  background: rgba(0,0,0,0.3);
+  font-weight: bold;
+}
+
+.row {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.row:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+/* BOTÕES */
+.actions button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-pdf {
+  background: #00c896;
+}
+
+.btn-view {
+  background: transparent;
+  border: 1px solid #00c896;
+  color: #00c896;
+}

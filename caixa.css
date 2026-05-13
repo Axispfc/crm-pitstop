@@ -224,27 +224,22 @@ body {
 }
 
 .table-head,
-.movement-row {
+.table-row {
   display: grid;
-  grid-template-columns: 80px 1.1fr 100px 110px 1.2fr 100px;
-  gap: 12px;
+  grid-template-columns: 120px 1fr 120px 120px 1fr 100px;
+  gap: 10px;
   align-items: center;
 }
 
 .table-head {
-  padding: 14px;
-  background: rgba(255,255,255,0.06);
-  color: #c8d4d8;
-  text-transform: uppercase;
-  font-size: 12px;
-  border-radius: 10px 10px 0 0;
+  font-weight: bold;
+  border-bottom: 2px solid #ccc;
+  padding: 8px 0;
 }
 
-.movement-row {
-  padding: 16px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  color: #e6eff2;
-  font-size: 14px;
+.table-row {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
 }
 
 .badge {

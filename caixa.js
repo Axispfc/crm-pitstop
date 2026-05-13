@@ -1,3 +1,4 @@
+const listaHistorico = document.getElementById("listaHistorico");
 
 
 let entradas = [];
@@ -14,17 +15,25 @@ function formatarValor(valor) {
 /* CARREGAR DADOS */
 async function carregarCaixa() {
 
-  const snapshot = await db.collection("atendimentos")
-    .where("status", "==", "Finalizado")
-    .get();
+  const hoje = new Date().toISOString().split("T")[0];
 
+const snapshot = await db.collection("atendimentos")
+  .where("status", "==", "Finalizado")
+  .where("statusCaixa", "==", "aberto")
+  .where("data", "==", hoje) // 👈 AGORA FUNCIONA
+  .get();
+
+  
   entradas = [];
 
-  snapshot.forEach(doc => {
-    const dados = doc.data();
-    entradas.push(dados);
-  });
+ snapshot.forEach(doc => {
+  const dados = doc.data();
 
+  entradas.push({
+    id: doc.id, // 👈 ESSENCIAL
+    ...dados
+  });
+});
   atualizarTela();
 }
 
@@ -33,7 +42,25 @@ function atualizarTela() {
 
   const movimentacoes = document.getElementById("movimentacoes");
 
-  movimentacoes.innerHTML = "";
+   movimentacoes.innerHTML = "";
+
+function adicionarLinha(dados) {
+  const div = document.createElement("div");
+  div.classList.add("table-row");
+
+ 
+
+  div.innerHTML = `
+    <span>${dados.hora}</span>
+    <span>${dados.nome}</span>
+    <span>${dados.placa}</span>
+    <span>${dados.tipoEntrada}</span>
+    <span>${dados.servico}</span>
+    <span>R$ ${dados.valor}</span>
+  `;
+
+  movimentacoes.appendChild(div);
+}
 
   let total = 0;
   let lavagens = 0;
@@ -46,10 +73,8 @@ function atualizarTela() {
     if (item.tipoEntrada === "Lavagem") lavagens++;
     if (item.tipoEntrada === "Estacionamento") estacionamentos++;
 
-    movimentacoes.innerHTML += `
-      <p>${item.nome} - ${item.placa} - ${formatarValor(item.valor || 0)}</p>
-    `;
-  });
+    adicionarLinha(item);
+}); 
 
   const ticket = entradas.length > 0 ? total / entradas.length : 0;
 
@@ -84,21 +109,143 @@ function atualizarResumo() {
   document.getElementById("saldo").textContent = formatarValor(saldo);
 }
 
-/* FECHAR CAIXA */
-function fecharCaixa() {
-  alert("Caixa fechado com sucesso!");
+async function fecharCaixa() {
+  console.log("Fechando caixa...");
+
+  if (!confirm("Deseja realmente fechar o caixa?")) return;
+
+  if (entradas.length === 0 && despesas.length === 0) {
+    alert("Não há dados para fechar o caixa!");
+    return;
+  }
+
+  const totalEntradas = entradas.reduce((acc, item) => acc + (item.valor || 0), 0);
+  const totalSaidas = despesas.reduce((acc, item) => acc + item.valor, 0);
+  const saldo = totalEntradas - totalSaidas;
+
+
+  const movimentacoesFechadas = entradas.map(item => ({
+  ...item,
+  fechado: true
+}));
+
+  const fechamento = {
+    data: new Date(),
+    totalEntradas,
+    totalSaidas,
+    saldo,
+    quantidadeEntradas: entradas.length,
+    despesas: despesas,
+     movimentacoes: movimentacoesFechadas // 👈 AQUI
+  };
+  try {
+
+    // 🔹 Salvar histórico
+    await db.collection("historicoCaixa").add(fechamento);
+
+    // 🔹 MARCAR COMO FECHADO NO FIRESTORE
+    const batch = db.batch();
+
+    entradas.forEach(item => {
+      const ref = db.collection("atendimentos").doc(item.id); // 👈 precisa do ID
+      batch.update(ref, { statusCaixa: "fechado" });
+
+      
+    });
+     
+
+    await batch.commit();
+
+    // 🔹 Limpar dados locais
+    entradas = [];
+    despesas = [];
+
+    limparTela();
+
+    alert("Caixa fechado e salvo com sucesso!");
+
+  }
+  
+  
+   catch (error) {
+    alert("Erro ao fechar caixa: " + error.message);
+  }
+  try {
+    // 🔥 GERAR PDF
+    const pdf = gerarPDF(fechamento);
+
+    // 🔥 CONVERTER PARA BASE64
+    const pdfBase64 = pdf.output("datauristring");
+    
+    // 🔥 ABRE O PDF EM NOVA ABA
+    const pdfUrl = pdf.output("bloburl");
+    window.open(pdfUrl, "_blank");
+  } catch (error) {
+    console.error("Erro ao gerar PDF: ", error);
+  }
+}
+function gerarPDF(fechamento) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 10;
+
+  doc.setFontSize(16);
+  doc.text("Relatório de Caixa - Pit Stop", 10, y);
+
+  y += 10;
+
+  doc.setFontSize(12);
+  doc.text(`Data: ${new Date().toLocaleDateString("pt-BR")}`, 10, y);
+
+  y += 10;
+  doc.text(`Entradas: ${formatarValor(fechamento.totalEntradas)}`, 10, y);
+  y += 8;
+  doc.text(`Saídas: ${formatarValor(fechamento.totalSaidas)}`, 10, y);
+  y += 8;
+  doc.text(`Saldo: ${formatarValor(fechamento.saldo)}`, 10, y);
+
+  y += 12;
+  doc.text("Movimentações:", 10, y);
+
+  y += 8;
+
+  fechamento.movimentacoes.forEach((m, i) => {
+    doc.text(
+      `${m.nome} - ${m.placa} - ${formatarValor(m.valor || 0)}`,
+      10,
+      y
+    );
+    y += 6;
+
+    if (y > 280) {
+      doc.addPage();
+      y = 10;
+    }
+  });
+
+  return doc;
+}
+
+
+function limparTela() {
+
+  document.getElementById("movimentacoes").innerHTML = "";
+
+  document.getElementById("faturamento").textContent = formatarValor(0);
+  document.getElementById("lavagens").textContent = 0;
+  document.getElementById("estacionamentos").textContent = 0;
+  document.getElementById("ticket").textContent = formatarValor(0);
+
+  document.getElementById("totalEntradas").textContent = formatarValor(0);
+  document.getElementById("totalSaidas").textContent = formatarValor(0);
+  document.getElementById("saldo").textContent = formatarValor(0);
 }
 
 /* INIT */
 carregarCaixa();
 
-/*Navegação */
-function irParaUsuarios() {
-  window.location.href = "usuario.html";
-}
-function irParaDashboard() {
-  window.location.href = "dashboard.html";
-}
+
 function logout(){
   firebase.auth().signOut().then(() => {
     window.location.href = "index.html";

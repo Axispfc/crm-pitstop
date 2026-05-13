@@ -95,20 +95,33 @@ if (vehicleForm) {
     const telefone = document.getElementById("telefone").value;
     const tipoEntrada = document.querySelector("input[name='tipoEntrada']:checked").value;
 
-    const agora = new Date();
+   const agora = new Date();
+
+// 🔥 ADICIONE ISSO
+const hoje = agora.toISOString().split("T")[0];
+const hora = agora.toLocaleTimeString("pt-BR", {
+  hour: "2-digit",
+  minute: "2-digit"
+});
 
     /* ESTACIONAMENTO */
     if (tipoEntrada === "Estacionamento") {
       const docRef = await db.collection("atendimentos").add({
-        nome,
-        veiculo,
-        placa,
-        telefone,
-        tipoEntrada,
-        status: "Aberto",
-        entrada: agora,
-        criadoEm: agora,
-      });
+  nome,
+  veiculo,
+  placa,
+  telefone,
+  tipoEntrada,
+  status: "Aberto",
+  entrada: agora,
+  criadoEm: agora,
+
+  // 🔥 ADICIONAR
+  data: hoje,
+  hora: hora,
+
+   statusCaixa: "aberto" // 👈 ADICIONE ISSO
+});
 
       const obj = { id: docRef.id, nome, veiculo, placa, telefone, entrada: agora, status: "Aberto", tipoEntrada };
 
@@ -120,7 +133,7 @@ if (vehicleForm) {
     if (tipoEntrada === "Lavagem") {
       const tipoVeiculo = document.querySelector("input[name='tipoVeiculo']:checked")?.value;
       const servico = document.getElementById("servico").value;
-      const cera = document.getElementById("cera").checked;
+      const cera = document.getElementById("cera")?.checked || false;
 
       if (!tipoVeiculo) return alert("Selecione o tipo de veículo.");
       if (tipoVeiculo !== "Moto" && !servico) return alert("Selecione o serviço.");
@@ -128,19 +141,25 @@ if (vehicleForm) {
       const valor = calcularLavagem(tipoVeiculo, servico, cera);
 
       const docRef = await db.collection("atendimentos").add({
-        nome,
-        veiculo,
-        placa,
-        telefone,
-        tipoEntrada,
-        tipoVeiculo,
-        servico,
-        cera,
-        valor,
-        status: "Aberto",
-        entrada: agora,
-        criadoEm: agora,
-      });
+  nome,
+  veiculo,
+  placa,
+  telefone,
+  tipoEntrada,
+  tipoVeiculo,
+  servico,
+  cera,
+  valor,
+  status: "Aberto",
+  entrada: agora,
+  criadoEm: agora,
+
+  // 🔥 ADICIONAR
+  data: hoje,
+  hora: hora,
+
+   statusCaixa: "aberto" // 👈 ADICIONE ISSO
+});
 
       const obj = { id: docRef.id, nome, veiculo, placa, telefone, entrada: agora, status: "Aberto", tipoEntrada };
 
@@ -180,7 +199,7 @@ function atualizarListaEstacionamento() {
         <button onclick="verCupom('${v.id}')">🧾</button>
         ${
           v.tipoEntrada === "Estacionamento"
-            ? `<button onclick="encerrarEstacionamento('${v.id}')">🗑</button>`
+            ? `<button onclick="encerrarEstacionamento('${v.id}')">✔</button>`
             : `<button onclick="finalizarLavagem('${v.id}')">✔</button>`
         }
       </span>

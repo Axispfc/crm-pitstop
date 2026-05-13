@@ -147,12 +147,119 @@ input:focus, select:focus {
   border-radius: 12px;
   cursor: pointer;
   text-align: center;
+  position: relative; /* necessário */
 }
 
+/* Esconde o input */
 .choice input {
   display: none;
 }
 
+/* Círculo externo */
+.choice::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0,255,200,0.6);
+  border-radius: 50%;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+
+/* Bolinha interna */
+.choice::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background: rgba(0,255,200,0.9);
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  left: 9px;
+  transform: scale(0);
+  transition: 0.2s;
+}
+
+/* Quando selecionado */
+.choice input:checked ~ * {
+  /* hack leve pra ativar repaint */
+}
+
+.choice:has(input:checked)::after {
+  transform: scale(1);
+}
+
+/* (opcional) destacar o botão selecionado */
+.choice:has(input:checked) {
+  border: 1px solid rgba(0,255,200,0.8);
+  background: rgba(0,255,200,0.08);
+}
+.choicec {
+  display: inline-flex;
+  align-items: center; /* melhor que end */
+  gap: 10px;
+  background: transparent;
+  border: 1px solid rgba(0,255,200,0.2);
+  padding: 10px 10px 10px 30px; /* espaço pra bolinha */
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Esconde o input */
+.choicec input {
+  display: none;
+}
+
+/* Quadrado externo (checkbox) */
+.choicec::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0,255,200,0.6);
+  border-radius: 4px; /* quadrado */
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Check interno */
+.choicec::after {
+  content: "✔";
+  font-size: 12px;
+  color: #000;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  transition: 0.2s;
+}
+
+/* Quando marcado */
+.choicec:has(input:checked)::after {
+  transform: translateY(-50%) scale(1);
+}
+
+/* Destaque quando selecionado */
+.choicec:has(input:checked) {
+  border: 1px solid rgba(0,255,200,0.8);
+  background: rgba(0,255,200,0.08);
+}
+
+.form-control {
+  width: 50%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,255,200,0.2);
+  background: transparent;
+  color: #fff;
+  margin-bottom: 12px;
+}
+.control{
+  color:#000
+}
 /* BOTÃO CADASTRAR */
 .btn-register {
   width: 100%;

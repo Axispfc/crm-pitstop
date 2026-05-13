@@ -10,3 +10,6 @@ function irParaVeiculos() {
 function irParaDashboard() {
   window.location.href = "dashboard.html";
 }   
+function irParaHistorico() {
+  window.location.href = "historico.html";
+}
