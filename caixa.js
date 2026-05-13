@@ -83,6 +83,23 @@ function adicionarLinha(dados) {
   document.getElementById("estacionamentos").textContent = estacionamentos;
   document.getElementById("ticket").textContent = formatarValor(ticket);
 
+  let dinheiro = 0;
+  let pix = 0;
+  let debito = 0;
+  let credito = 0;
+
+  entradas.forEach(item => {
+  const valor = item.valor || 0;
+  const pagamento = item.pagamento || "Dinheiro";
+
+  if (pagamento === "Dinheiro") dinheiro += valor;
+  if (pagamento === "Pix") pix += valor;
+  if (pagamento === "Débito") debito += valor;
+  if (pagamento === "Crédito") credito += valor;
+});
+
+atualizarGraficoPagamentos(dinheiro, pix, debito, credito);
+
   atualizarResumo();
 }
 
@@ -252,5 +269,19 @@ function logout(){
   }).catch((error) => {
     alert("Erro ao sair: " + error.message);
   });
+}
+
+function atualizarGraficoPagamentos(dinheiro, pix, debito, credito) {
+  const total = dinheiro + pix + debito + credito || 1;
+
+  document.getElementById("valorDinheiro").textContent = formatarValor(dinheiro);
+  document.getElementById("valorPix").textContent = formatarValor(pix);
+  document.getElementById("valorDebito").textContent = formatarValor(debito);
+  document.getElementById("valorCredito").textContent = formatarValor(credito);
+
+  document.getElementById("barDinheiro").style.width = `${(dinheiro / total) * 100}%`;
+  document.getElementById("barPix").style.width = `${(pix / total) * 100}%`;
+  document.getElementById("barDebito").style.width = `${(debito / total) * 100}%`;
+  document.getElementById("barCredito").style.width = `${(credito / total) * 100}%`;
 }
 
