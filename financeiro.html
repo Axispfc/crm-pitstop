@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financeiro - Pit Stop</title>
+  <link rel="stylesheet" href="financeiro.css?v=1" />
+</head>
+<body>
+
+<div class="finance-layout">
+
+  <aside class="finance-sidebar">
+    <div class="logo">
+      <div class="logo-icon">PS</div>
+      <div>
+        <h2>PIT STOP</h2>
+        <span>LAVA RÁPIDO</span>
+      </div>
+    </div>
+
+    <nav>
+      <a href="index.html">Dashboard</a>
+      <a href="index.html">Atendimentos</a>
+      <a href="index.html">Veículos Estacionados</a>
+      <a href="caixa.html">Caixa</a>
+      <a class="active">Financeiro</a>
+      <a>Clientes</a>
+      <a>Relatórios</a>
+      <a>Despesas</a>
+      <a>Configurações</a>
+    </nav>
+
+    <a class="exit" href="index.html">Sair</a>
+  </aside>
+
+  <main class="finance-main">
+
+    <header class="finance-header">
+      <div>
+        <h1>Financeiro</h1>
+        <p>Visão geral da saúde financeira do seu negócio</p>
+      </div>
+
+      <div class="filters">
+        <button>Hoje</button>
+        <button>7 dias</button>
+        <button class="active">30 dias</button>
+        <button>Este mês</button>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card green">
+        <span>Faturamento bruto</span>
+        <strong id="faturamentoBruto">R$ 0,00</strong>
+        <small>Receita total</small>
+      </div>
+
+      <div class="kpi-card blue">
+        <span>Lavagens</span>
+        <strong id="totalLavagens">R$ 0,00</strong>
+        <small id="qtdLavagens">0 atendimentos</small>
+      </div>
+
+      <div class="kpi-card yellow">
+        <span>Estacionamentos</span>
+        <strong id="totalEstacionamentos">R$ 0,00</strong>
+        <small id="qtdEstacionamentos">0 encerrados</small>
+      </div>
+
+      <div class="kpi-card red">
+        <span>Despesas</span>
+        <strong id="totalDespesas">R$ 0,00</strong>
+        <small>Custos lançados</small>
+      </div>
+
+      <div class="kpi-card emerald">
+        <span>Lucro líquido</span>
+        <strong id="lucroLiquido">R$ 0,00</strong>
+        <small>Resultado estimado</small>
+      </div>
+    </section>
+
+    <section class="finance-grid">
+
+      <div class="panel big">
+        <div class="panel-title">
+          <h2>Faturamento nos últimos dias</h2>
+          <select>
+            <option>Por dia</option>
+          </select>
+        </div>
+
+        <div class="fake-chart" id="graficoDias"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Formas de pagamento</h2>
+
+        <div class="donut-area">
+          <div class="donut">
+            <span>Total</span>
+            <strong id="totalPagamentos">R$ 0,00</strong>
+          </div>
+
+          <div class="payment-list">
+            <p><span>Dinheiro</span><strong id="pagDinheiro">R$ 0,00</strong></p>
+            <p><span>Pix</span><strong id="pagPix">R$ 0,00</strong></p>
+            <p><span>Débito</span><strong id="pagDebito">R$ 0,00</strong></p>
+            <p><span>Crédito</span><strong id="pagCredito">R$ 0,00</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Resumo por serviço</h2>
+        <div id="resumoServicos" class="summary-list"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Resumo por categoria</h2>
+        <div class="category-line">
+          <span>Lavagens</span>
+          <strong id="percentLavagens">0%</strong>
+        </div>
+        <div class="progress"><i id="barLavagens"></i></div>
+
+        <div class="category-line">
+          <span>Estacionamentos</span>
+          <strong id="percentEstacionamentos">0%</strong>
+        </div>
+        <div class="progress"><i id="barEstacionamentos"></i></div>
+      </div>
+
+      <div class="panel">
+        <h2>Despesas por categoria</h2>
+        <div id="resumoDespesas" class="summary-list">
+          <p class="empty">Nenhuma despesa lançada.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="history-panel">
+      <h2>Histórico financeiro</h2>
+
+      <div class="history-head">
+        <span>Cliente</span>
+        <span>Placa</span>
+        <span>Tipo</span>
+        <span>Serviço</span>
+        <span>Valor</span>
+        <span>Pagamento</span>
+      </div>
+
+      <div id="historicoFinanceiro"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBZ5ASFYLuFNB-sDQLZMIYqO5btdZGMGg",
+    authDomain: "crm-pitstop.firebaseapp.com",
+    projectId: "crm-pitstop",
+    storageBucket: "crm-pitstop.firebasestorage.app",
+    messagingSenderId: "216473066500",
+    appId: "1:216473066500:web:f67c0541cb5a1bbe8edc41",
+    measurementId: "G-9R569LYB6K"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
+<script src="financeiro.js?v=1"></script>
+
+</body>
+</html>
