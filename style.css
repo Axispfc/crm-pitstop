@@ -454,8 +454,3 @@ input {
 .table-row:hover {
   background: rgba(0,255,200,0.05);
 }
-
-select option {
-  background: #0b1b1c;
-  color: #ffffff;
-}
