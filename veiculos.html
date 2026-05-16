@@ -11,14 +11,24 @@
 <!-- SISTEMA -->
 <section id="systemScreen" class="container">
 
-  <aside class="sidebar">
-    <img src="pitstop.png" alt="Logo Pit Stop" class="logo" />
+  <aside class="finance-sidebar">
+    <div class="logo">
+      <div class="logo-icon">PS</div>
+      <div>
+        <h2>PIT STOP</h2>
+        <span>LAVA RÁPIDO</span>
+      </div>
+    </div>
+
     <nav>
       <a onclick="irParaDashboard()">Dashboard</a>
-      <a class="active">Veiculos Estacionados</a>
+      <a onclick="irParaVeiculos()" class="active">Veículos Estacionados</a>
       <a onclick="irParaCaixa()">Caixa</a>
-      
+      <a onclick="irParaHistorico()">Histórico</a>
+      <a onclick="irParaFinanceiro()">Financeiro</a> 
     </nav>
+
+    <a class="exit" href="index.html">Sair</a>
   </aside>
 
  <main class="content">

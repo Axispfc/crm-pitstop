@@ -13,3 +13,6 @@ function irParaDashboard() {
 function irParaHistorico() {
   window.location.href = "historico.html";
 }
+function irParaFinanceiro() {
+  window.location.href = "financeiro.html";
+}

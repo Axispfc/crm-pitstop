@@ -1,83 +1,96 @@
-<!DOCTYPE html> 
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CRM Pit Stop</title>
-  <link rel="stylesheet" href="historico.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Fidelidade | Pit Stop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+   <link rel="stylesheet" href="historico.css">                                          
 </head>
 <body>
-<div class="layout">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <img src="pitstop.png" class="logo">
+    <aside class="sidebar">
+        <div class="logo-container">
+            <img src="https://i.ibb.co/vzYyX6L/logo-pitstop.png" alt="Logo Pit Stop">
+        </div>
+        <nav class="nav-menu">
+            <a onclick="irParaDashboard()" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+            <a onclick="irParaVeiculos()" class="nav-item"><i class="fa-solid fa-car"></i> Veículos</a>
+            <a onclick="irParaHistorico()" class="nav-item active"><i class="fa-solid fa-clock-rotate-left"></i> Histórico</a>
+            <a onclick="irParaFinanceiro()" class="nav-item"><i class="fa-solid fa-chart-line"></i> Financeiro</a>
+        </nav>
+    </aside>
 
-    <nav>
-      <a onclick="irParaDashboard()">Dashboard</a>
-      <a onclick="irParaVeiculos()">Veículos</a>
-      <a onclick="irParaCaixa()">Caixa</a>
-      <a class="active">Histórico</a>
-    </nav>
-  </aside>
+    <main class="main-content">
+        <header>
+            <div>
+                <h1>Gestão de Clientes</h1>
+                <p style="color: var(--text-dim); font-size: 0.9rem;">Controle de fidelidade e recorrência de serviços</p>
+            </div>
+            <button style="background: var(--accent); color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                Sair
+            </button>
+        </header>
 
-  <!-- CONTEÚDO -->
-  <main class="content">
+        <div class="top-info">
+            <div class="filter-panel">
+                <input type="text" id="searchInput" placeholder="Filtrar por nome, placa ou veículo...">
+                <i class="fa-solid fa-magnifying-glass" style="align-self: center; color: var(--text-dim)"></i>
+            </div>
+            <div class="stats-mini">
+                <div class="mini-card">
+                    <small>Recorrência</small>
+                    <div id="ClientesRecorrentes"></div>
+                </div>
+                <div class="mini-card">
+                 <small>Serviço Mais Usado</small>
+                <div id="ServicoMaisUsado"></div>
+                </div>
 
-    <header class="topbar">
-      <div>
-        <h1>Histórico de Caixa</h1>
-        <p>Acompanhe os fechamentos realizados</p>
-      </div>
-      <button class="btn-exit" onclick="logout()">Sair</button>
-    </header>
+                <div class="mini-card">
+                <small>Média por Mês</small>
+                    <div id="MediaVisitas">0</div>
+                </div>
+                
+                <div class="mini-card">
+                    <small>Total De Atendimentos</small>
+                    <div id="TotalAtendimentos"></div>
+                </div>
+            </div>
+        </div>
 
-    <!-- CARDS -->
-    <section class="cards">
-      <div class="card">
-        <span>Entradas</span>
-        <strong id="totalEntradas">R$ 0,00</strong>
-      </div>
+        <div class="history-container">
+            <div class="history-title-bar">
+                <h3 style="font-size: 1.1rem; color: white;">Listagem de Clientes Fidelizados</h3>
+                <span style="font-size: 0.8rem; color: var(--text-dim)">Exibindo todos os registros</span>
+            </div>
 
-      <div class="card red">
-        <span>Saídas</span>
-        <strong id="totalSaidas">R$ 0,00</strong>
-      </div>
+            <div class="table-wrapper">
+                <div class="table-header">
+                    <span>ID</span>
+                    <span>Última Visita</span>
+                    <span>Cliente</span>
+                    <span>Veículo</span>
+                    <span>Resumo Serviços</span>
+                    <span style="text-align: center;">Frequência</span>
+                    <span style="text-align: right;">Detalhes</span>
+                </div>
 
-      <div class="card green">
-        <span>Saldo</span>
-        <strong id="saldoTotal">R$ 0,00</strong>
-      </div>
+                <div id="historyList">
+                    
+                </div>
+            </div>
+        </div>
+    </main>
 
-      <div class="card blue">
-        <span>Fechamentos</span>
-        <strong id="totalFechamentos"></strong>
-      </div>
-    </section>
-
-    <!-- TABELA -->
-    <section class="table">
-
-      <div class="table-head">
-        <span>Data</span>
-        <span>Entradas</span>
-        <span>Saídas</span>
-        <span>Saldo</span>
-        <span>Ações</span>
-      </div>
-
-      <div id="historicoLista" class="table-body"></div>
-
-    </section>
-
-  </main>
-
-</div>
+    <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+
 <script>
-  // Configuração do Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyBBZ5ASFYLufNB-sDQlZMIVqO5btdZGMGg",
     authDomain: "crm-pitstop.firebaseapp.com",
@@ -86,15 +99,13 @@
     messagingSenderId: "123456789012",
     appId: "1:123456789012:web:abcdef1234567890abcdef12"
   };
-  
-  // Inicializar Firebase
+
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
-  </script>
+</script>
 
-
-<script src="navigation/navigation.js"></script>
-<script src="auth-guard.js"></script>
 <script src="historico.js"></script>
+<script src="auth-guard.js"></script>
+<script src="navigation/navigation.js"></script>
 </body>
 </html>

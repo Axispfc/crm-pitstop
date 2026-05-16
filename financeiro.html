@@ -20,15 +20,11 @@
     </div>
 
     <nav>
-      <a href="index.html">Dashboard</a>
-      <a href="index.html">Atendimentos</a>
-      <a href="index.html">Veículos Estacionados</a>
-      <a href="caixa.html">Caixa</a>
-      <a class="active">Financeiro</a>
-      <a>Clientes</a>
-      <a>Relatórios</a>
-      <a>Despesas</a>
-      <a>Configurações</a>
+      <a onclick="irParaDashboard()">Dashboard</a>
+      <a onclick="irParaVeiculos()">Veículos Estacionados</a>
+      <a onclick="irParaCaixa()">Caixa</a>
+      <a onclick="irParaHistorico()">Histórico</a>
+      <a onclick="irParaFinanceiro()" class="active">Financeiro</a> 
     </nav>
 
     <a class="exit" href="index.html">Sair</a>
@@ -179,6 +175,6 @@
 </script>
 
 <script src="financeiro.js?v=1"></script>
-
+<script src="/navigation/navigation.js"></script>
 </body>
 </html>

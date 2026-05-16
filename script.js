@@ -134,7 +134,7 @@ const hora = agora.toLocaleTimeString("pt-BR", {
       const tipoVeiculo = document.querySelector("input[name='tipoVeiculo']:checked")?.value;
       const servico = document.getElementById("servico").value;
       const cera = document.getElementById("cera")?.checked || false;
-      const pagamento = document.getElementByID("pagamento").value;
+      const pagamento = document.getElementById("pagamento").value;
 
       if (!tipoVeiculo) return alert("Selecione o tipo de veículo.");
       if (tipoVeiculo !== "Moto" && !servico) return alert("Selecione o serviço.");
@@ -291,7 +291,7 @@ function gerarCupomLavagem(d) {
     <p><strong>Serviço:</strong> ${d.servico}</p>
     <p><strong>Cera:</strong> ${d.cera ? "Sim (+R$10)" : "Não"}</p>
     <p><strong>Data:</strong> ${formatarData(d.data)}</p>
-    <p><strong>Pagamento:</strong> ${dados.pagamento}</p>
+    <p><strong>Pagamento:</strong> ${d.pagamento}</p>
     <p><strong>Horário:</strong> ${formatarHora(d.data)}</p>
     <hr>
     <p><strong>Total:</strong> ${formatarValor(d.valor)}</p>

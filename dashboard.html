@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <title>CRM Pit Stop</title>
   <link rel="stylesheet" href="dashboard.css" />
 </head>
@@ -13,15 +17,24 @@
 <!-- SISTEMA -->
 <section id="systemScreen" class="container">
 
-  <aside class="sidebar">
-    <img src="pitstop.png" alt="Logo Pit Stop" class="logo" />
+  <aside class="finance-sidebar">
+    <div class="logo">
+      <div class="logo-icon">PS</div>
+      <div>
+        <h2>PIT STOP</h2>
+        <span>LAVA RÁPIDO</span>
+      </div>
+    </div>
+
     <nav>
-      <a class="active">Dashboard</a>
-      <a onclick="irParaVeiculos()">Veiculos Estacionados</a>
+      <a onclick="irParaDashboard()" class="active" class="nav-item">Dashboard</i></a>
+      <a onclick="irParaVeiculos()" class="nav-item">Veículos Estacionados</i></a>
       <a onclick="irParaCaixa()">Caixa</a>
       <a onclick="irParaHistorico()">Histórico</a>
-      
+      <a onclick="irParaFinanceiro()">Financeiro</a> 
     </nav>
+
+    <a class="exit" href="index.html">Sair</a>
   </aside>
 
   <main class="content">
@@ -57,7 +70,17 @@
               Lavagem
             </label>
           </div>
-
+    <button class="btn-register" type="submit">Cadastrar</button>
+    <div>
+      <h4>Forma de pagamento</h4>
+           <select class="form-control" id="pagamento">
+              <option class="control"value="">Selecione</option>
+            <option class="control">Dinheiro</option>
+              <option class="control">Pix</option>
+              <option class="control">Débito</option>
+            <option class="control">Crédito</option>
+            </select>
+          </div>
           <!-- LAVAGEM -->
           <div id="washOptions" class="hidden">
 
@@ -104,23 +127,10 @@
               <input type="checkbox" name="servicoAdicional" value="cera" />
                Cera (R$10)
             </label>
-
-          <h4>Forma de pagamento</h4>
-          
-          <select class="form-control" id="servico">
-              <option class="control"value="">Selecione</option>
-            <option class="control">Dinheiro</option>
-              <option class="control">Pix</option>
-              <option class="control">Débito</option>
-            <option class="control">Crédito</option>
-            </select>
-          </div>
- 
+          </form>
         
-          <button class="btn-register" type="submit">Cadastrar</button>
-
-        </form>
       </section>
+      
 
       <div class="table">
 

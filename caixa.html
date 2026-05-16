@@ -10,19 +10,24 @@
 
 <div class="cash-layout">
 
-  <aside class="cash-sidebar">
-    
-      <img src="pitstop.png" alt="Logo Pit Stop" class="logo" />
+  <aside class="finance-sidebar">
+    <div class="logo">
+      <div class="logo-icon">PS</div>
       <div>
-       
+        <h2>PIT STOP</h2>
+        <span>LAVA RÁPIDO</span>
+      </div>
+    </div>
+
     <nav>
       <a onclick="irParaDashboard()">Dashboard</a>
-      <a href="veiculos.html">Veículos Estacionados</a>
-      <a class="active">Caixa</a>
-      
+      <a onclick="irParaVeiculos()">Veículos Estacionados</a>
+      <a onclick="irParaCaixa()" class="active">Caixa</a>
+      <a onclick="irParaHistorico()">Histórico</a>
+      <a onclick="irParaFinanceiro()">Financeiro</a> 
     </nav>
 
-    <a class="cash-exit">Sair</a>
+    <a class="exit" href="index.html">Sair</a>
   </aside>
 
   <main class="cash-main">
