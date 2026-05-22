@@ -8,21 +8,48 @@ function formatarValor(valor) {
 }
 
 async function carregarFinanceiro() {
-  const snapshot = await db
+  // 1. Busca as receitas (Atendimentos)
+  const snapshotAtendimentos = await db
     .collection("atendimentos")
     .where("status", "==", "Finalizado")
     .get();
 
   atendimentos = [];
-
-  snapshot.forEach(doc => {
+  snapshotAtendimentos.forEach(doc => {
     atendimentos.push(doc.data());
   });
 
-  atualizarFinanceiro();
+  // 2. Busca as despesas na coleção 'historicoCaixa'
+  let totalDespesasCaixa = 0;
+  
+  const snapshotCaixa = await db
+    .collection("historicoCaixa")
+    .get();
+
+  snapshotCaixa.forEach(doc => {
+    const dadosCaixa = doc.data();
+    
+    // Verifica se existe o campo "despesas" e se ele é uma lista (array)
+    if (dadosCaixa.despesas && Array.isArray(dadosCaixa.despesas)) {
+      // Percorre cada despesa lançada neste caixa e soma o valor
+      dadosCaixa.despesas.forEach(itemDespesa => {
+        totalDespesasCaixa += (itemDespesa.valor || 0);
+      });
+    }
+
+    /* DICA: Como vi na sua imagem que existe o campo "totalSaidas" dentro de "movimentacoes", 
+      se preferir, você poderia substituir o bloco 'if' acima por apenas esta linha:
+      
+      totalDespesasCaixa += (dadosCaixa.movimentacoes?.totalSaidas || 0);
+    */
+  });
+
+  // 3. Passa o valor das despesas para a função que atualiza a tela
+  atualizarFinanceiro(totalDespesasCaixa);
 }
 
-function atualizarFinanceiro() {
+// Recebe o total das despesas por parâmetro
+function atualizarFinanceiro(despesas = 0) {
   let total = 0;
   let totalLavagens = 0;
   let totalEstacionamentos = 0;
@@ -61,7 +88,7 @@ function atualizarFinanceiro() {
     servicos[servico] = (servicos[servico] || 0) + valor;
   });
 
-  const despesas = 0;
+  // O cálculo do lucro líquido usando o valor que veio do banco de dados
   const lucro = total - despesas;
 
   document.getElementById("faturamentoBruto").textContent = formatarValor(total);
@@ -69,6 +96,8 @@ function atualizarFinanceiro() {
   document.getElementById("qtdLavagens").textContent = `${qtdLavagens} atendimentos`;
   document.getElementById("totalEstacionamentos").textContent = formatarValor(totalEstacionamentos);
   document.getElementById("qtdEstacionamentos").textContent = `${qtdEstacionamentos} encerrados`;
+  
+  // Exibindo as Despesas e o Lucro
   document.getElementById("totalDespesas").textContent = formatarValor(despesas);
   document.getElementById("lucroLiquido").textContent = formatarValor(lucro);
 
