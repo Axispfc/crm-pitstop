@@ -35,14 +35,13 @@ body {
 }
 
 .logo-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
+  width: 150px;
+  height: 150px;
   display: grid;
   place-items: center;
   font-weight: 900;
   color: #031010;
-  background: linear-gradient(135deg, #20f0cf, #77ffe8);
+  
 }
 
 .logo h2 {
@@ -50,7 +49,7 @@ body {
 }
 
 .logo span {
-  color: #20f0cf;
+  color: #20f0cd;
   font-size: 12px;
   font-weight: 800;
 }

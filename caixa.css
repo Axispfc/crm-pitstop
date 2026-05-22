@@ -20,65 +20,24 @@ body {
     linear-gradient(135deg, #050b10, #081923 60%, #061014);
 }
 
-.cash-sidebar {
+.finance-sidebar {
   padding: 26px 18px;
   background: rgba(3, 10, 16, 0.96);
   border-right: 1px solid rgba(32, 240, 207, 0.12);
   display: flex;
   flex-direction: column;
 }
-
-.cash-logo {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 38px;
-}
-
-.cash-logo-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
+.logo-icon {
+  width: 150px;
+  height: 150px;
   display: grid;
   place-items: center;
   font-weight: 900;
   color: #031010;
-  background: linear-gradient(135deg, #20f0cf, #77ffe8);
-  box-shadow: 0 0 30px rgba(32,240,207,0.35);
+  
 }
 
-.cash-logo h2 {
-  font-size: 25px;
-  letter-spacing: 1px;
-}
 
-.cash-logo span {
-  color: #20f0cf;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
-.cash-sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.cash-sidebar nav a,
-.cash-exit {
-  padding: 15px 16px;
-  border-radius: 14px;
-  color: #c4d4d8;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.cash-sidebar nav a.active,
-.cash-sidebar nav a:hover {
-  background: linear-gradient(90deg, rgba(32,240,207,0.35), rgba(32,240,207,0.08));
-  color: #fff;
-}
 
 .cash-exit {
   margin-top: auto;
@@ -163,13 +122,7 @@ body {
   font-size: 13px;
   margin-bottom: 10px;
 }
-.finance-sidebar {
-  padding: 26px 18px;
-  background: rgba(3, 10, 16, 0.96);
-  border-right: 1px solid rgba(32, 240, 207, 0.12);
-  display: flex;
-  flex-direction: column;
-}
+
 
 .logo {
   display: flex;
@@ -178,26 +131,9 @@ body {
   margin-bottom: 38px;
 }
 
-.logo-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-  color: #031010;
-  background: linear-gradient(135deg, #20f0cf, #77ffe8);
-}
 
-.logo h2 {
-  font-size: 25px;
-}
 
-.logo span {
-  color: #20f0cf;
-  font-size: 12px;
-  font-weight: 800;
-}
+
 
 .finance-sidebar nav {
   display: flex;

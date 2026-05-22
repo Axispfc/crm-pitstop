@@ -31,6 +31,14 @@
             position: fixed;
             height: 100vh;
         }
+        .logo-icon {
+        width: 150px;
+        height: 150px;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        color: #031010;
+}
 
         .logo-container { text-align: center; margin-bottom: 40px; }
         .logo-container img { width: 90px; filter: drop-shadow(0 0 10px rgba(0, 255, 162, 0.2)); }

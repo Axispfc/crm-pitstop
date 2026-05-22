@@ -15,6 +15,15 @@ body {
   margin-bottom: 10px;
 
 }
+.logo-icon {
+  width: 150px;
+  height: 150px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #031010;
+  
+}
 .cash-logo-icon{
   width: 32px;
   height: 32px;
