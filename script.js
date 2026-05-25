@@ -36,6 +36,7 @@ function calcularLavagem(tipoVeiculo, servico, cera) {
   }
 
   if (cera) valor += 10;
+
   return valor;
 }
 
@@ -74,8 +75,10 @@ function carregarEstacionamentosAbertos() {
           tipoEntrada: d.tipoEntrada,
           // 👇 ADICIONE ISSO
           servico: d.servico,
+          servicoadicional: d.servicoadicional || null,
+          precoAdicional: d.precoAdicional || null,
           
-          cera: d.cera || false,
+          cera: d.servicoAdicional || false,
           valor: d.valor || null
         });
       });
@@ -94,6 +97,7 @@ if (vehicleForm) {
     const placa = document.getElementById("placa").value.toUpperCase();
     const telefone = document.getElementById("telefone").value;
     const tipoEntrada = document.querySelector("input[name='tipoEntrada']:checked").value;
+    
 
    const agora = new Date();
 
@@ -135,6 +139,8 @@ const hora = agora.toLocaleTimeString("pt-BR", {
       const servico = document.getElementById("servico").value;
       const cera = document.getElementById("cera")?.checked || false;
       const pagamento = document.getElementById("pagamento").value;
+      const servicoadicional = document.getElementById("servicoad").value;
+      const precoAdicional = document.getElementById("precoAd").value;
 
       if (!tipoVeiculo) return alert("Selecione o tipo de veículo.");
       if (tipoVeiculo !== "Moto" && !servico) return alert("Selecione o serviço.");
@@ -142,7 +148,7 @@ const hora = agora.toLocaleTimeString("pt-BR", {
                        return;
                       }
 
-      const valor = calcularLavagem(tipoVeiculo, servico, cera);
+      const valor = calcularLavagem(tipoVeiculo, servico, cera,servicoadicional ? true : false) + (precoAdicional ? parseFloat(precoAdicional) : 0);
 
       const docRef = await db.collection("atendimentos").add({
   nome,
@@ -155,6 +161,8 @@ const hora = agora.toLocaleTimeString("pt-BR", {
   cera,
   valor,
   pagamento,
+  servicoadicional,
+  precoAdicional,
   status: "Aberto",
   entrada: agora,
   criadoEm: agora,
@@ -170,7 +178,7 @@ const hora = agora.toLocaleTimeString("pt-BR", {
 
       
       
-      gerarCupomLavagem({ nome, veiculo, placa, telefone, tipoVeiculo, servico, cera, valor, pagamento, data: agora });
+      gerarCupomLavagem({ nome, veiculo, placa, telefone, tipoVeiculo, servico, cera, valor, pagamento,servicoadicional, precoAdicional, data: agora });
     }
 
     vehicleForm.reset();
@@ -223,11 +231,13 @@ function verCupom(id) {
 
   cupomConteudo.innerHTML = `
     <p><strong>Tipo:</strong> ${v.tipoEntrada}</p>
-    <p><strong>Serviços:</strong> ${v.servico}</p>
     <p><strong>Cliente:</strong> ${v.nome}</p>
     <p><strong>Veículo:</strong> ${v.veiculo}</p>
     <p><strong>Telefone:</strong> ${v.telefone}</p>
     <p><strong>Placa:</strong> ${v.placa}</p>
+    <p><strong>Serviço Adicional:</strong> ${v.servicoadicional || "Nenhum"}</p>
+    <p><strong>Valor Adicional:</strong> ${v.precoAdicional ? formatarValor(v.precoAdicional) : "Nenhum"}</p>
+    <p><strong>Valor:</strong> ${v.valor ? formatarValor(v.valor) : "A calcular"}</p>
     <p><strong>Entrada:</strong> ${formatarData(v.entrada)} ${formatarHora(v.entrada)}</p>
 
   `;
@@ -243,13 +253,31 @@ async function encerrarEstacionamento(id) {
   const saida = new Date();
   const valor = calcularEstacionamento(v.entrada, saida);
 
+  // 1. Solicita a forma de pagamento ao usuário
+  let opcao = prompt(
+    "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito"
+  );
+
+  // 2. Define o texto do pagamento baseado na escolha (Dinheiro é o padrão se ele cancelar ou digitar errado)
+  let pagamento = "Dinheiro";
+  if (opcao === "2") pagamento = "Pix";
+  if (opcao === "3") pagamento = "Débito";
+  if (opcao === "4") pagamento = "Crédito";
+
+  // 3. Salva no banco de dados, agora enviando o campo "pagamento"
   await db.collection("atendimentos").doc(id).update({
     status: "Finalizado",
-    saida,
-    valor,
+    saida: saida,
+    valor: valor,
+    pagamento: pagamento 
   });
 
+  // 4. Adiciona a forma de pagamento ao objeto que vai para o cupom
+  v.pagamento = pagamento;
+
+  // 5. Gera o cupom (certifique-se de que a função gerarCupomSaida leia v.pagamento)
   gerarCupomSaida(v, saida, valor);
+  
   estacionados = estacionados.filter(i => i.id !== id);
   atualizarListaEstacionamento();
 }
@@ -271,12 +299,23 @@ async function finalizarLavagem(id) {
 /* CUPONS */
 function gerarCupomEntrada(v) {
   coupon.classList.remove("hidden");
-  cupomConteudo.innerHTML = `<p>Entrada registrada - ${v.placa}</p>`;
+  cupomConteudo.innerHTML = `<p>Entrada registrada - ${v.placa}</p>
+    <p><strong>Cliente:</strong> ${v.nome}</p>
+    <p><strong>Veículo:</strong> ${v.veiculo}</p>
+    <p><strong>Telefone:</strong> ${v.telefone}</p>
+  `;
 }
 
 function gerarCupomSaida(v, s, val) {
   coupon.classList.remove("hidden");
-  cupomConteudo.innerHTML = `<p>Total: ${formatarValor(val)}</p>`;
+  cupomConteudo.innerHTML = `<p>Total: ${formatarValor(val)}</p>
+    <p><strong>Cliente:</strong> ${v.nome}</p>
+    <p><strong>Veículo:</strong> ${v.veiculo}</p>
+    <p><strong>Telefone:</strong> ${v.telefone}</p>
+    <p><strong>Pagamento:</strong> ${v.pagamento}</p>
+    <p><strong>Entrada:</strong> ${formatarHora(v.entrada)}</p>
+    <p><strong>Saída:</strong> ${formatarData(s)} ${formatarHora(s)}</p>
+  `;
 }
 
 function gerarCupomLavagem(d) {
@@ -291,6 +330,8 @@ function gerarCupomLavagem(d) {
     <p><strong>Serviço:</strong> ${d.servico}</p>
     <p><strong>Cera:</strong> ${d.cera ? "Sim (+R$10)" : "Não"}</p>
     <p><strong>Data:</strong> ${formatarData(d.data)}</p>
+    <p><strong>Serviço Adicional:</strong> ${d.servicoadicional || "Nenhum"}</p>
+    <p><strong>Valor Adicional:</strong> ${d.precoAdicional ? formatarValor(d.precoAdicional) : "Nenhum"}</p>
     <p><strong>Pagamento:</strong> ${d.pagamento}</p>
     <p><strong>Horário:</strong> ${formatarHora(d.data)}</p>
     <hr>
@@ -308,8 +349,10 @@ function gerarCupomLavagemFinal(v) {
     <p><strong>Cliente:</strong> ${v.nome}</p>
     <p><strong>Veículo:</strong> ${v.veiculo}</p>
     <p><strong>Placa:</strong> ${v.placa}</p>
+    <p><strong>Valor:</strong> ${formatarValor(v.valor)}</p>
     <p><strong>Data:</strong> ${formatarData(agora)}</p>
-    <p><strong>Horário:</strong> ${formatarHora(agora)}</p>
+    <p><strong>Horário Entrada:</strong> ${formatarHora(v.entrada)}</p>
+    <p><strong>Horário Saída:</strong> ${formatarHora(agora)}</p>
   `;
 }
 
