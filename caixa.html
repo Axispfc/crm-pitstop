@@ -114,13 +114,13 @@
 
       <div class="cash-panel movements">
         <div class="panel-title">
-          <h2>Movimentações do dia</h2>
-          <select>
-            <option>Todos os tipos</option>
-            <option>Lavagem</option>
-            <option>Estacionamento</option>
-          </select>
-        </div>
+    <h2>Movimentações do dia</h2>
+    <select id="filtroTipo" onchange="atualizarTela()">
+      <option value="Ambos">Todos os tipos</option>
+      <option value="Lavagem">Lavagem</option>
+      <option value="Estacionamento">Estacionamento</option>
+    </select>
+  </div>
 
         <div class="table-head">
           <span>Horário</span>
@@ -135,11 +135,7 @@
       </div>
 
       <div class="cash-panel expenses">
-        <div class="panel-title">
-          <h2>Despesas do dia</h2>
-          <button>+ Nova despesa</button>
-        </div>
-
+        
         <div id="listaDespesas" class="expense-list">
           <p class="empty">Nenhuma despesa lançada.</p>
         </div>

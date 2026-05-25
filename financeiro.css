@@ -206,11 +206,12 @@ body {
 }
 
 .fake-chart {
-  height: 250px;
   display: flex;
-  align-items: end;
-  gap: 12px;
-  padding-top: 24px;
+  align-items: flex-end; /* Garante que as barras fiquem presas no chão do gráfico */
+  justify-content: space-between;
+  height: 200px; /* Ou a altura que já estiver no seu design */
+  gap: 8px;
+  padding-top: 20px;
 }
 
 .chart-bar {

@@ -11,21 +11,15 @@ const coupon = document.getElementById("coupon");
 const cupomConteudo = document.getElementById("cupomConteudo");
 
 let estacionados = [];
+let editId = null; // ✏️ Variável global para controlar se estamos editando um cadastro
 
 /* CONTROLE DE EXIBIÇÃO: LAVAGEM VS ESTACIONAMENTO */
 tipoEntradaInputs.forEach((input) => {
   input.addEventListener("change", function () {
-    
-    // Se o valor for "Lavagem", mostra a div de lavagem (e esconde se não for)
     washOptions.classList.toggle("hidden", this.value !== "Lavagem");
-    
-    // Se o valor for "Estacionamento", mostra a div de estacionamento (e esconde se não for)
     parkingOptions.classList.toggle("hidden", this.value !== "Estacionamento");
-    
   });
 });
-
-
 
 /* PREÇO LAVAGEM */
 function calcularLavagem(tipoVeiculo, servico, cera) {
@@ -43,37 +37,37 @@ function calcularLavagem(tipoVeiculo, servico, cera) {
     if (servico === "Ducha com secagem") valor = 30;
   }
 
-  if (cera) valor += 10;
+  if (cera === true ||  cera === "true"){
+    valor += 10;
+  }
 
   return valor;
 }
 
 /* PREÇO ESTACIONAMENTO */
 function calcularEstacionamento(entrada, saida, tipoEstacionamento = "Carro Comum") {
-  // 1. Descobre o tempo que ficou estacionado
   const diffHoras = (saida - entrada) / (1000 * 60 * 60);
   
-  // 2. Define os valores padrão (vamos supor que seja o Carro Comum)
   let valorPrimeiraHora = 10;
   let valorHoraAdicional = 3;
 
-  // 3. Ajusta os valores dependendo do tipo do veículo
-  if (tipoEstacionamento === "Moto") {
+  // 🌟 Tratamento para evitar problemas com espaços ou letras maiúsculas/minúsculas
+  const tipo = tipoEstacionamento ? tipoEstacionamento.trim() : "Carro Comum";
+
+  if (tipo === "Moto") {
     valorPrimeiraHora = 8;
     valorHoraAdicional = 4;
-  } else if (tipoEstacionamento === "Carro Grande") {
+  } else if (tipo === "Carro Grande") {
     valorPrimeiraHora = 10;
-    valorHoraAdicional = 5;
+    valorHoraAdicional = 5; // 🌟 R$ 5,00 por hora adicional para Carros Grandes
   }
 
-  // 4. Faz o cálculo usando as variáveis que definimos acima
   if (diffHoras <= 1) {
     return valorPrimeiraHora;
   } 
   
   return valorPrimeiraHora + Math.ceil(diffHoras - 1) * valorHoraAdicional;
 }
- 
 
 /* FORMATADORES */
 const formatarData = (d) => d.toLocaleDateString("pt-BR");
@@ -101,12 +95,13 @@ function carregarEstacionamentosAbertos() {
           entrada: d.entrada.toDate(),
           status: d.status,
           tipoEntrada: d.tipoEntrada,
-          // 👇 ADICIONE ISSO
-          servico: d.servico,
+          servico: d.servico || null,
           servicoadicional: d.servicoadicional || null,
           precoAdicional: d.precoAdicional || null,
           tipoEstacionamento: d.tipoEstacionamento || null,
-          cera: d.servicoAdicional || false,
+          tipoVeiculo: d.tipoVeiculo || null, // 🌟 Adicionado para permitir edição
+          pagamento: d.pagamento || null,         // 🌟 Adicionado para permitir edição
+          cera: d.cera || false,               // 🌟 Corrigido o mapeamento do seu banco
           valor: d.valor || null
         });
       });
@@ -115,7 +110,7 @@ function carregarEstacionamentosAbertos() {
     });
 }
 
-/* CADASTRO */
+/* CADASTRO & EDIÇÃO */
 if (vehicleForm) {
   vehicleForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -126,89 +121,91 @@ if (vehicleForm) {
     const telefone = document.getElementById("telefone").value;
     const tipoEntrada = document.querySelector("input[name='tipoEntrada']:checked").value;
     
+    const agora = new Date();
+    const hoje = agora.toISOString().split("T")[0];
+    const hora = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-   const agora = new Date();
+    // Cria o objeto base com as informações em comum
+    let dadosAtendimento = { nome, veiculo, placa, telefone, tipoEntrada };
 
-// 🔥 ADICIONE ISSO
-const hoje = agora.toISOString().split("T")[0];
-const hora = agora.toLocaleTimeString("pt-BR", {
-  hour: "2-digit",
-  minute: "2-digit"
-});
-
-    /* ESTACIONAMENTO */
+   /* CONFIGURAÇÃO ESPECÍFICA PARA ESTACIONAMENTO */
     if (tipoEntrada === "Estacionamento") {
       const tipoEstacionamento = document.querySelector("input[name='tipoEstacionamento']:checked")?.value;
-      const docRef = await db.collection("atendimentos").add({
-  nome,
-  veiculo,
-  placa,
-  telefone,
-  tipoEntrada,
-  status: "Aberto",
-  entrada: agora,
-  criadoEm: agora,
-  tipoEstacionamento,
-
-  // 🔥 ADICIONAR
-  data: hoje,
-  hora: hora,
-
-   statusCaixa: "aberto" // 👈 ADICIONE ISSO
-});
-
-      const obj = { id: docRef.id, nome, veiculo, placa, telefone,tipoEstacionamento, entrada: agora, status: "Aberto", tipoEntrada };
-
       
-      gerarCupomEntrada(obj);
+      // 🌟 CORREÇÃO: Garante que a categoria (Carro Grande / Comum / Moto) seja salva
+      dadosAtendimento.tipoEstacionamento = tipoEstacionamento || "Carro Comum";
+      
+      // Só insere dados de abertura/data se for um NOVO cadastro
+      if (!editId) {
+        dadosAtendimento.status = "Aberto";
+        dadosAtendimento.entrada = agora;
+        dadosAtendimento.criadoEm = agora;
+        dadosAtendimento.data = hoje;
+        dadosAtendimento.hora = hora;
+        dadosAtendimento.statusCaixa = "aberto";
+      }
     }
 
-    /* LAVAGEM */
+    /* CONFIGURAÇÃO ESPECÍFICA PARA LAVAGEM */
     if (tipoEntrada === "Lavagem") {
       const tipoVeiculo = document.querySelector("input[name='tipoVeiculo']:checked")?.value;
       const servico = document.getElementById("servico").value;
-      const cera = document.getElementById("cera")?.checked || false;
+      
+      // 🌟 CORREÇÃO: Força a captura do valor booleano (true/false) do checkbox da cera
+      const ceraCheckbox = document.getElementById("cera");
+      const temCera = ceraCheckbox ? ceraCheckbox.checked : false;
+      
       const pagamento = document.getElementById("pagamento").value;
       const servicoadicional = document.getElementById("servicoad").value;
       const precoAdicional = document.getElementById("precoAd").value;
 
       if (!tipoVeiculo) return alert("Selecione o tipo de veículo.");
       if (tipoVeiculo !== "Moto" && !servico) return alert("Selecione o serviço.");
-      if (!pagamento) { alert("Selecione a forma de pagamento.");
-                       return;
-                      }
+      if (!pagamento) return alert("Selecione a forma de pagamento.");
 
-      const valor = calcularLavagem(tipoVeiculo, servico, cera,servicoadicional ? true : false) + (precoAdicional ? parseFloat(precoAdicional) : 0);
+      // Calcula o valor aplicando as correções de tipo de veículo e cera booleana
+      const valor = calcularLavagem(tipoVeiculo, servico, temCera) + (precoAdicional ? parseFloat(precoAdicional) : 0);
 
-      const docRef = await db.collection("atendimentos").add({
-  nome,
-  veiculo,
-  placa,
-  telefone,
-  tipoEntrada,
-  tipoVeiculo,
-  servico,
-  cera,
-  valor,
-  pagamento,
-  servicoadicional,
-  precoAdicional,
-  status: "Aberto",
-  entrada: agora,
-  criadoEm: agora,
+      dadosAtendimento = {
+        ...dadosAtendimento,
+        tipoVeiculo,
+        servico,
+        cera: temCera, // Grava como true/false legítimo no Firestore
+        valor,
+        pagamento,
+        servicoadicional,
+        precoAdicional
+      };
 
-  // 🔥 ADICIONAR
-  data: hoje,
-  hora: hora,
+      if (!editId) {
+        dadosAtendimento.status = "Aberto";
+        dadosAtendimento.entrada = agora;
+        dadosAtendimento.criadoEm = agora;
+        dadosAtendimento.data = hoje;
+        dadosAtendimento.hora = hora;
+        dadosAtendimento.statusCaixa = "aberto";
+      }
+    }
 
-   statusCaixa: "aberto" // 👈 ADICIONE ISSO
-});
-
-      const obj = { id: docRef.id, nome, veiculo, placa, telefone, entrada: agora, status: "Aberto", tipoEntrada };
-
+    /* SALVAMENTO NO FIREBASE (DECIDE SE ATUALIZA OU CRIA NOVO) */
+    if (editId) {
+      // Modo Edição: Atualiza o documento existente
+      await db.collection("atendimentos").doc(editId).update(dadosAtendimento);
+      alert("Cadastro atualizado com sucesso!");
+      editId = null; // Reseta o estado de edição
       
+      const btnSubmit = vehicleForm.querySelector("button[type='submit']");
+      if (btnSubmit) btnSubmit.textContent = "Cadastrar"; 
+    } else {
+      // Modo Cadastro: Cria um novo documento
+      const docRef = await db.collection("atendimentos").add(dadosAtendimento);
       
-      gerarCupomLavagem({ nome, veiculo, placa, telefone, tipoVeiculo, servico, cera, valor, pagamento,servicoadicional, precoAdicional, data: agora });
+      // Geração de cupons iniciais apenas para novos cadastros
+      if (tipoEntrada === "Estacionamento") {
+        gerarCupomEntrada({ id: docRef.id, ...dadosAtendimento, entrada: agora });
+      } else {
+        gerarCupomLavagem({ ...dadosAtendimento, data: agora });
+      }
     }
 
     vehicleForm.reset();
@@ -240,17 +237,70 @@ function atualizarListaEstacionamento() {
       <span>${tempo}</span>
       <span class="status aberto">${v.status}</span>
       <span class="actions">
-        <button onclick="verCupom('${v.id}')">🧾</button>
+        <button onclick="verCupom('${v.id}')" title="Ver Cupom">🧾</button>
+        <button onclick="abrirEdicao('${v.id}')" title="Editar">✏</button>
         ${
           v.tipoEntrada === "Estacionamento"
-            ? `<button onclick="encerrarEstacionamento('${v.id}')">✔</button>`
-            : `<button onclick="finalizarLavagem('${v.id}')">✔</button>`
+            ? `<button onclick="encerrarEstacionamento('${v.id}')" title="Finalizar">✔</button>`
+            : `<button onclick="finalizarLavagem('${v.id}')" title="Finalizar">✔</button>`
         }
       </span>
     `;
 
     listaEstacionamento.appendChild(row);
   });
+}
+
+/* FUNÇÃO PARA DETERMINAR E PREENCHER OS CAMPOS EM MODO EDIÇÃO */
+function abrirEdicao(id) {
+  const v = estacionados.find(i => i.id === id);
+  if (!v) return alert("Registro não encontrado");
+
+  editId = id; // Define o ID que estamos editando
+
+  // 1. Preenche os campos principais
+  document.getElementById("nome").value = v.nome || "";
+  document.getElementById("veiculo").value = v.veiculo || "";
+  document.getElementById("placa").value = v.placa || "";
+  document.getElementById("telefone").value = v.telefone || "";
+
+  // 2. Seleciona e ativa visualmente a categoria correta (Lavagem ou Estacionamento)
+  const inputTipoEntrada = document.querySelector(`input[name='tipoEntrada'][value='${v.tipoEntrada}']`);
+  if (inputTipoEntrada) {
+    inputTipoEntrada.checked = true;
+    washOptions.classList.toggle("hidden", v.tipoEntrada !== "Lavagem");
+    parkingOptions.classList.toggle("hidden", v.tipoEntrada !== "Estacionamento");
+  }
+
+  // 3. Preenche as sub-opções dependendo da categoria
+  if (v.tipoEntrada === "Estacionamento") {
+    const inputTipoEst = document.querySelector(`input[name='tipoEstacionamento'][value='${v.tipoEstacionamento}']`);
+    if (inputTipoEst) inputTipoEst.checked = true;
+  } 
+  
+  if (v.tipoEntrada === "Lavagem") {
+    const inputTipoVeic = document.querySelector(`input[name='tipoVeiculo'][value='${v.tipoVeiculo}']`);
+    if (inputTipoVeic) inputTipoVeic.checked = true;
+
+    document.getElementById("servico").value = v.servico || "";
+    document.getElementById("pagamento").value = v.pagamento || "";
+    document.getElementById("servicoad").value = v.servicoadicional || "";
+    document.getElementById("precoAd").value = v.precoAdicional || "";
+    
+    // 🌟 CORREÇÃO: Garante o sincronismo visual do Checkbox ao carregar dados salvos
+    const inputCera = document.getElementById("cera");
+    if (inputCera) {
+      inputCera.checked = (v.cera === true || v.cera === "true");
+    }
+  }
+  
+
+  // 4. Modifica temporariamente o texto do botão para avisar que é uma alteração
+  const btnSubmit = vehicleForm.querySelector("button[type='submit']");
+  if (btnSubmit) btnSubmit.textContent = "Salvar Alterações";
+
+  // Rola a tela até o formulário de forma suave
+  vehicleForm.scrollIntoView({ behavior: "smooth" });
 }
 
 /* CUPOM */
@@ -270,7 +320,6 @@ function verCupom(id) {
     <p><strong>Valor Adicional:</strong> ${v.precoAdicional ? formatarValor(v.precoAdicional) : "Nenhum"}</p>
     <p><strong>Valor:</strong> ${v.valor ? formatarValor(v.valor) : "A calcular"}</p>
     <p><strong>Entrada:</strong> ${formatarData(v.entrada)} ${formatarHora(v.entrada)}</p>
-
   `;
 }
 
@@ -282,20 +331,17 @@ function fecharCupom() {
 async function encerrarEstacionamento(id) {
   const v = estacionados.find(i => i.id === id);
   const saida = new Date();
-  const valor = calcularEstacionamento(v.entrada,saida, v.tipoEstacionamento );
+  const valor = calcularEstacionamento(v.entrada, saida, v.tipoEstacionamento);
 
-  // 1. Solicita a forma de pagamento ao usuário
   let opcao = prompt(
     "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito"
   );
 
-  // 2. Define o texto do pagamento baseado na escolha (Dinheiro é o padrão se ele cancelar ou digitar errado)
   let pagamento = "Dinheiro";
   if (opcao === "2") pagamento = "Pix";
   if (opcao === "3") pagamento = "Débito";
   if (opcao === "4") pagamento = "Crédito";
 
-  // 3. Salva no banco de dados, agora enviando o campo "pagamento"
   await db.collection("atendimentos").doc(id).update({
     status: "Finalizado",
     saida: saida,
@@ -303,10 +349,7 @@ async function encerrarEstacionamento(id) {
     pagamento: pagamento 
   });
 
-  // 4. Adiciona a forma de pagamento ao objeto que vai para o cupom
   v.pagamento = pagamento;
-
-  // 5. Gera o cupom (certifique-se de que a função gerarCupomSaida leia v.pagamento)
   gerarCupomSaida(v, saida, valor);
   
   estacionados = estacionados.filter(i => i.id !== id);
@@ -328,7 +371,7 @@ async function finalizarLavagem(id) {
 }
 
 /* CUPONS */
-function gerarCupomEntrada(v) {
+function generarCupomEntrada(v) {
   coupon.classList.remove("hidden");
   cupomConteudo.innerHTML = `<p>Entrada registrada - ${v.placa}</p>
     <p><strong>Cliente:</strong> ${v.nome}</p>

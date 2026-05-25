@@ -34,12 +34,17 @@
         <p>Visão geral da saúde financeira do seu negócio</p>
       </div>
 
-      <div class="filters">
-        <button>Hoje</button>
-        <button>7 dias</button>
-        <button class="active">30 dias</button>
-        <button>Este mês</button>
-      </div>
+      <div class="filters" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+  <button id="btn-hoje" onclick="definirPeriodo('hoje')">Hoje</button>
+  <button id="btn-7dias" onclick="definirPeriodo('7dias')">7 dias</button>
+  <button id="btn-30dias" class="active" id="btn-30dias" onclick="definirPeriodo('30dias')">30 dias</button>
+  <button id="btn-esteMes" onclick="definirPeriodo('esteMes')">Este mês</button>
+
+  <span style="color: #666; font-size: 14px; margin-left: 10px;">Período:</span>
+  <input type="date" id="dataInicio" onchange="MudarFiltroData()" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;" />
+  <span style="color: #666;">até</span>
+  <input type="date" id="dataFim" onchange="MudarFiltroData()" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;" />
+</div>
     </header>
 
     <section class="kpi-grid">
