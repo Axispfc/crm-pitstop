@@ -2,7 +2,7 @@ const loginForm = document.getElementById("loginForm");
 const loginScreen = document.getElementById("loginScreen");
 const systemScreen = document.getElementById("systemScreen");
 const logoutBtn = document.getElementById("logoutBtn");
-
+const parkingOptions = document.getElementById("parkingOptions");
 const vehicleForm = document.getElementById("vehicleForm");
 const washOptions = document.getElementById("washOptions");
 const tipoEntradaInputs = document.querySelectorAll("input[name='tipoEntrada']");
@@ -12,12 +12,20 @@ const cupomConteudo = document.getElementById("cupomConteudo");
 
 let estacionados = [];
 
-/* MOSTRAR LAVAGEM */
+/* CONTROLE DE EXIBIÇÃO: LAVAGEM VS ESTACIONAMENTO */
 tipoEntradaInputs.forEach((input) => {
   input.addEventListener("change", function () {
+    
+    // Se o valor for "Lavagem", mostra a div de lavagem (e esconde se não for)
     washOptions.classList.toggle("hidden", this.value !== "Lavagem");
+    
+    // Se o valor for "Estacionamento", mostra a div de estacionamento (e esconde se não for)
+    parkingOptions.classList.toggle("hidden", this.value !== "Estacionamento");
+    
   });
 });
+
+
 
 /* PREÇO LAVAGEM */
 function calcularLavagem(tipoVeiculo, servico, cera) {
@@ -41,11 +49,31 @@ function calcularLavagem(tipoVeiculo, servico, cera) {
 }
 
 /* PREÇO ESTACIONAMENTO */
-function calcularEstacionamento(entrada, saida) {
+function calcularEstacionamento(entrada, saida, tipoEstacionamento = "Carro Comum") {
+  // 1. Descobre o tempo que ficou estacionado
   const diffHoras = (saida - entrada) / (1000 * 60 * 60);
-  if (diffHoras <= 1) return 10;
-  return 10 + Math.ceil(diffHoras - 1) * 3;
+  
+  // 2. Define os valores padrão (vamos supor que seja o Carro Comum)
+  let valorPrimeiraHora = 10;
+  let valorHoraAdicional = 3;
+
+  // 3. Ajusta os valores dependendo do tipo do veículo
+  if (tipoEstacionamento === "Moto") {
+    valorPrimeiraHora = 8;
+    valorHoraAdicional = 4;
+  } else if (tipoEstacionamento === "Carro Grande") {
+    valorPrimeiraHora = 10;
+    valorHoraAdicional = 5;
+  }
+
+  // 4. Faz o cálculo usando as variáveis que definimos acima
+  if (diffHoras <= 1) {
+    return valorPrimeiraHora;
+  } 
+  
+  return valorPrimeiraHora + Math.ceil(diffHoras - 1) * valorHoraAdicional;
 }
+ 
 
 /* FORMATADORES */
 const formatarData = (d) => d.toLocaleDateString("pt-BR");
@@ -77,7 +105,7 @@ function carregarEstacionamentosAbertos() {
           servico: d.servico,
           servicoadicional: d.servicoadicional || null,
           precoAdicional: d.precoAdicional || null,
-          
+          tipoEstacionamento: d.tipoEstacionamento || null,
           cera: d.servicoAdicional || false,
           valor: d.valor || null
         });
@@ -110,6 +138,7 @@ const hora = agora.toLocaleTimeString("pt-BR", {
 
     /* ESTACIONAMENTO */
     if (tipoEntrada === "Estacionamento") {
+      const tipoEstacionamento = document.querySelector("input[name='tipoEstacionamento']:checked")?.value;
       const docRef = await db.collection("atendimentos").add({
   nome,
   veiculo,
@@ -119,6 +148,7 @@ const hora = agora.toLocaleTimeString("pt-BR", {
   status: "Aberto",
   entrada: agora,
   criadoEm: agora,
+  tipoEstacionamento,
 
   // 🔥 ADICIONAR
   data: hoje,
@@ -127,7 +157,7 @@ const hora = agora.toLocaleTimeString("pt-BR", {
    statusCaixa: "aberto" // 👈 ADICIONE ISSO
 });
 
-      const obj = { id: docRef.id, nome, veiculo, placa, telefone, entrada: agora, status: "Aberto", tipoEntrada };
+      const obj = { id: docRef.id, nome, veiculo, placa, telefone,tipoEstacionamento, entrada: agora, status: "Aberto", tipoEntrada };
 
       
       gerarCupomEntrada(obj);
@@ -183,6 +213,7 @@ const hora = agora.toLocaleTimeString("pt-BR", {
 
     vehicleForm.reset();
     washOptions.classList.add("hidden");
+    parkingOptions.classList.add("hidden");
   });
 }
 
@@ -251,7 +282,7 @@ function fecharCupom() {
 async function encerrarEstacionamento(id) {
   const v = estacionados.find(i => i.id === id);
   const saida = new Date();
-  const valor = calcularEstacionamento(v.entrada, saida);
+  const valor = calcularEstacionamento(v.entrada,saida, v.tipoEstacionamento );
 
   // 1. Solicita a forma de pagamento ao usuário
   let opcao = prompt(

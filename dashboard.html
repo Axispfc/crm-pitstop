@@ -70,7 +70,28 @@
             </label>
           </div>
     <button class="btn-register" type="submit">Cadastrar</button>
-    <div>
+    
+          <!---ESTACIONAMENTO CARRO GRANDE E MOTO----->
+          <div id="parkingOptions" >
+            <h4>Tipo de veículo</h4>
+
+            <div class="choice-row">
+              <label class="choice">
+                <input type="radio" name="tipoEstacionamento" value="grande" />
+                Carro Grande
+              </label>
+
+              <label class="choice">
+                <input type="radio" name="tipoEstacionamento" value="Moto" />
+                Moto
+              </label>
+
+            </div>
+          </div>
+          <!-- LAVAGEM -->
+          <div id="washOptions" class="hidden">
+
+            <div>
       <h4>Forma de pagamento</h4>
            <select class="form-control" id="pagamento">
               <option class="control"value="">Selecione</option>
@@ -80,8 +101,6 @@
             <option class="control">Crédito</option>
             </select>
           </div>
-          <!-- LAVAGEM -->
-          <div id="washOptions" class="hidden">
 
             <h4>Tipo de veículo</h4>
 
