@@ -338,4 +338,13 @@ function logout(){
 document.addEventListener("DOMContentLoaded", () => {
   carregarCaixa();
   carregarDespesasAbertas();
+
+  // No final do seu caixa.js, garanta que a inicialização esteja assim:
+firebase.auth().onAuthStateChanged((user) => {
+  if (user && user.email === "viniciuspitstop@hotmail.com") {
+    // 🌟 Só puxa os dados do banco se o Admin estiver devidamente reconhecido
+    if (typeof carregarCaixa === "function") carregarCaixa(); 
+    if (typeof carregarEstacionamentosAbertos === "function") carregarEstacionamentosAbertos();
+  }
+});
 });
