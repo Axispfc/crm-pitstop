@@ -439,3 +439,29 @@ document.addEventListener("DOMContentLoaded", () => {
 function logout() {
   firebase.auth().signOut().then(() => window.location.href = "index.html");
 }
+
+/* PERMISSÕES */
+function aplicarPermissoes() {
+  const nivel = localStorage.getItem("nivel");
+
+  if (nivel === "lava") {
+    const menusBloqueados = [
+      "Caixa",
+      "Financeiro",
+      "Relatórios",
+      "Despesas",
+      "Clientes",
+      "Configurações"
+    ];
+
+    document.querySelectorAll("nav a").forEach((link) => {
+      const texto = link.textContent.trim();
+
+      if (menusBloqueados.includes(texto)) {
+        link.style.display = "none";
+      }
+    });
+  }
+}
+
+aplicarPermissoes();
