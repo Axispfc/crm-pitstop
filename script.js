@@ -447,11 +447,9 @@ function aplicarPermissoes() {
   if (nivel === "lava") {
     const menusBloqueados = [
       "Caixa",
+      "Histórico",
       "Financeiro",
-      "Relatórios",
-      "Despesas",
-      "Clientes",
-      "Configurações"
+      "Veículos Estacionados"
     ];
 
     document.querySelectorAll("nav a").forEach((link) => {
