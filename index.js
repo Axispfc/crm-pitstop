@@ -20,8 +20,19 @@ function login() {
     firebase.auth().signInWithEmailAndPassword(
         form.email().value, form.password().value
     ).then(response => {
-        window.location.href = "dashboard.html";
-    }).catch(error => {
+
+    const email = response.user.email;
+
+    if (email === "pitstop@hotmail.com") {
+        localStorage.setItem("nivel", "lava");
+    }
+
+    if (email === "viniciuspitstop@hotmail.com") {
+        localStorage.setItem("nivel", "admin");
+    }
+
+    window.location.href = "dashboard.html";
+}).catch(error => {
         alert(getErrorMessage(error));
     });
 }
