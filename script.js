@@ -371,12 +371,17 @@ async function finalizarLavagem(id) {
 }
 
 /* CUPONS */
-function generarCupomEntrada(v) {
+function gerarCupomEstacionamento(v) {
   coupon.classList.remove("hidden");
-  cupomConteudo.innerHTML = `<p>Entrada registrada - ${v.placa}</p>
+
+  cupomConteudo.innerHTML = `
+    <p><strong>Tipo:</strong> Entrada estacionamento</p>
     <p><strong>Cliente:</strong> ${v.nome}</p>
     <p><strong>Veículo:</strong> ${v.veiculo}</p>
+    <p><strong>Placa:</strong> ${v.placa}</p>
     <p><strong>Telefone:</strong> ${v.telefone}</p>
+    <p><strong>Entrada:</strong> ${formatarData(v.entrada)} às ${formatarHora(v.entrada)}</p>
+    <p><strong>Status:</strong> Aberto</p>
   `;
 }
 
