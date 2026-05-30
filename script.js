@@ -202,7 +202,7 @@ if (vehicleForm) {
       
       // Geração de cupons iniciais apenas para novos cadastros
       if (tipoEntrada === "Estacionamento") {
-        gerarCupomEntrada({ id: docRef.id, ...dadosAtendimento, entrada: agora });
+        gerarCupomEntradaEstacionamento({ id: docRef.id, ...dadosAtendimento, entrada: agora });
       } else {
         gerarCupomLavagem({ ...dadosAtendimento, data: agora });
       }
