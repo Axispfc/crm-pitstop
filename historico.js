@@ -240,32 +240,27 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function reabrirCliente(nome) {
-  const cliente = historicoClientes.find(item => item.nome === nome);
+  const snapshot = await db.collection("atendimentos")
+    .where("nome", "==", nome)
+    .orderBy("entrada", "desc")
+    .limit(1)
+    .get();
 
-  if (!cliente) {
-    alert("Cliente não encontrado.");
+  if (snapshot.empty) {
+    alert("Atendimento não encontrado.");
     return;
   }
 
-  const novoAtendimento = {
-    nome: cliente.nome,
-    placa: cliente.placa,
-    veiculo: cliente.veiculo,
-    telefone: cliente.telefone || "",
-    tipoEntrada: "Estacionamento",
+  const doc = snapshot.docs[0];
+
+  await db.collection("atendimentos").doc(doc.id).update({
     status: "Aberto",
-    entrada: new Date(),
-    criadoEm: new Date(),
-    data: new Date().toISOString().split("T")[0],
-    hora: new Date().toLocaleTimeString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit"
-    }),
+    saida: firebase.firestore.FieldValue.delete(),
+    finalizadoEm: firebase.firestore.FieldValue.delete(),
+    valor: firebase.firestore.FieldValue.delete(),
     statusCaixa: "aberto"
-  };
+  });
 
-  await db.collection("atendimentos").add(novoAtendimento);
-
-  alert("Ficha reaberta com sucesso!");
+  alert("Ficha reaberta com sucesso mantendo o horário original!");
   window.location.href = "dashboard.html";
 }
