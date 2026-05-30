@@ -1,4 +1,7 @@
 let historicoClientes = [];
+let historicoFiltrado = [];
+let paginaAtual = 1;
+const itensPorPagina = 15;
 
 async function carregarHistorico() {
   try {
@@ -87,11 +90,22 @@ async function carregarHistorico() {
       ...dados
     }));
 
-    renderizarHistorico(historicoClientes);
+    historicoFiltrado = historicoClientes;
+paginaAtual = 1;
+renderizarHistoricoPaginado();
 
   } catch (error) {
     console.error("Erro ao carregar histórico:", error);
   }
+}
+
+function renderizarHistoricoPaginado() {
+  const inicio = (paginaAtual - 1) * itensPorPagina;
+  const fim = inicio + itensPorPagina;
+  const listaPagina = historicoFiltrado.slice(inicio, fim);
+
+  renderizarHistorico(listaPagina);
+  renderizarPaginacao();
 }
 
 function renderizarHistorico(lista) {
@@ -113,7 +127,8 @@ function renderizarHistorico(lista) {
     return;
   }
 
-  let id = 1;
+  const inicio = (paginaAtual - 1) * itensPorPagina;
+  let id = inicio + 1;
 
   lista.forEach((dados) => {
     const linha = document.createElement("div");
@@ -154,6 +169,49 @@ function renderizarHistorico(lista) {
   });
 }
 
+function renderizarPaginacao() {
+  let paginacao = document.getElementById("paginacaoHistorico");
+
+  if (!paginacao) {
+    paginacao = document.createElement("div");
+    paginacao.id = "paginacaoHistorico";
+    paginacao.className = "pagination";
+
+    const historyList = document.getElementById("historyList");
+    historyList.parentElement.appendChild(paginacao);
+  }
+
+  const totalPaginas = Math.ceil(historicoFiltrado.length / itensPorPagina);
+
+  if (totalPaginas <= 1) {
+    paginacao.innerHTML = "";
+    return;
+  }
+
+  paginacao.innerHTML = `
+    <button onclick="mudarPaginaHistorico(-1)" ${paginaAtual === 1 ? "disabled" : ""}>
+      Anterior
+    </button>
+
+    <span>Página ${paginaAtual} de ${totalPaginas}</span>
+
+    <button onclick="mudarPaginaHistorico(1)" ${paginaAtual === totalPaginas ? "disabled" : ""}>
+      Próxima
+    </button>
+  `;
+}
+
+function mudarPaginaHistorico(direcao) {
+  const totalPaginas = Math.ceil(historicoFiltrado.length / itensPorPagina);
+
+  paginaAtual += direcao;
+
+  if (paginaAtual < 1) paginaAtual = 1;
+  if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+  renderizarHistoricoPaginado();
+}
+
 function ativarFiltroHistorico() {
   const searchInput = document.getElementById("searchInput");
 
@@ -170,7 +228,9 @@ function ativarFiltroHistorico() {
       );
     });
 
-    renderizarHistorico(filtrados);
+    historicoFiltrado = filtrados;
+paginaAtual = 1;
+renderizarHistoricoPaginado();
   });
 }
 
