@@ -159,9 +159,9 @@ function renderizarHistorico(lista) {
       </span>
       
       <span style="text-align: right;">
-        <button class="btn-action">
-          <i class="fa-solid fa-eye"></i>
-        </button>
+        <button class="btn-reabrir" onclick="reabrirCliente('${dados.nome}')">
+  Reabrir
+</button>
       </span>
     `;
 
@@ -238,3 +238,34 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarHistorico();
   ativarFiltroHistorico();
 });
+
+async function reabrirCliente(nome) {
+  const cliente = historicoClientes.find(item => item.nome === nome);
+
+  if (!cliente) {
+    alert("Cliente não encontrado.");
+    return;
+  }
+
+  const novoAtendimento = {
+    nome: cliente.nome,
+    placa: cliente.placa,
+    veiculo: cliente.veiculo,
+    telefone: cliente.telefone || "",
+    tipoEntrada: "Estacionamento",
+    status: "Aberto",
+    entrada: new Date(),
+    criadoEm: new Date(),
+    data: new Date().toISOString().split("T")[0],
+    hora: new Date().toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    }),
+    statusCaixa: "aberto"
+  };
+
+  await db.collection("atendimentos").add(novoAtendimento);
+
+  alert("Ficha reaberta com sucesso!");
+  window.location.href = "dashboard.html";
+}
