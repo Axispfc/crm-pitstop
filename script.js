@@ -340,8 +340,22 @@ async function encerrarEstacionamento(id) {
   const valor = calcularEstacionamento(v.entrada, saida, v.tipoEstacionamento);
 
   let opcao = prompt(
-    "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito"
-  );
+  "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito\n\n0 - Excluir atendimento"
+);
+
+if (opcao === null) return;
+
+if (opcao === "0") {
+  if (!confirm("Tem certeza que deseja excluir este atendimento? Ele não será contabilizado no caixa.")) return;
+
+  await db.collection("atendimentos").doc(id).delete();
+
+  estacionados = estacionados.filter(i => i.id !== id);
+  atualizarListaEstacionamento();
+
+  alert("Atendimento excluído com sucesso!");
+  return;
+}
 
   let pagamento = "Dinheiro";
   if (opcao === "2") pagamento = "Pix";
@@ -368,8 +382,22 @@ async function finalizarLavagem(id) {
   if (!v) return alert("Atendimento não encontrado.");
 
   let opcao = prompt(
-    "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito"
-  );
+  "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito\n\n0 - Excluir atendimento"
+);
+
+if (opcao === null) return;
+
+if (opcao === "0") {
+  if (!confirm("Tem certeza que deseja excluir este atendimento? Ele não será contabilizado no caixa.")) return;
+
+  await db.collection("atendimentos").doc(id).delete();
+
+  estacionados = estacionados.filter(i => i.id !== id);
+  atualizarListaEstacionamento();
+
+  alert("Atendimento excluído com sucesso!");
+  return;
+}
 
   if (!opcao) return;
 
