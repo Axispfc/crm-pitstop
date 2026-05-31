@@ -10,7 +10,10 @@ async function carregarHistorico() {
     const dados = [];
 
     snapshot.forEach(doc => {
-      dados.push(doc.data());
+      dados.push({
+  id: doc.id,
+  ...doc.data()
+});
     });
 
     console.log("Dados carregados:", dados);
@@ -30,6 +33,7 @@ async function carregarHistorico() {
           lavagem: 0,
           estacionamento: 0,
           ultimaVisita: null,
+          ultimoAtendimentoId: item.id,
           placa: item.placa || "-",
           veiculo: item.veiculo || "-"
         };
@@ -58,6 +62,7 @@ async function carregarHistorico() {
 
         if (!clientesMap[nome].ultimaVisita || data > clientesMap[nome].ultimaVisita) {
           clientesMap[nome].ultimaVisita = data;
+        clientesMap[nome].ultimoAtendimentoId = item.id;
         }
       }
     });
@@ -159,7 +164,7 @@ function renderizarHistorico(lista) {
       </span>
       
       <span style="text-align: right;">
-        <button class="btn-reabrir" onclick="reabrirCliente('${dados.nome}')">
+        <button class="btn-reabrir" onclick="reabrirAtendimento('${dados.ultimoAtendimentoId}')">
   Reabrir
 </button>
       </span>
@@ -239,28 +244,15 @@ document.addEventListener("DOMContentLoaded", () => {
   ativarFiltroHistorico();
 });
 
-async function reabrirCliente(nome) {
-  const snapshot = await db.collection("atendimentos")
-    .where("nome", "==", nome)
-    .orderBy("entrada", "desc")
-    .limit(1)
-    .get();
-
-  if (snapshot.empty) {
-    alert("Atendimento não encontrado.");
-    return;
-  }
-
-  const doc = snapshot.docs[0];
-
-  await db.collection("atendimentos").doc(doc.id).update({
+async function reabrirAtendimento(id) {
+  await db.collection("atendimentos").doc(id).update({
     status: "Aberto",
+    statusCaixa: "aberto",
     saida: firebase.firestore.FieldValue.delete(),
     finalizadoEm: firebase.firestore.FieldValue.delete(),
-    valor: firebase.firestore.FieldValue.delete(),
-    statusCaixa: "aberto"
+    valor: firebase.firestore.FieldValue.delete()
   });
 
-  alert("Ficha reaberta com sucesso mantendo o horário original!");
+  alert("Ficha reaberta mantendo o horário original!");
   window.location.href = "dashboard.html";
 }
