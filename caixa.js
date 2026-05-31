@@ -49,7 +49,11 @@ let lavagens = 0;
 let estacionamentos = 0;
 let dinheiro = 0, pix = 0, debito = 0, credito = 0;
 
-entradas.forEach(item => {
+entradasFiltradas = entradas.filter(item => {
+  return filtro === "Ambos" || item.tipoEntrada === filtro;
+});
+
+entradasFiltradas.forEach(item => {
   const valor = item.valor || 0;
   total += valor;
 
@@ -61,10 +65,6 @@ entradas.forEach(item => {
   if (pagamento === "Pix") pix += valor;
   if (pagamento === "Débito") debito += valor;
   if (pagamento === "Crédito") credito += valor;
-});
-
-entradasFiltradas = entradas.filter(item => {
-  return filtro === "Ambos" || item.tipoEntrada === filtro;
 });
 
 const inicio = (paginaMovimentacoes - 1) * movimentacoesPorPagina;
