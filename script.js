@@ -164,13 +164,11 @@ await db.collection("clientes").doc(placa).set({
       const ceraCheckbox = document.getElementById("cera");
       const temCera = ceraCheckbox ? ceraCheckbox.checked : false;
       
-      const pagamento = document.getElementById("pagamento").value;
       const servicoadicional = document.getElementById("servicoad").value;
       const precoAdicional = document.getElementById("precoAd").value;
 
       if (!tipoVeiculo) return alert("Selecione o tipo de veículo.");
       if (tipoVeiculo !== "Moto" && !servico) return alert("Selecione o serviço.");
-      if (!pagamento) return alert("Selecione a forma de pagamento.");
 
       // Calcula o valor aplicando as correções de tipo de veículo e cera booleana
       const valor = calcularLavagem(tipoVeiculo, servico, temCera) + (precoAdicional ? parseFloat(precoAdicional) : 0);
@@ -181,7 +179,6 @@ await db.collection("clientes").doc(placa).set({
         servico,
         cera: temCera, // Grava como true/false legítimo no Firestore
         valor,
-        pagamento,
         servicoadicional,
         precoAdicional
       };
@@ -368,15 +365,31 @@ async function encerrarEstacionamento(id) {
 /* FINALIZAR LAVAGEM */
 async function finalizarLavagem(id) {
   const v = estacionados.find(i => i.id === id);
+  if (!v) return alert("Atendimento não encontrado.");
 
-  await db.collection("atendimentos").doc(id).update({
-    status: "Finalizado",
-    finalizadoEm: new Date(),
-  });
+  let opcao = prompt(
+    "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito"
+  );
+
+  if (!opcao) return;
+
+  let pagamento = "Dinheiro";
+  if (opcao === "2") pagamento = "Pix";
+  if (opcao === "3") pagamento = "Débito";
+  if (opcao === "4") pagamento = "Crédito";
+
+  atendimentoPendente = {
+    id,
+    tipo: "Lavagem",
+    veiculo: v,
+    saida: new Date(),
+    valor: v.valor || 0,
+    pagamento
+  };
+
+  v.pagamento = pagamento;
 
   gerarCupomLavagemFinal(v);
-  estacionados = estacionados.filter(i => i.id !== id);
-  atualizarListaEstacionamento();
 }
 
 /* CUPONS */
@@ -440,6 +453,7 @@ function gerarCupomLavagemFinal(v) {
     <p><strong>Valor:</strong> ${formatarValor(v.valor)}</p>
     <p><strong>Data:</strong> ${formatarData(agora)}</p>
     <p><strong>Horário Entrada:</strong> ${formatarHora(v.entrada)}</p>
+<p><strong>Pagamento:</strong> ${v.pagamento}</p>
     <p><strong>Horário Saída:</strong> ${formatarHora(agora)}</p>
   `;
 }
@@ -523,6 +537,15 @@ async function confirmarFechamentoAtendimento() {
       pagamento
     });
   }
+
+if (tipo === "Lavagem") {
+  await db.collection("atendimentos").doc(id).update({
+    status: "Finalizado",
+    finalizadoEm: saida,
+    pagamento,
+    valor
+  });
+}
 
   estacionados = estacionados.filter(i => i.id !== id);
   atualizarListaEstacionamento();
