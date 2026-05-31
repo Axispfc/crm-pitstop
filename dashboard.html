@@ -52,7 +52,12 @@
         <form id="vehicleForm">
           <input id="nome" placeholder="Cliente" required />
           <input id="veiculo" placeholder="Veículo" required />
-          <input id="placa" placeholder="Placa" required />
+          <input
+  id="placa"
+  placeholder="Placa"
+  required
+  onblur="buscarClientePorPlaca()"
+/>
           <input id="telefone" placeholder="Telefone" required />
           
 
