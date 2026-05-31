@@ -2,6 +2,9 @@ const listaDespesas = document.getElementById("listaDespesas");
 
 let entradas = [];
 let despesas = [];
+let entradasFiltradas = [];
+let paginaMovimentacoes = 1;
+const movimentacoesPorPagina = 10;
 
 /* FORMATAR VALOR */
 function formatarValor(valor) {
@@ -42,24 +45,36 @@ function atualizarTela() {
   const filtro = selectFiltro ? selectFiltro.value : "Ambos";
 
   let total = 0;
-  let lavagens = 0;
-  let estacionamentos = 0;
-  let dinheiro = 0, pix = 0, debito = 0, credito = 0;
+let lavagens = 0;
+let estacionamentos = 0;
+let dinheiro = 0, pix = 0, debito = 0, credito = 0;
 
-  entradas.forEach(item => {
+entradas.forEach(item => {
+  const valor = item.valor || 0;
+  total += valor;
+
+  if (item.tipoEntrada === "Lavagem") lavagens++;
+  if (item.tipoEntrada === "Estacionamento") estacionamentos++;
+
+  const pagamento = item.pagamento || "Dinheiro";
+  if (pagamento === "Dinheiro") dinheiro += valor;
+  if (pagamento === "Pix") pix += valor;
+  if (pagamento === "Débito") debito += valor;
+  if (pagamento === "Crédito") credito += valor;
+});
+
+entradasFiltradas = entradas.filter(item => {
+  return filtro === "Ambos" || item.tipoEntrada === filtro;
+});
+
+const inicio = (paginaMovimentacoes - 1) * movimentacoesPorPagina;
+const fim = inicio + movimentacoesPorPagina;
+const entradasPagina = entradasFiltradas.slice(inicio, fim);
+
+  entradasPagina.forEach(item => {
+
     // 1. Soma para os cards superiores (Independente do filtro)
-    const valor = item.valor || 0;
-    total += valor;
-
-    if (item.tipoEntrada === "Lavagem") lavagens++;
-    if (item.tipoEntrada === "Estacionamento") estacionamentos++;
-
-    const pagamento = item.pagamento || "Dinheiro";
-    if (pagamento === "Dinheiro") dinheiro += valor;
-    if (pagamento === "Pix") pix += valor;
-    if (pagamento === "Débito") debito += valor;
-    if (pagamento === "Crédito") credito += valor;
-
+    
     // 2. Lógica do filtro para exibir ou não na lista
     const mostrarItem = filtro === "Ambos" || item.tipoEntrada === filtro;
 
@@ -84,6 +99,8 @@ function atualizarTela() {
   document.getElementById("lavagens").textContent = lavagens;
   document.getElementById("estacionamentos").textContent = estacionamentos;
   document.getElementById("ticket").textContent = formatarValor(ticket);
+
+renderizarPaginacaoMovimentacoes();
 
   atualizarGraficoPagamentos(dinheiro, pix, debito, credito);
   atualizarResumo();
@@ -340,3 +357,46 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarDespesasAbertas();
   });
 });
+
+function renderizarPaginacaoMovimentacoes() {
+  let paginacao = document.getElementById("paginacaoMovimentacoes");
+
+  if (!paginacao) {
+    paginacao = document.createElement("div");
+    paginacao.id = "paginacaoMovimentacoes";
+    paginacao.className = "cash-pagination";
+
+    const movimentacoes = document.getElementById("movimentacoes");
+    movimentacoes.parentElement.appendChild(paginacao);
+  }
+
+  const totalPaginas = Math.ceil(entradasFiltradas.length / movimentacoesPorPagina);
+
+  if (totalPaginas <= 1) {
+    paginacao.innerHTML = "";
+    return;
+  }
+
+  paginacao.innerHTML = `
+    <button onclick="mudarPaginaMovimentacoes(-1)" ${paginaMovimentacoes === 1 ? "disabled" : ""}>
+      Anterior
+    </button>
+
+    <span>Página ${paginaMovimentacoes} de ${totalPaginas}</span>
+
+    <button onclick="mudarPaginaMovimentacoes(1)" ${paginaMovimentacoes === totalPaginas ? "disabled" : ""}>
+      Próxima
+    </button>
+  `;
+}
+
+function mudarPaginaMovimentacoes(direcao) {
+  const totalPaginas = Math.ceil(entradasFiltradas.length / movimentacoesPorPagina);
+
+  paginaMovimentacoes += direcao;
+
+  if (paginaMovimentacoes < 1) paginaMovimentacoes = 1;
+  if (paginaMovimentacoes > totalPaginas) paginaMovimentacoes = totalPaginas;
+
+  atualizarTela();
+}
