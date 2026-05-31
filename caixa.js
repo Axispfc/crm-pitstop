@@ -13,12 +13,9 @@ function formatarValor(valor) {
 
 /* CARREGAR DADOS DO FIREBASE */
 async function carregarCaixa() {
-  const hoje = new Date().toISOString().split("T")[0];
-
   const snapshot = await db.collection("atendimentos")
     .where("status", "==", "Finalizado")
     .where("statusCaixa", "==", "aberto")
-    .where("data", "==", hoje)
     .get();
 
   entradas = [];
@@ -30,7 +27,7 @@ async function carregarCaixa() {
       ...dados
     });
   });
-  
+
   atualizarTela();
   renderizarDespesas();
 }
@@ -145,11 +142,8 @@ async function removerDespesa(index) {
   }
 }
 async function carregarDespesasAbertas() {
-  const hoje = new Date().toISOString().split("T")[0];
-
   const snapshot = await db.collection("despesas")
     .where("statusCaixa", "==", "aberto")
-    .where("data", "==", hoje)
     .get();
 
   despesas = [];
@@ -336,15 +330,13 @@ function logout(){
 
 /* INIT */
 document.addEventListener("DOMContentLoaded", () => {
-  carregarCaixa();
-  carregarDespesasAbertas();
+  firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+      window.location.href = "index.html";
+      return;
+    }
 
-  // No final do seu caixa.js, garanta que a inicialização esteja assim:
-firebase.auth().onAuthStateChanged((user) => {
-  if (user && user.email === "viniciuspitstop@hotmail.com") {
-    // 🌟 Só puxa os dados do banco se o Admin estiver devidamente reconhecido
-    if (typeof carregarCaixa === "function") carregarCaixa(); 
-    if (typeof carregarEstacionamentosAbertos === "function") carregarEstacionamentosAbertos();
-  }
-});
+    carregarCaixa();
+    carregarDespesasAbertas();
+  });
 });
