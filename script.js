@@ -120,6 +120,14 @@ if (vehicleForm) {
     const placa = document.getElementById("placa").value.toUpperCase();
     const telefone = document.getElementById("telefone").value;
     const tipoEntrada = document.querySelector("input[name='tipoEntrada']:checked").value;
+
+await db.collection("clientes").doc(placa).set({
+  nome,
+  veiculo,
+  telefone,
+  placa,
+  atualizadoEm: new Date()
+}, { merge: true });
     
     const agora = new Date();
     const hoje = agora.toISOString().split("T")[0];
@@ -468,3 +476,32 @@ function aplicarPermissoes() {
 }
 
 aplicarPermissoes();
+
+async function buscarClientePorPlaca() {
+
+  const placa = document
+    .getElementById("placa")
+    .value
+    .trim()
+    .toUpperCase();
+
+  if (!placa) return;
+
+  const doc = await db
+    .collection("clientes")
+    .doc(placa)
+    .get();
+
+  if (!doc.exists) return;
+
+  const cliente = doc.data();
+
+  document.getElementById("nome").value =
+    cliente.nome || "";
+
+  document.getElementById("veiculo").value =
+    cliente.veiculo || "";
+
+  document.getElementById("telefone").value =
+    cliente.telefone || "";
+}
