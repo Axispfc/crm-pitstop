@@ -10,6 +10,7 @@ const listaEstacionamento = document.getElementById("listaEstacionamento");
 const coupon = document.getElementById("coupon");
 const cupomConteudo = document.getElementById("cupomConteudo");
 
+let atendimentoPendente = null;
 let estacionados = [];
 let editId = null; // ✏️ Variável global para controlar se estamos editando um cadastro
 
@@ -350,18 +351,18 @@ async function encerrarEstacionamento(id) {
   if (opcao === "3") pagamento = "Débito";
   if (opcao === "4") pagamento = "Crédito";
 
-  await db.collection("atendimentos").doc(id).update({
-    status: "Finalizado",
-    saida: saida,
-    valor: valor,
-    pagamento: pagamento 
-  });
+  atendimentoPendente = {
+    id,
+    tipo: "Estacionamento",
+    veiculo: v,
+    saida,
+    valor,
+    pagamento
+  };
 
   v.pagamento = pagamento;
+
   gerarCupomSaida(v, saida, valor);
-  
-  estacionados = estacionados.filter(i => i.id !== id);
-  atualizarListaEstacionamento();
 }
 
 /* FINALIZAR LAVAGEM */
@@ -504,4 +505,30 @@ async function buscarClientePorPlaca() {
 
   document.getElementById("telefone").value =
     cliente.telefone || "";
+}
+
+async function confirmarFechamentoAtendimento() {
+  if (!atendimentoPendente) {
+    alert("Nenhum atendimento pendente para finalizar.");
+    return;
+  }
+
+  const { id, tipo, saida, valor, pagamento } = atendimentoPendente;
+
+  if (tipo === "Estacionamento") {
+    await db.collection("atendimentos").doc(id).update({
+      status: "Finalizado",
+      saida,
+      valor,
+      pagamento
+    });
+  }
+
+  estacionados = estacionados.filter(i => i.id !== id);
+  atualizarListaEstacionamento();
+
+  atendimentoPendente = null;
+  fecharCupom();
+
+  alert("Atendimento finalizado com sucesso!");
 }
