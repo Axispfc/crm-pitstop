@@ -232,6 +232,16 @@ function montarHistorico() {
   const box = document.getElementById("historicoFinanceiro");
   box.innerHTML = "";
 
+  if (atendimentos.length === 0) {
+    box.innerHTML = `
+      <p class="empty" style="padding: 20px; text-align: center; color: #999;">
+        Nenhum registro encontrado para este período.
+      </p>
+    `;
+    renderizarPaginacaoFinanceiro();
+    return;
+  }
+
   const inicio = (paginaHistoricoFinanceiro - 1) * itensHistoricoFinanceiro;
   const fim = inicio + itensHistoricoFinanceiro;
   const listaPagina = atendimentos.slice(inicio, fim);
@@ -251,11 +261,6 @@ function montarHistorico() {
   });
 
   renderizarPaginacaoFinanceiro();
-
-
-  if (atendimentos.length === 0) {
-    box.innerHTML = `<p class="empty" style="padding: 20px; text-align: center; color: #999;">Nenhum registro encontrado para este período.</p>`;
-  }
 }
 
 function montarGrafico(faturamentoPorDia) {
