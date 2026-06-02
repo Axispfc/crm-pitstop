@@ -1,4 +1,6 @@
 let atendimentos = [];
+let paginaHistoricoFinanceiro = 1;
+const itensHistoricoFinanceiro = 15;
 
 /* FORMATAR VALOR */
 function formatarValor(valor) {
@@ -230,7 +232,11 @@ function montarHistorico() {
   const box = document.getElementById("historicoFinanceiro");
   box.innerHTML = "";
 
-  atendimentos.forEach(item => {
+  const inicio = (paginaHistoricoFinanceiro - 1) * itensHistoricoFinanceiro;
+  const fim = inicio + itensHistoricoFinanceiro;
+  const listaPagina = atendimentos.slice(inicio, fim);
+
+  listaPagina.forEach(item => {
     box.innerHTML += `
       <div class="history-row">
         <span>${item.nome || "-"}</span>
@@ -243,6 +249,9 @@ function montarHistorico() {
       </div>
     `;
   });
+
+  renderizarPaginacaoFinanceiro();
+}
 
   if (atendimentos.length === 0) {
     box.innerHTML = `<p class="empty" style="padding: 20px; text-align: center; color: #999;">Nenhum registro encontrado para este período.</p>`;
@@ -312,3 +321,46 @@ document.addEventListener("DOMContentLoaded", () => {
   // Inicia mostrando os últimos 30 dias por padrão para a tela vir cheia e bonita
   definirPeriodo("30dias");
 });
+
+function renderizarPaginacaoFinanceiro() {
+  let paginacao = document.getElementById("paginacaoFinanceiro");
+
+  if (!paginacao) {
+    paginacao = document.createElement("div");
+    paginacao.id = "paginacaoFinanceiro";
+    paginacao.className = "finance-pagination";
+
+    const historico = document.getElementById("historicoFinanceiro");
+    historico.parentElement.appendChild(paginacao);
+  }
+
+  const totalPaginas = Math.ceil(atendimentos.length / itensHistoricoFinanceiro);
+
+  if (totalPaginas <= 1) {
+    paginacao.innerHTML = "";
+    return;
+  }
+
+  paginacao.innerHTML = `
+    <button onclick="mudarPaginaFinanceiro(-1)" ${paginaHistoricoFinanceiro === 1 ? "disabled" : ""}>
+      ◀ Anterior
+    </button>
+
+    <span>${paginaHistoricoFinanceiro} / ${totalPaginas}</span>
+
+    <button onclick="mudarPaginaFinanceiro(1)" ${paginaHistoricoFinanceiro === totalPaginas ? "disabled" : ""}>
+      Próxima ▶
+    </button>
+  `;
+}
+
+function mudarPaginaFinanceiro(direcao) {
+  const totalPaginas = Math.ceil(atendimentos.length / itensHistoricoFinanceiro);
+
+  paginaHistoricoFinanceiro += direcao;
+
+  if (paginaHistoricoFinanceiro < 1) paginaHistoricoFinanceiro = 1;
+  if (paginaHistoricoFinanceiro > totalPaginas) paginaHistoricoFinanceiro = totalPaginas;
+
+  montarHistorico();
+}
