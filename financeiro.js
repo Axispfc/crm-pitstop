@@ -251,11 +251,12 @@ function montarHistorico() {
   });
 
   renderizarPaginacaoFinanceiro();
-}
+
 
   if (atendimentos.length === 0) {
     box.innerHTML = `<p class="empty" style="padding: 20px; text-align: center; color: #999;">Nenhum registro encontrado para este período.</p>`;
   }
+}
 
 function montarGrafico(faturamentoPorDia) {
   const grafico = document.getElementById("graficoDias");
