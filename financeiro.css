@@ -300,3 +300,31 @@ body {
 .empty {
   color: #9fb1b8;
 }
+
+.finance-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 0 4px;
+}
+
+.finance-pagination button {
+  background: linear-gradient(135deg, rgba(32,240,207,0.25), rgba(32,240,207,0.10));
+  border: 1px solid rgba(32,240,207,0.35);
+  color: #20f0cf;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.finance-pagination button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.finance-pagination span {
+  color: #fff;
+  font-weight: 700;
+}
