@@ -277,7 +277,15 @@ body {
 .history-head,
 .history-row {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 100px 130px 1.4fr 120px 120px;
+  grid-template-columns: 
+1.2fr   /* Cliente */
+1fr     /* Telefone */
+1fr     /* Veículo */
+100px   /* Placa */
+130px   /* Tipo */
+1.4fr   /* Serviço */
+120px   /* Valor */
+120px;  /* Pagamento */
   gap: 12px;
   align-items: center;
 }
