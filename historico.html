@@ -37,6 +37,23 @@
         </header>
 
         <div class="top-info">
+
+<div class="history-filters">
+  <button onclick="filtrarPeriodoHistorico('hoje')">Hoje</button>
+  <button onclick="filtrarPeriodoHistorico('7dias')">7 dias</button>
+  <button onclick="filtrarPeriodoHistorico('30dias')" class="active">30 dias</button>
+
+  <input type="date" id="dataInicioHistorico">
+  <span>até</span>
+  <input type="date" id="dataFimHistorico">
+
+  <select id="tipoFiltroHistorico" onchange="aplicarFiltrosHistorico()">
+    <option value="Ambos">Ambos</option>
+    <option value="Lavagem">Lavagem</option>
+    <option value="Estacionamento">Estacionamento</option>
+  </select>
+</div>
+
             <div class="filter-panel">
                 <input type="text" id="searchInput" placeholder="Filtrar por nome, placa ou veículo...">
                 <i class="fa-solid fa-magnifying-glass" style="align-self: center; color: var(--text-dim)"></i>
