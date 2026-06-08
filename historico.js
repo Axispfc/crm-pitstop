@@ -102,9 +102,12 @@ function montarHistoricoComFiltros() {
   const dadosFiltrados = atendimentosHistorico.filter(item => {
     const dataItem = obterDataAtendimento(item);
 
-    if (!dataItem || isNaN(dataItem.getTime())) return false;
+let dentroPeriodo = true;
 
-    const dentroPeriodo = dataItem >= inicio && dataItem <= fim;
+if (periodoHistorico !== "todos") {
+  if (!dataItem || isNaN(dataItem.getTime())) return false;
+  dentroPeriodo = dataItem >= inicio && dataItem <= fim;
+}
     const dentroTipo = tipoFiltro === "Ambos" || item.tipoEntrada === tipoFiltro;
 
     const buscaOk =
