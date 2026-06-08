@@ -1,7 +1,11 @@
+let atendimentosHistorico = [];
 let historicoClientes = [];
 let historicoFiltrado = [];
 let paginaAtual = 1;
 const itensPorPagina = 15;
+
+let periodoHistorico = "30dias";
+
 
 async function carregarHistorico() {
   try {
@@ -15,6 +19,10 @@ async function carregarHistorico() {
   ...doc.data()
 });
     });
+
+atendimentosHistorico = dados;
+montarHistoricoComFiltros();
+return;
 
     console.log("Dados carregados:", dados);
 
@@ -102,6 +110,138 @@ renderizarHistoricoPaginado();
   } catch (error) {
     console.error("Erro ao carregar histórico:", error);
   }
+}
+
+function montarHistoricoComFiltros() {
+  const hoje = new Date();
+  hoje.setHours(23, 59, 59, 999);
+
+  let inicio = new Date();
+
+  if (periodoHistorico === "hoje") {
+    inicio = new Date();
+    inicio.setHours(0, 0, 0, 0);
+  }
+
+  if (periodoHistorico === "7dias") {
+    inicio = new Date();
+    inicio.setDate(inicio.getDate() - 7);
+    inicio.setHours(0, 0, 0, 0);
+  }
+
+  if (periodoHistorico === "30dias") {
+    inicio = new Date();
+    inicio.setDate(inicio.getDate() - 30);
+    inicio.setHours(0, 0, 0, 0);
+  }
+
+  if (periodoHistorico === "personalizado") {
+    const dataInicio = document.getElementById("dataInicioHistorico")?.value;
+    const dataFim = document.getElementById("dataFimHistorico")?.value;
+
+    if (dataInicio) {
+      inicio = new Date(dataInicio + "T00:00:00");
+    }
+
+    if (dataFim) {
+      hoje.setTime(new Date(dataFim + "T23:59:59").getTime());
+    }
+  }
+
+  const tipoFiltro = document.getElementById("tipoFiltroHistorico")?.value || "Ambos";
+  const termoBusca = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
+
+  const dadosFiltrados = atendimentosHistorico.filter(item => {
+    const dataItem = item.entrada
+      ? (item.entrada.toDate ? item.entrada.toDate() : new Date(item.entrada))
+      : null;
+
+    if (!dataItem) return false;
+
+    const dentroPeriodo = dataItem >= inicio && dataItem <= hoje;
+    const dentroTipo = tipoFiltro === "Ambos" || item.tipoEntrada === tipoFiltro;
+
+    const buscaOk =
+      (item.nome || "").toLowerCase().includes(termoBusca) ||
+      (item.placa || "").toLowerCase().includes(termoBusca) ||
+      (item.veiculo || "").toLowerCase().includes(termoBusca);
+
+    return dentroPeriodo && dentroTipo && buscaOk;
+  });
+
+  const totalAtendimentos = dadosFiltrados.length;
+  const clientesMap = {};
+  const servicosCount = {};
+  const visitasPorMes = {};
+
+  dadosFiltrados.forEach(item => {
+    const nome = item.nome || "Sem nome";
+
+    if (!clientesMap[nome]) {
+      clientesMap[nome] = {
+        total: 0,
+        lavagem: 0,
+        estacionamento: 0,
+        ultimaVisita: null,
+        ultimoAtendimentoId: item.id,
+        placa: item.placa || "-",
+        veiculo: item.veiculo || "-"
+      };
+    }
+
+    clientesMap[nome].total++;
+
+    if (item.tipoEntrada === "Lavagem") clientesMap[nome].lavagem++;
+    if (item.tipoEntrada === "Estacionamento") clientesMap[nome].estacionamento++;
+
+    const servico = item.tipoEntrada || "Outro";
+    servicosCount[servico] = (servicosCount[servico] || 0) + 1;
+
+    if (item.data) {
+      const mes = item.data.slice(0, 7);
+      visitasPorMes[mes] = (visitasPorMes[mes] || 0) + 1;
+    }
+
+    if (item.entrada) {
+      const data = item.entrada.toDate ? item.entrada.toDate() : new Date(item.entrada);
+
+      if (!clientesMap[nome].ultimaVisita || data > clientesMap[nome].ultimaVisita) {
+        clientesMap[nome].ultimaVisita = data;
+        clientesMap[nome].ultimoAtendimentoId = item.id;
+      }
+    }
+  });
+
+  const clientesRecorrentes = Object.values(clientesMap).filter(c => c.total > 1).length;
+
+  let servicoMaisUsado = "-";
+  let maior = 0;
+
+  for (let s in servicosCount) {
+    if (servicosCount[s] > maior) {
+      maior = servicosCount[s];
+      servicoMaisUsado = s;
+    }
+  }
+
+  const totalMeses = Object.keys(visitasPorMes).length;
+  const mediaVisitas = totalMeses > 0
+    ? (totalAtendimentos / totalMeses).toFixed(1)
+    : 0;
+
+  document.getElementById("TotalAtendimentos").innerText = totalAtendimentos;
+  document.getElementById("ClientesRecorrentes").innerText = clientesRecorrentes;
+  document.getElementById("ServicoMaisUsado").innerText = servicoMaisUsado;
+  document.getElementById("MediaVisitas").innerText = mediaVisitas;
+
+  historicoClientes = Object.entries(clientesMap).map(([nome, dados]) => ({
+    nome,
+    ...dados
+  }));
+
+  historicoFiltrado = historicoClientes;
+  paginaAtual = 1;
+  renderizarHistoricoPaginado();
 }
 
 function renderizarHistoricoPaginado() {
@@ -223,26 +363,9 @@ function ativarFiltroHistorico() {
   if (!searchInput) return;
 
   searchInput.addEventListener("input", function () {
-    const termo = this.value.toLowerCase().trim();
-
-    const filtrados = historicoClientes.filter((item) => {
-      return (
-        (item.nome || "").toLowerCase().includes(termo) ||
-        (item.placa || "").toLowerCase().includes(termo) ||
-        (item.veiculo || "").toLowerCase().includes(termo)
-      );
-    });
-
-    historicoFiltrado = filtrados;
-paginaAtual = 1;
-renderizarHistoricoPaginado();
+    montarHistoricoComFiltros();
   });
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  carregarHistorico();
-  ativarFiltroHistorico();
-});
 
 async function reabrirAtendimento(id) {
   await db.collection("atendimentos").doc(id).update({
@@ -255,4 +378,25 @@ async function reabrirAtendimento(id) {
 
   alert("Ficha reaberta mantendo o horário original!");
   window.location.href = "dashboard.html";
+}
+
+function filtrarPeriodoHistorico(periodo) {
+  periodoHistorico = periodo;
+
+  document.querySelectorAll(".history-filters button").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  const botoes = document.querySelectorAll(".history-filters button");
+
+  if (periodo === "hoje") botoes[0]?.classList.add("active");
+  if (periodo === "7dias") botoes[1]?.classList.add("active");
+  if (periodo === "30dias") botoes[2]?.classList.add("active");
+
+  montarHistoricoComFiltros();
+}
+
+function aplicarFiltrosHistorico() {
+  periodoHistorico = "personalizado";
+  montarHistoricoComFiltros();
 }
