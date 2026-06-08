@@ -486,9 +486,56 @@ function gerarCupomLavagemFinal(v) {
   `;
 }
 
+async function verificarEdicaoPelaURL() {
+  const params = new URLSearchParams(window.location.search);
+  const idEditar = params.get("editar");
+
+  if (!idEditar) return;
+
+  const doc = await db.collection("atendimentos").doc(idEditar).get();
+
+  if (!doc.exists) {
+    alert("Atendimento não encontrado para edição.");
+    return;
+  }
+
+  const d = doc.data();
+
+  const atendimento = {
+    id: doc.id,
+    nome: d.nome,
+    veiculo: d.veiculo,
+    placa: d.placa,
+    telefone: d.telefone,
+    entrada: d.entrada?.toDate ? d.entrada.toDate() : new Date(d.entrada),
+    status: d.status,
+    tipoEntrada: d.tipoEntrada,
+    servico: d.servico || null,
+    servicoadicional: d.servicoadicional || null,
+    precoAdicional: d.precoAdicional || null,
+    tipoEstacionamento: d.tipoEstacionamento || null,
+    tipoVeiculo: d.tipoVeiculo || null,
+    pagamento: d.pagamento || null,
+    cera: d.cera || false,
+    valor: d.valor || null
+  };
+
+  estacionados.push(atendimento);
+
+  setTimeout(() => {
+    abrirEdicao(idEditar);
+  }, 300);
+}
+
 /* INIT */
 document.addEventListener("DOMContentLoaded", () => {
-  if (listaEstacionamento) carregarEstacionamentosAbertos();
+  if (listaEstacionamento) {
+    carregarEstacionamentosAbertos();
+  }
+
+  if (vehicleForm) {
+    verificarEdicaoPelaURL();
+  }
 });
 
 /* LOGOUT */
