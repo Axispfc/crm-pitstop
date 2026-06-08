@@ -244,7 +244,7 @@ function atualizarListaEstacionamento() {
       <span class="status aberto">${v.status}</span>
       <span class="actions">
         <button onclick="verCupom('${v.id}')" title="Ver Cupom">🧾</button>
-        <button onclick="abrirEdicao('${v.id}')" title="Editar">✏</button>
+        <button onclick="window.location.href='dashboard.html?editar=${v.id}'" title="Editar">✏</button>
         ${
           v.tipoEntrada === "Estacionamento"
             ? `<button onclick="encerrarEstacionamento('${v.id}')" title="Finalizar">✔</button>`
