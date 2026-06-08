@@ -4,119 +4,67 @@ let historicoFiltrado = [];
 let paginaAtual = 1;
 const itensPorPagina = 15;
 
-let periodoHistorico = "30dias";
+let periodoHistorico = "todos";
 
-
+/* =========================
+   CARREGAR HISTÓRICO
+========================= */
 async function carregarHistorico() {
   try {
     const snapshot = await db.collection("atendimentos").get();
 
-    const dados = [];
+    atendimentosHistorico = [];
 
     snapshot.forEach(doc => {
-      dados.push({
-  id: doc.id,
-  ...doc.data()
-});
+      atendimentosHistorico.push({
+        id: doc.id,
+        ...doc.data()
+      });
     });
 
-atendimentosHistorico = dados;
-montarHistoricoComFiltros();
-return;
+    console.log("Dados carregados:", atendimentosHistorico);
 
-    console.log("Dados carregados:", dados);
-
-    const totalAtendimentos = dados.length;
-
-    const clientesMap = {};
-    const servicosCount = {};
-    const visitasPorMes = {};
-
-    dados.forEach(item => {
-      const nome = item.nome || "Sem nome";
-
-      if (!clientesMap[nome]) {
-        clientesMap[nome] = {
-          total: 0,
-          lavagem: 0,
-          estacionamento: 0,
-          ultimaVisita: null,
-          ultimoAtendimentoId: item.id,
-          placa: item.placa || "-",
-          veiculo: item.veiculo || "-"
-        };
-      }
-
-      clientesMap[nome].total++;
-
-      if (item.tipoEntrada === "Lavagem") {
-        clientesMap[nome].lavagem++;
-      }
-
-      if (item.tipoEntrada === "Estacionamento") {
-        clientesMap[nome].estacionamento++;
-      }
-
-      const servico = item.tipoEntrada || "Outro";
-      servicosCount[servico] = (servicosCount[servico] || 0) + 1;
-
-      if (item.data) {
-        const mes = item.data.slice(0, 7);
-        visitasPorMes[mes] = (visitasPorMes[mes] || 0) + 1;
-      }
-
-      if (item.entrada) {
-        const data = item.entrada.toDate ? item.entrada.toDate() : new Date(item.entrada);
-
-        if (!clientesMap[nome].ultimaVisita || data > clientesMap[nome].ultimaVisita) {
-          clientesMap[nome].ultimaVisita = data;
-        clientesMap[nome].ultimoAtendimentoId = item.id;
-        }
-      }
-    });
-
-    const clientesRecorrentes = Object.values(clientesMap)
-      .filter(c => c.total > 1).length;
-
-    let servicoMaisUsado = "-";
-    let maior = 0;
-
-    for (let s in servicosCount) {
-      if (servicosCount[s] > maior) {
-        maior = servicosCount[s];
-        servicoMaisUsado = s;
-      }
-    }
-
-    const totalMeses = Object.keys(visitasPorMes).length;
-    const mediaVisitas = totalMeses > 0
-      ? (totalAtendimentos / totalMeses).toFixed(1)
-      : 0;
-
-    document.getElementById("TotalAtendimentos").innerText = totalAtendimentos;
-    document.getElementById("ClientesRecorrentes").innerText = clientesRecorrentes;
-    document.getElementById("ServicoMaisUsado").innerText = servicoMaisUsado;
-    document.getElementById("MediaVisitas").innerText = mediaVisitas;
-
-    historicoClientes = Object.entries(clientesMap).map(([nome, dados]) => ({
-      nome,
-      ...dados
-    }));
-
-    historicoFiltrado = historicoClientes;
-paginaAtual = 1;
-renderizarHistoricoPaginado();
+    montarHistoricoComFiltros();
 
   } catch (error) {
     console.error("Erro ao carregar histórico:", error);
   }
 }
 
-function montarHistoricoComFiltros() {
-  const hoje = new Date();
-  hoje.setHours(23, 59, 59, 999);
+/* =========================
+   PEGAR DATA DO REGISTRO
+========================= */
+function obterDataAtendimento(item) {
+  if (item.entrada) {
+    return item.entrada.toDate ? item.entrada.toDate() : new Date(item.entrada);
+  }
 
-  let inicio = new Date();
+  if (item.criadoEm) {
+    return item.criadoEm.toDate ? item.criadoEm.toDate() : new Date(item.criadoEm);
+  }
+
+  if (item.finalizadoEm) {
+    return item.finalizadoEm.toDate ? item.finalizadoEm.toDate() : new Date(item.finalizadoEm);
+  }
+
+  if (item.saida) {
+    return item.saida.toDate ? item.saida.toDate() : new Date(item.saida);
+  }
+
+  if (item.data) {
+    return new Date(item.data + "T12:00:00");
+  }
+
+  return null;
+}
+
+/* =========================
+   MONTAR COM FILTROS
+========================= */
+function montarHistoricoComFiltros() {
+  let inicio = new Date("2000-01-01T00:00:00");
+  let fim = new Date();
+  fim.setHours(23, 59, 59, 999);
 
   if (periodoHistorico === "hoje") {
     inicio = new Date();
@@ -144,7 +92,7 @@ function montarHistoricoComFiltros() {
     }
 
     if (dataFim) {
-      hoje.setTime(new Date(dataFim + "T23:59:59").getTime());
+      fim = new Date(dataFim + "T23:59:59");
     }
   }
 
@@ -152,21 +100,11 @@ function montarHistoricoComFiltros() {
   const termoBusca = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
 
   const dadosFiltrados = atendimentosHistorico.filter(item => {
-    let dataItem = null;
+    const dataItem = obterDataAtendimento(item);
 
-if (item.entrada) {
-  dataItem = item.entrada.toDate ? item.entrada.toDate() : new Date(item.entrada);
-} else if (item.criadoEm) {
-  dataItem = item.criadoEm.toDate ? item.criadoEm.toDate() : new Date(item.criadoEm);
-} else if (item.finalizadoEm) {
-  dataItem = item.finalizadoEm.toDate ? item.finalizadoEm.toDate() : new Date(item.finalizadoEm);
-} else if (item.data) {
-  dataItem = new Date(item.data + "T12:00:00");
-}
+    if (!dataItem || isNaN(dataItem.getTime())) return false;
 
-if (!dataItem || isNaN(dataItem.getTime())) return false;
-
-    const dentroPeriodo = dataItem >= inicio && dataItem <= hoje;
+    const dentroPeriodo = dataItem >= inicio && dataItem <= fim;
     const dentroTipo = tipoFiltro === "Ambos" || item.tipoEntrada === tipoFiltro;
 
     const buscaOk =
@@ -177,13 +115,22 @@ if (!dataItem || isNaN(dataItem.getTime())) return false;
     return dentroPeriodo && dentroTipo && buscaOk;
   });
 
-  const totalAtendimentos = dadosFiltrados.length;
+  atualizarMetricasELista(dadosFiltrados);
+}
+
+/* =========================
+   MÉTRICAS + AGRUPAMENTO
+========================= */
+function atualizarMetricasELista(dados) {
+  const totalAtendimentos = dados.length;
+
   const clientesMap = {};
   const servicosCount = {};
   const visitasPorMes = {};
 
-  dadosFiltrados.forEach(item => {
+  dados.forEach(item => {
     const nome = item.nome || "Sem nome";
+    const dataAtendimento = obterDataAtendimento(item);
 
     if (!clientesMap[nome]) {
       clientesMap[nome] = {
@@ -199,28 +146,35 @@ if (!dataItem || isNaN(dataItem.getTime())) return false;
 
     clientesMap[nome].total++;
 
-    if (item.tipoEntrada === "Lavagem") clientesMap[nome].lavagem++;
-    if (item.tipoEntrada === "Estacionamento") clientesMap[nome].estacionamento++;
+    if (item.tipoEntrada === "Lavagem") {
+      clientesMap[nome].lavagem++;
+    }
+
+    if (item.tipoEntrada === "Estacionamento") {
+      clientesMap[nome].estacionamento++;
+    }
 
     const servico = item.tipoEntrada || "Outro";
     servicosCount[servico] = (servicosCount[servico] || 0) + 1;
 
-    if (item.data) {
-      const mes = item.data.slice(0, 7);
+    if (dataAtendimento && !isNaN(dataAtendimento.getTime())) {
+      const mes = `${dataAtendimento.getFullYear()}-${String(dataAtendimento.getMonth() + 1).padStart(2, "0")}`;
       visitasPorMes[mes] = (visitasPorMes[mes] || 0) + 1;
-    }
 
-    if (item.entrada) {
-      const data = item.entrada.toDate ? item.entrada.toDate() : new Date(item.entrada);
-
-      if (!clientesMap[nome].ultimaVisita || data > clientesMap[nome].ultimaVisita) {
-        clientesMap[nome].ultimaVisita = data;
+      if (
+        !clientesMap[nome].ultimaVisita ||
+        dataAtendimento > clientesMap[nome].ultimaVisita
+      ) {
+        clientesMap[nome].ultimaVisita = dataAtendimento;
         clientesMap[nome].ultimoAtendimentoId = item.id;
+        clientesMap[nome].placa = item.placa || "-";
+        clientesMap[nome].veiculo = item.veiculo || "-";
       }
     }
   });
 
-  const clientesRecorrentes = Object.values(clientesMap).filter(c => c.total > 1).length;
+  const clientesRecorrentes = Object.values(clientesMap)
+    .filter(c => c.total > 1).length;
 
   let servicoMaisUsado = "-";
   let maior = 0;
@@ -252,6 +206,9 @@ if (!dataItem || isNaN(dataItem.getTime())) return false;
   renderizarHistoricoPaginado();
 }
 
+/* =========================
+   PAGINAÇÃO
+========================= */
 function renderizarHistoricoPaginado() {
   const inicio = (paginaAtual - 1) * itensPorPagina;
   const fim = inicio + itensPorPagina;
@@ -293,7 +250,7 @@ function renderizarHistorico(lista) {
       <span style="font-size: 0.8rem;">
         ${dados.ultimaVisita 
           ? dados.ultimaVisita.toLocaleDateString("pt-BR") 
-          : '-'}
+          : "-"}
       </span>
       
       <span class="client-info">${dados.nome}</span>
@@ -313,8 +270,8 @@ function renderizarHistorico(lista) {
       
       <span style="text-align: right;">
         <button class="btn-reabrir" onclick="reabrirAtendimento('${dados.ultimoAtendimentoId}')">
-  Reabrir
-</button>
+          Reabrir
+        </button>
       </span>
     `;
 
@@ -365,27 +322,37 @@ function mudarPaginaHistorico(direcao) {
   renderizarHistoricoPaginado();
 }
 
+/* =========================
+   FILTROS
+========================= */
 function ativarFiltroHistorico() {
   const searchInput = document.getElementById("searchInput");
 
-  if (!searchInput) return;
+  if (searchInput) {
+    searchInput.addEventListener("input", montarHistoricoComFiltros);
+  }
 
-  searchInput.addEventListener("input", function () {
-    montarHistoricoComFiltros();
-  });
-}
+  const dataInicio = document.getElementById("dataInicioHistorico");
+  const dataFim = document.getElementById("dataFimHistorico");
+  const tipoFiltro = document.getElementById("tipoFiltroHistorico");
 
-async function reabrirAtendimento(id) {
-  await db.collection("atendimentos").doc(id).update({
-    status: "Aberto",
-    statusCaixa: "aberto",
-    saida: firebase.firestore.FieldValue.delete(),
-    finalizadoEm: firebase.firestore.FieldValue.delete(),
-    valor: firebase.firestore.FieldValue.delete()
-  });
+  if (dataInicio) {
+    dataInicio.addEventListener("change", () => {
+      periodoHistorico = "personalizado";
+      montarHistoricoComFiltros();
+    });
+  }
 
-  alert("Ficha reaberta mantendo o horário original!");
-  window.location.href = "dashboard.html";
+  if (dataFim) {
+    dataFim.addEventListener("change", () => {
+      periodoHistorico = "personalizado";
+      montarHistoricoComFiltros();
+    });
+  }
+
+  if (tipoFiltro) {
+    tipoFiltro.addEventListener("change", montarHistoricoComFiltros);
+  }
 }
 
 function filtrarPeriodoHistorico(periodo) {
@@ -408,3 +375,32 @@ function aplicarFiltrosHistorico() {
   periodoHistorico = "personalizado";
   montarHistoricoComFiltros();
 }
+
+/* =========================
+   REABRIR
+========================= */
+async function reabrirAtendimento(id) {
+  if (!id) {
+    alert("Atendimento não encontrado.");
+    return;
+  }
+
+  await db.collection("atendimentos").doc(id).update({
+    status: "Aberto",
+    statusCaixa: "aberto",
+    saida: firebase.firestore.FieldValue.delete(),
+    finalizadoEm: firebase.firestore.FieldValue.delete(),
+    valor: firebase.firestore.FieldValue.delete()
+  });
+
+  alert("Ficha reaberta mantendo o horário original!");
+  window.location.href = "dashboard.html";
+}
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  carregarHistorico();
+  ativarFiltroHistorico();
+});
