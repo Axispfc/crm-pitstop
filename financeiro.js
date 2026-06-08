@@ -250,6 +250,7 @@ function montarHistorico() {
     box.innerHTML += `
       <div class="history-row">
         <span>${item.nome || "-"}</span>
+        <span>${item.telefone || "-"}</span>
         <span>${item.veiculo || "-"}</span>
         <span>${item.placa || "-"}</span>
         <span>${item.tipoEntrada || "-"}</span>
