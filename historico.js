@@ -152,11 +152,19 @@ function montarHistoricoComFiltros() {
   const termoBusca = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
 
   const dadosFiltrados = atendimentosHistorico.filter(item => {
-    const dataItem = item.entrada
-      ? (item.entrada.toDate ? item.entrada.toDate() : new Date(item.entrada))
-      : null;
+    let dataItem = null;
 
-    if (!dataItem) return false;
+if (item.entrada) {
+  dataItem = item.entrada.toDate ? item.entrada.toDate() : new Date(item.entrada);
+} else if (item.criadoEm) {
+  dataItem = item.criadoEm.toDate ? item.criadoEm.toDate() : new Date(item.criadoEm);
+} else if (item.finalizadoEm) {
+  dataItem = item.finalizadoEm.toDate ? item.finalizadoEm.toDate() : new Date(item.finalizadoEm);
+} else if (item.data) {
+  dataItem = new Date(item.data + "T12:00:00");
+}
+
+if (!dataItem || isNaN(dataItem.getTime())) return false;
 
     const dentroPeriodo = dataItem >= inicio && dataItem <= hoje;
     const dentroTipo = tipoFiltro === "Ambos" || item.tipoEntrada === tipoFiltro;
