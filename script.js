@@ -50,7 +50,7 @@ function calcularEstacionamento(entrada, saida, tipoEstacionamento = "Carro Comu
   const diffHoras = (saida - entrada) / (1000 * 60 * 60);
   
   let valorPrimeiraHora = 10;
-  let valorHoraAdicional = 3;
+  let valorHoraAdicional = 4;
 
   // 🌟 Tratamento para evitar problemas com espaços ou letras maiúsculas/minúsculas
   const tipo = tipoEstacionamento ? tipoEstacionamento.trim() : "Carro Comum";
