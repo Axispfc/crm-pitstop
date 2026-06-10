@@ -102,18 +102,20 @@ function montarHistoricoComFiltros() {
   const dadosFiltrados = atendimentosHistorico.filter(item => {
     const dataItem = obterDataAtendimento(item);
 
-let dentroPeriodo = true;
+    let dentroPeriodo = true;
 
-if (periodoHistorico !== "todos") {
-  if (!dataItem || isNaN(dataItem.getTime())) return false;
-  dentroPeriodo = dataItem >= inicio && dataItem <= fim;
-}
+    if (periodoHistorico !== "todos") {
+      if (!dataItem || isNaN(dataItem.getTime())) return false;
+      dentroPeriodo = dataItem >= inicio && dataItem <= fim;
+    }
+
     const dentroTipo = tipoFiltro === "Ambos" || item.tipoEntrada === tipoFiltro;
 
     const buscaOk =
       (item.nome || "").toLowerCase().includes(termoBusca) ||
       (item.placa || "").toLowerCase().includes(termoBusca) ||
-      (item.veiculo || "").toLowerCase().includes(termoBusca);
+      (item.veiculo || "").toLowerCase().includes(termoBusca) ||
+      (item.telefone || "").toLowerCase().includes(termoBusca);
 
     return dentroPeriodo && dentroTipo && buscaOk;
   });
@@ -140,10 +142,12 @@ function atualizarMetricasELista(dados) {
         total: 0,
         lavagem: 0,
         estacionamento: 0,
+        mensal: 0,
         ultimaVisita: null,
         ultimoAtendimentoId: item.id,
         placa: item.placa || "-",
-        veiculo: item.veiculo || "-"
+        veiculo: item.veiculo || "-",
+        telefone: item.telefone || "-"
       };
     }
 
@@ -155,6 +159,10 @@ function atualizarMetricasELista(dados) {
 
     if (item.tipoEntrada === "Estacionamento") {
       clientesMap[nome].estacionamento++;
+    }
+
+    if (item.tipoEntrada === "Mensal") {
+      clientesMap[nome].mensal++;
     }
 
     const servico = item.tipoEntrada || "Outro";
@@ -172,6 +180,7 @@ function atualizarMetricasELista(dados) {
         clientesMap[nome].ultimoAtendimentoId = item.id;
         clientesMap[nome].placa = item.placa || "-";
         clientesMap[nome].veiculo = item.veiculo || "-";
+        clientesMap[nome].telefone = item.telefone || "-";
       }
     }
   });
@@ -235,6 +244,7 @@ function renderizarHistorico(lista) {
         <span></span>
         <span></span>
         <span></span>
+        <span></span>
       </div>
     `;
     return;
@@ -257,6 +267,8 @@ function renderizarHistorico(lista) {
       </span>
       
       <span class="client-info">${dados.nome}</span>
+
+      <span class="client-phone">${dados.telefone || "-"}</span>
       
       <span>
         <span class="vehicle-tag">${dados.placa}</span><br>
@@ -264,7 +276,7 @@ function renderizarHistorico(lista) {
       </span>
       
       <span class="service-summary">
-        Lavagem: ${dados.lavagem} | Estac.: ${dados.estacionamento}
+        Lavagem: ${dados.lavagem} | Estac.: ${dados.estacionamento} | Mensal: ${dados.mensal}
       </span>
       
       <span style="text-align: center;">
