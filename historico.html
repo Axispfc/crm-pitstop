@@ -1,131 +1,177 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Histórico de Fidelidade | Pit Stop</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-   <link rel="stylesheet" href="historico.css">                                          
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histórico de Fidelidade | Pit Stop</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="historico.css">
 </head>
+
 <body>
 
-    <aside class="sidebar">
-        <div>
-        <img class="logo-icon"src="pitstop.png" alt="Logo">
+  <aside class="sidebar">
+    <div>
+      <img class="logo-icon" src="pitstop.png" alt="Logo">
+    </div>
+
+    <nav class="nav-menu">
+      <a onclick="irParaDashboard()" class="nav-item">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </a>
+
+      <a onclick="irParaVeiculos()" class="nav-item">
+        <i class="fa-solid fa-car"></i> Veículos
+      </a>
+
+      <a onclick="irParaHistorico()" class="nav-item active">
+        <i class="fa-solid fa-clock-rotate-left"></i> Histórico
+      </a>
+
+      <a onclick="irParaCaixa()" class="nav-item">
+        <i class="fa-solid fa-cash-register"></i> Caixa
+      </a>
+
+      <a onclick="irParaFinanceiro()" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i> Financeiro
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <header>
+      <div>
+        <h1>Gestão de Clientes</h1>
+        <p style="color: var(--text-dim); font-size: 0.9rem;">
+          Controle de fidelidade e recorrência de serviços
+        </p>
       </div>
-        <nav class="nav-menu">
-            <a onclick="irParaDashboard()" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
-            <a onclick="irParaVeiculos()" class="nav-item"><i class="fa-solid fa-car"></i> Veículos</a>
-            <a onclick="irParaHistorico()" class="nav-item active"><i class="fa-solid fa-clock-rotate-left"></i> Histórico</a>
-            <a onclick="irParaCaixa()" class="nav-item"><i class="fa-solid fa-cash-register"></i> Caixa</a>
-            <a onclick="irParaFinanceiro()" class="nav-item"><i class="fa-solid fa-chart-line"></i> Financeiro</a>
-        </nav>
-    </aside>
 
-    <main class="main-content">
-        <header>
-            <div>
-                <h1>Gestão de Clientes</h1>
-                <p style="color: var(--text-dim); font-size: 0.9rem;">Controle de fidelidade e recorrência de serviços</p>
-            </div>
-            <button style="background: var(--accent); color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;">
-                Sair
-            </button>
-        </header>
+      <button
+        onclick="logout()"
+        style="background: var(--accent); color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;"
+      >
+        Sair
+      </button>
+    </header>
 
-        <div class="top-info">
+    <div class="top-info">
 
-<div class="history-filters">
-  <button onclick="filtrarPeriodoHistorico('hoje')">Hoje</button>
-  <button onclick="filtrarPeriodoHistorico('7dias')">7 dias</button>
-  <button onclick="filtrarPeriodoHistorico('30dias')" class="active">30 dias</button>
+      <div class="history-filters">
+        <button onclick="filtrarPeriodoHistorico('hoje')">Hoje</button>
+        <button onclick="filtrarPeriodoHistorico('7dias')">7 dias</button>
+        <button onclick="filtrarPeriodoHistorico('30dias')" class="active">30 dias</button>
 
-  <input type="date" id="dataInicioHistorico">
-  <span>até</span>
-  <input type="date" id="dataFimHistorico">
+        <input type="date" id="dataInicioHistorico">
 
-  <select id="tipoFiltroHistorico" onchange="aplicarFiltrosHistorico()">
-    <option value="Ambos">Ambos</option>
-    <option value="Lavagem">Lavagem</option>
-    <option value="Estacionamento">Estacionamento</option>
-  </select>
-</div>
+        <span>até</span>
 
-            <div class="filter-panel">
-                <input type="text" id="searchInput" placeholder="Filtrar por nome, placa ou veículo...">
-                <i class="fa-solid fa-magnifying-glass" style="align-self: center; color: var(--text-dim)"></i>
-            </div>
-            <div class="stats-mini">
-                <div class="mini-card">
-                    <small>Recorrência</small>
-                    <div id="ClientesRecorrentes"></div>
-                </div>
-                <div class="mini-card">
-                 <small>Serviço Mais Usado</small>
-                <div id="ServicoMaisUsado"></div>
-                </div>
+        <input type="date" id="dataFimHistorico">
 
-                <div class="mini-card">
-                <small>Média por Mês</small>
-                    <div id="MediaVisitas">0</div>
-                </div>
-                
-                <div class="mini-card">
-                    <small>Total De Atendimentos</small>
-                    <div id="TotalAtendimentos"></div>
-                </div>
-            </div>
+        <select id="tipoFiltroHistorico" onchange="aplicarFiltrosHistorico()">
+          <option value="Ambos">Ambos</option>
+          <option value="Lavagem">Lavagem</option>
+          <option value="Estacionamento">Estacionamento</option>
+          <option value="Mensal">Mensal</option>
+        </select>
+      </div>
+
+      <div class="filter-panel">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Filtrar por nome, placa, veículo ou telefone..."
+        >
+
+        <i class="fa-solid fa-magnifying-glass" style="align-self: center; color: var(--text-dim)"></i>
+      </div>
+
+      <div class="stats-mini">
+
+        <div class="mini-card">
+          <small>Recorrência</small>
+          <div id="ClientesRecorrentes"></div>
         </div>
 
-        <div class="history-container">
-            <div class="history-title-bar">
-                <h3 style="font-size: 1.1rem; color: white;">Listagem de Clientes Fidelizados</h3>
-                <span style="font-size: 0.8rem; color: var(--text-dim)">Exibindo todos os registros</span>
-            </div>
-
-            <div class="table-wrapper">
-                <div class="table-header">
-                    <span>ID</span>
-                    <span>Última Visita</span>
-                    <span>Cliente</span>
-                    <span>Veículo</span>
-                    <span>Resumo Serviços</span>
-                    <span style="text-align: center;">Frequência</span>
-                    <span style="text-align: right;">Reabrir</span>
-                </div>
-
-                <div id="historyList">
-                    
-                </div>
-            </div>
+        <div class="mini-card">
+          <small>Serviço Mais Usado</small>
+          <div id="ServicoMaisUsado"></div>
         </div>
-    </main>
 
-    <!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
+        <div class="mini-card">
+          <small>Média por Mês</small>
+          <div id="MediaVisitas">0</div>
+        </div>
 
-<script>
-  const firebaseConfig = {
-  apiKey: "AIzaSyBBZ5ASFYLufNB-sDQlZMIVqO5btdZGMGg",
-  authDomain: "crm-pitstop.firebaseapp.com",
-  projectId: "crm-pitstop",
-  storageBucket: "crm-pitstop.firebasestorage.app",
-  messagingSenderId: "216473068500",
-  appId: "1:216473068500:web:f67c8541cb5a1bbe8eac41",
-  measurementId: "G-9RSG9LYB5K"
-};
+        <div class="mini-card">
+          <small>Total De Atendimentos</small>
+          <div id="TotalAtendimentos"></div>
+        </div>
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-</script>
+      </div>
 
-<script src="auth-guard.js"></script>
-<script src="historico.js?v=21"></script>
-<script src="navigation/navigation.js"></script>
+    </div>
+
+    <div class="history-container">
+
+      <div class="history-title-bar">
+        <h3 style="font-size: 1.1rem; color: white;">
+          Listagem de Clientes Fidelizados
+        </h3>
+
+        <span style="font-size: 0.8rem; color: var(--text-dim)">
+          Exibindo todos os registros
+        </span>
+      </div>
+
+      <div class="table-wrapper">
+
+        <div class="table-header">
+          <span>ID</span>
+          <span>Última Visita</span>
+          <span>Cliente</span>
+          <span>Telefone</span>
+          <span>Veículo</span>
+          <span>Resumo Serviços</span>
+          <span style="text-align: center;">Frequência</span>
+          <span style="text-align: right;">Reabrir</span>
+        </div>
+
+        <div id="historyList"></div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBBZ5ASFYLufNB-sDQlZMIVqO5btdZGMGg",
+      authDomain: "crm-pitstop.firebaseapp.com",
+      projectId: "crm-pitstop",
+      storageBucket: "crm-pitstop.firebasestorage.app",
+      messagingSenderId: "216473068500",
+      appId: "1:216473068500:web:f67c8541cb5a1bbe8eac41",
+      measurementId: "G-9RSG9LYB5K"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <script src="auth-guard.js"></script>
+  <script src="historico.js?v=22"></script>
+  <script src="navigation/navigation.js"></script>
+
 </body>
 </html>
