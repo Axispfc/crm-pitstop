@@ -3,34 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <title>CRM Pit Stop</title>
   <link rel="stylesheet" href="dashboard.css" />
 </head>
+
 <body>
 
-
-
-<!-- SISTEMA -->
 <section id="systemScreen" class="container">
 
   <aside class="finance-sidebar">
-    
-      <div >
-        <img class="logo-icon"src="pitstop.png" alt="Logo">
-      </div>
-      
-    
+    <div>
+      <img class="logo-icon" src="pitstop.png" alt="Logo">
+    </div>
 
     <nav>
-      <a onclick="irParaDashboard()" class="active" class="nav-item">Dashboard</i></a>
-      <a onclick="irParaVeiculos()" class="nav-item">Veículos Estacionados</i></a>
+      <a onclick="irParaDashboard()" class="active nav-item">Dashboard</a>
+      <a onclick="irParaVeiculos()" class="nav-item">Veículos Estacionados</a>
       <a onclick="irParaCaixa()">Caixa</a>
       <a onclick="irParaHistorico()">Histórico</a>
-      <a onclick="irParaFinanceiro()">Financeiro</a> 
+      <a onclick="irParaFinanceiro()">Financeiro</a>
     </nav>
 
     <a class="exit" href="index.html">Sair</a>
@@ -45,21 +42,22 @@
 
     <div class="grid">
 
-      <!-- FORM -->
       <section class="panel">
         <h3>Entrada</h3>
 
         <form id="vehicleForm">
+
           <input id="nome" placeholder="Cliente" required />
           <input id="veiculo" placeholder="Veículo" required />
+
           <input
-  id="placa"
-  placeholder="Placa"
-  required
-  onblur="buscarClientePorPlaca()"
-/>
+            id="placa"
+            placeholder="Placa"
+            required
+            onblur="buscarClientePorPlaca()"
+          />
+
           <input id="telefone" placeholder="Telefone" required />
-          
 
           <h4>Tipo</h4>
 
@@ -73,11 +71,14 @@
               <input type="radio" name="tipoEntrada" value="Lavagem" />
               Lavagem
             </label>
+
+            <label class="choice">
+              <input type="radio" name="tipoEntrada" value="Mensal" />
+              Mensal
+            </label>
           </div>
-    <button class="btn-register" type="submit">Cadastrar</button>
-    
-          <!---ESTACIONAMENTO CARRO GRANDE E MOTO----->
-          <div id="parkingOptions" >
+
+          <div id="parkingOptions">
             <h4>Tipo de veículo</h4>
 
             <div class="choice-row">
@@ -90,12 +91,10 @@
                 <input type="radio" name="tipoEstacionamento" value="Moto" />
                 Moto
               </label>
-
             </div>
           </div>
-          <!-- LAVAGEM -->
-          <div id="washOptions" class="hidden">
 
+          <div id="washOptions" class="hidden">
             <h4>Tipo de veículo</h4>
 
             <div class="choice-row">
@@ -128,65 +127,83 @@
             <h4>Serviço</h4>
 
             <select class="form-control" id="servico">
-              <option class="control"value="">Selecione</option>
-            <option class="control">Lavagem completa</option>
+              <option class="control" value="">Selecione</option>
+              <option class="control">Lavagem completa</option>
               <option class="control">Lavagem rápida</option>
               <option class="control">Ducha com secagem</option>
             </select>
 
-            
             <label class="choicec">
               <input type="checkbox" id="cera" name="cera" value="cera" />
-               Cera (R$10)
+              Cera (R$10)
             </label>
-
 
             <h4>Serviço Adicional</h4>
 
-              <label class="adicional">
-                <input id="servicoad" placeholder="Serviço Adicional"/>
-              </label>
-              <label class="adicional">
-                <input id="precoAd" placeholder="Preço do Serviço Adicional"/>
-              </label>
-            </form>
-        
+            <label class="adicional">
+              <input id="servicoad" placeholder="Serviço Adicional" />
+            </label>
+
+            <label class="adicional">
+              <input id="precoAd" placeholder="Preço do Serviço Adicional" />
+            </label>
+          </div>
+
+          <div id="mensalOptions" class="hidden">
+            <h4>Mensalidade</h4>
+
+            <label class="adicional">
+              <input
+                id="valorMensal"
+                type="number"
+                placeholder="Valor da mensalidade"
+              />
+            </label>
+          </div>
+
+          <button class="btn-register" type="submit">Cadastrar</button>
+
+        </form>
       </section>
-      
 
       <div class="table">
 
-  <div class="table-header">
-    <span>Placa</span>
-    <span>Veículo</span>
-    <span>Cliente</span>
-    <span>Tipo</span>
-    <span id="{veiculo.id}">Tempo</span>
-    <span>Status</span>
-   
-    
-  </div>
+        <div class="table-header">
+          <span>Placa</span>
+          <span>Veículo</span>
+          <span>Cliente</span>
+          <span>Tipo</span>
+          <span>Tempo</span>
+          <span>Status</span>
+        </div>
 
-  <div id="listaEstacionamento"></div>
+        <div id="listaEstacionamento"></div>
 
-</div>
-   
-     <section id="coupon" class="coupon hidden">
-  <div class="coupon-box">
-    <h3>Comanda</h3>
-    <div id="cupomConteudo"></div>
+      </div>
 
-    <p>
-      Rua Limeira, 20 - Mauá/SP. <br>
-      CNPJ: 42.016.461/0001-00. <br>
-      Funcionamento: Seg a Sáb. <br>
-      Das 8h às 17h.
-    </p>
+      <section id="coupon" class="coupon hidden">
+        <div class="coupon-box">
+          <h3>Comanda</h3>
 
-    <button onclick="window.print()">Imprimir</button>
-    <button onclick="confirmarFechamentoAtendimento()">Fechar</button>
-<button onclick="fecharCupom()">Sair</button>
-  </div>
+          <div id="cupomConteudo"></div>
+
+          <p>
+            Rua Limeira, 20 - Mauá/SP. <br>
+            CNPJ: 42.016.461/0001-00. <br>
+            Funcionamento: Seg a Sáb. <br>
+            Das 8h às 17h.
+          </p>
+
+          <button onclick="window.print()">Imprimir</button>
+          <button onclick="confirmarFechamentoAtendimento()">Fechar</button>
+          <button onclick="fecharCupom()">Sair</button>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
 </section>
 
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-app-compat.js"></script>
@@ -194,24 +211,22 @@
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore-compat.js"></script>
 
 <script>
-  // Configuração do Firebase
   const firebaseConfig = {
-  apiKey: "AIzaSyBBZ5ASFYLufNB-sDQlZMIVqO5btdZGMGg",
-  authDomain: "crm-pitstop.firebaseapp.com",
-  projectId: "crm-pitstop",
-  storageBucket: "crm-pitstop.firebasestorage.app",
-  messagingSenderId: "216473068500",
-  appId: "1:216473068500:web:f67c8541cb5a1bbe8eac41",
-  measurementId: "G-9RSG9LYB5K"
-};
-  
-  // Inicializar Firebase
+    apiKey: "AIzaSyBBZ5ASFYLufNB-sDQlZMIVqO5btdZGMGg",
+    authDomain: "crm-pitstop.firebaseapp.com",
+    projectId: "crm-pitstop",
+    storageBucket: "crm-pitstop.firebasestorage.app",
+    messagingSenderId: "216473068500",
+    appId: "1:216473068500:web:f67c8541cb5a1bbe8eac41",
+    measurementId: "G-9RSG9LYB5K"
+  };
+
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
-  </script>
+</script>
 
 <script src="auth-guard.js"></script>
-<script src="script.js?v=31"></script>
+<script src="script.js?v=32"></script>
 <script src="navigation/navigation.js"></script>
 
 </body>
