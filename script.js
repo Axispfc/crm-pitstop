@@ -37,6 +37,7 @@ function calcularLavagem(tipoVeiculo, servico, cera) {
       if (tipoVeiculo === "Hatch") valor = 45;
       if (tipoVeiculo === "Sedan") valor = 50;
       if (tipoVeiculo === "SUV") valor = 60;
+      if (tipoVeiculo === "Caminhonete") valor = 80;
     }
 
     if (servico === "Lavagem rápida") valor = 20;
@@ -601,7 +602,7 @@ function logout() {
   firebase.auth().signOut().then(() => window.location.href = "index.html");
 }
 
-/* PERMISSÕES */
+
 function aplicarPermissoes() {
   const nivel = localStorage.getItem("nivel");
 
@@ -625,7 +626,6 @@ function aplicarPermissoes() {
 
 aplicarPermissoes();
 
-/* BUSCAR CLIENTE POR PLACA */
 async function buscarClientePorPlaca() {
   const placa = document.getElementById("placa").value.trim().toUpperCase();
 

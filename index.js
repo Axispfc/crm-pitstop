@@ -18,7 +18,7 @@ function login() {
 
         if (email === "pitstop@hotmail.com") {
             localStorage.setItem("nivel", "lava");
-        } else if (email === "viniciuspitstop@hotmail.com") {
+        } else if (email === "viniciuspitstop@hotmail.com" || email === "tonygame1740@gmail.com") {
             localStorage.setItem("nivel", "admin");
         } else {
             localStorage.setItem("nivel", "lava");
