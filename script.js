@@ -287,11 +287,6 @@ if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
   });
 }
 
-      if (tipoEntrada === "Mensal") {
-        gerarCupomMensal({ ...dadosAtendimento, data: agora });
-      }
-    }
-
     vehicleForm.reset();
     washOptions.classList.add("hidden");
     parkingOptions.classList.add("hidden");
@@ -340,7 +335,11 @@ function atualizarListaEstacionamento() {
 /* EDITAR */
 function abrirEdicao(id) {
   const v = estacionados.find(i => i.id === id);
-  if (!v) return alert("Registro não encontrado");
+
+  if (!v) {
+    alert("Registro não encontrado");
+    return;
+  }
 
   editId = id;
 
@@ -349,59 +348,93 @@ function abrirEdicao(id) {
   document.getElementById("placa").value = v.placa || "";
   document.getElementById("telefone").value = v.telefone || "";
 
-  const inputTipoEntrada =
-    document.querySelector(`input[name='tipoEntrada'][value='${v.tipoEntrada}']`);
+  const inputTipoEntrada = document.querySelector(
+    `input[name='tipoEntrada'][value='${v.tipoEntrada}']`
+  );
 
   if (inputTipoEntrada) {
     inputTipoEntrada.checked = true;
-    washOptions.classList.toggle("hidden", v.tipoEntrada !== "Lavagem");
-    parkingOptions.classList.toggle("hidden", v.tipoEntrada !== "Estacionamento");
-    const usaValorFixo =
-  v.tipoEntrada === "Mensal" ||
-  v.tipoEntrada === "Diária";
+  }
 
-valorFixoOptions.classList.toggle("hidden", !usaValorFixo);
+  washOptions.classList.toggle(
+    "hidden",
+    v.tipoEntrada !== "Lavagem"
+  );
 
-if (v.tipoEntrada === "Mensal") {
-  tituloValorFixo.textContent = "Valor da mensalidade";
-  inputValorFixo.placeholder = "Informe o valor da mensalidade";
-}
+  parkingOptions.classList.toggle(
+    "hidden",
+    v.tipoEntrada !== "Estacionamento"
+  );
 
-if (v.tipoEntrada === "Diária") {
-  tituloValorFixo.textContent = "Valor da diária";
-  inputValorFixo.placeholder = "Informe o valor da diária";
+  const usaValorFixo =
+    v.tipoEntrada === "Mensal" ||
+    v.tipoEntrada === "Diária";
+
+  valorFixoOptions.classList.toggle(
+    "hidden",
+    !usaValorFixo
+  );
+
+  if (v.tipoEntrada === "Mensal") {
+    tituloValorFixo.textContent = "Valor da mensalidade";
+    inputValorFixo.placeholder = "Informe o valor da mensalidade";
+    inputValorFixo.value = v.valor || "";
+  }
+
+  if (v.tipoEntrada === "Diária") {
+    tituloValorFixo.textContent = "Valor da diária";
+    inputValorFixo.placeholder = "Informe o valor da diária";
+    inputValorFixo.value = v.valor || "";
   }
 
   if (v.tipoEntrada === "Estacionamento") {
-    const inputTipoEst =
-      document.querySelector(`input[name='tipoEstacionamento'][value='${v.tipoEstacionamento}']`);
-    if (inputTipoEst) inputTipoEst.checked = true;
-  }
+    const inputTipoEst = document.querySelector(
+      `input[name='tipoEstacionamento'][value='${v.tipoEstacionamento}']`
+    );
 
-  if (v.tipoEntrada === "Lavagem") {
-    const inputTipoVeic =
-      document.querySelector(`input[name='tipoVeiculo'][value='${v.tipoVeiculo}']`);
-    if (inputTipoVeic) inputTipoVeic.checked = true;
-
-    document.getElementById("servico").value = v.servico || "";
-    document.getElementById("servicoad").value = v.servicoadicional || "";
-    document.getElementById("precoAd").value = v.precoAdicional || "";
-
-    const inputCera = document.getElementById("cera");
-    if (inputCera) {
-      inputCera.checked = v.cera === true || v.cera === "true";
+    if (inputTipoEst) {
+      inputTipoEst.checked = true;
     }
   }
 
-  if (v.tipoEntrada === "Mensal" || v.tipoEntrada === "Diária") {
-  inputValorFixo.value = v.valor || "";
+  if (v.tipoEntrada === "Lavagem") {
+    const inputTipoVeic = document.querySelector(
+      `input[name='tipoVeiculo'][value='${v.tipoVeiculo}']`
+    );
+
+    if (inputTipoVeic) {
+      inputTipoVeic.checked = true;
+    }
+
+    document.getElementById("servico").value = v.servico || "";
+    document.getElementById("servicoad").value =
+      v.servicoadicional || "";
+
+    document.getElementById("precoAd").value =
+      v.precoAdicional || "";
+
+    const inputCera = document.getElementById("cera");
+
+    if (inputCera) {
+      inputCera.checked =
+        v.cera === true ||
+        v.cera === "true";
+    }
+  }
+
+  const btnSubmit = vehicleForm.querySelector(
+    "button[type='submit']"
+  );
+
+  if (btnSubmit) {
+    btnSubmit.textContent = "Salvar Alterações";
+  }
+
+  vehicleForm.scrollIntoView({
+    behavior: "smooth"
+  });
 }
 
-  const btnSubmit = vehicleForm.querySelector("button[type='submit']");
-  if (btnSubmit) btnSubmit.textContent = "Salvar Alterações";
-
-  vehicleForm.scrollIntoView({ behavior: "smooth" });
-}
 
 /* CUPOM */
 function verCupom(id) {
