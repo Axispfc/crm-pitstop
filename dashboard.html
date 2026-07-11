@@ -78,6 +78,12 @@
             </label>
           </div>
 
+            <label class="choice">
+              <input type="radio" name="tipoEntrada" value="Diária" />
+              Diária
+            </label>
+          </div>
+
           <div id="parkingOptions">
             <h4>Tipo de veículo</h4>
 
@@ -149,17 +155,19 @@
             </label>
           </div>
 
-          <div id="mensalOptions" class="hidden">
-            <h4>Mensalidade</h4>
+          <div id="valorFixoOptions" class="hidden">
+  <h4 id="tituloValorFixo">Valor</h4>
 
-            <label class="adicional">
-              <input
-                id="valorMensal"
-                type="number"
-                placeholder="Valor da mensalidade"
-              />
-            </label>
-          </div>
+  <label class="adicional">
+    <input
+      id="valorFixo"
+      type="number"
+      min="0"
+      step="0.01"
+      placeholder="Informe o valor"
+    />
+  </label>
+</div>
 
           <button class="btn-register" type="submit">Cadastrar</button>
 
@@ -226,7 +234,7 @@
 </script>
 
 <script src="auth-guard.js"></script>
-<script src="script.js?v=34"></script>
+<script src="script.js?v=35"></script>
 <script src="navigation/navigation.js"></script>
 
 </body>
