@@ -28,25 +28,37 @@ tipoEntradaInputs.forEach((input) => {
 
 /* PREÇO LAVAGEM */
 function calcularLavagem(tipoVeiculo, servico, cera) {
+  const tipo = String(tipoVeiculo || "").trim();
+  const nomeServico = String(servico || "").trim();
+
   let valor = 0;
 
-  if (tipoVeiculo === "Moto") {
-    valor = 45;
-  } else {
-    if (servico === "Lavagem completa") {
-      if (tipoVeiculo === "Hatch") valor = 45;
-      if (tipoVeiculo === "Sedan") valor = 50;
-      if (tipoVeiculo === "SUV") valor = 60;
-      if (tipoVeiculo === "Caminhonete") valor = 80;
-    }
+  if (nomeServico === "Lavagem completa") {
+    if (tipo === "Hatch") valor = 45;
+    else if (tipo === "Sedan") valor = 50;
+    else if (tipo === "SUV") valor = 60;
+    else if (tipo === "Moto") valor = 45;
+    else if (tipo === "Caminhonete") valor = 80;
+  }
 
-    if (servico === "Lavagem rápida") valor = 20;
-    if (servico === "Ducha com secagem") valor = 30;
+  if (nomeServico === "Lavagem rápida") {
+    valor = 20;
+  }
+
+  if (nomeServico === "Ducha com secagem") {
+    valor = 30;
   }
 
   if (cera === true || cera === "true") {
     valor += 10;
   }
+
+  console.log("Cálculo da lavagem:", {
+    tipo,
+    nomeServico,
+    cera,
+    valor
+  });
 
   return valor;
 }
