@@ -6,7 +6,9 @@ const logoutBtn = document.getElementById("logoutBtn");
 const parkingOptions = document.getElementById("parkingOptions");
 const vehicleForm = document.getElementById("vehicleForm");
 const washOptions = document.getElementById("washOptions");
-const mensalOptions = document.getElementById("mensalOptions");
+const valorFixoOptions = document.getElementById("valorFixoOptions");
+const tituloValorFixo = document.getElementById("tituloValorFixo");
+const inputValorFixo = document.getElementById("valorFixo");
 
 const tipoEntradaInputs = document.querySelectorAll("input[name='tipoEntrada']");
 const listaEstacionamento = document.getElementById("listaEstacionamento");
@@ -20,9 +22,22 @@ let editId = null;
 /* CONTROLE DE EXIBIÇÃO */
 tipoEntradaInputs.forEach((input) => {
   input.addEventListener("change", function () {
-    washOptions.classList.toggle("hidden", this.value !== "Lavagem");
-    parkingOptions.classList.toggle("hidden", this.value !== "Estacionamento");
-    mensalOptions.classList.toggle("hidden", this.value !== "Mensal");
+    const tipo = this.value;
+    const usaValorFixo = tipo === "Mensal" || tipo === "Diária";
+
+    washOptions.classList.toggle("hidden", tipo !== "Lavagem");
+    parkingOptions.classList.toggle("hidden", tipo !== "Estacionamento");
+    valorFixoOptions.classList.toggle("hidden", !usaValorFixo);
+
+    if (tipo === "Mensal") {
+      tituloValorFixo.textContent = "Valor da mensalidade";
+      inputValorFixo.placeholder = "Informe o valor da mensalidade";
+    }
+
+    if (tipo === "Diária") {
+      tituloValorFixo.textContent = "Valor da diária";
+      inputValorFixo.placeholder = "Informe o valor da diária";
+    }
   });
 });
 
@@ -217,28 +232,38 @@ if (vehicleForm) {
       }
     }
 
-    /* MENSAL */
-    if (tipoEntrada === "Mensal") {
-      const valorMensal = parseFloat(document.getElementById("valorMensal").value);
+    /* MENSAL OU DIÁRIA */
+if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
+  const valorFixo = parseFloat(
+    document.getElementById("valorFixo").value.replace(",", ".")
+  );
 
-      if (isNaN(valorMensal) || valorMensal <= 0) {
-        return alert("Informe o valor da mensalidade.");
-      }
+  if (isNaN(valorFixo) || valorFixo <= 0) {
+    const nomeValor = tipoEntrada === "Mensal"
+      ? "mensalidade"
+      : "diária";
 
-      dadosAtendimento = {
-        ...dadosAtendimento,
-        valor: valorMensal,
-        servico: "Mensalidade",
-        pagamento: "Mensal",
-        status: "Finalizado",
-        entrada: agora,
-        criadoEm: agora,
-        finalizadoEm: agora,
-        data: hoje,
-        hora,
-        statusCaixa: "aberto",
-      };
-    }
+    return alert(`Informe o valor da ${nomeValor}.`);
+  }
+
+  dadosAtendimento = {
+    ...dadosAtendimento,
+    valor: valorFixo,
+    servico:
+      tipoEntrada === "Mensal"
+        ? "Mensalidade"
+        : "Diária de estacionamento",
+    pagamento: tipoEntrada,
+    status: "Finalizado",
+    entrada: agora,
+    criadoEm: agora,
+    finalizadoEm: agora,
+    data: hoje,
+    hora,
+    statusCaixa: "aberto"
+  };
+}
+    
 
     /* SALVAR */
     if (editId) {
@@ -255,9 +280,12 @@ if (vehicleForm) {
         gerarCupomEstacionamento({ id: docRef.id, ...dadosAtendimento, entrada: agora });
       }
 
-      if (tipoEntrada === "Lavagem") {
-        gerarCupomLavagem({ ...dadosAtendimento, data: agora });
-      }
+      if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
+  gerarCupomValorFixo({
+    ...dadosAtendimento,
+    data: agora
+  });
+}
 
       if (tipoEntrada === "Mensal") {
         gerarCupomMensal({ ...dadosAtendimento, data: agora });
@@ -267,7 +295,8 @@ if (vehicleForm) {
     vehicleForm.reset();
     washOptions.classList.add("hidden");
     parkingOptions.classList.add("hidden");
-    mensalOptions.classList.add("hidden");
+   valorFixoOptions.classList.add("hidden");
+inputValorFixo.value = "";
   });
 }
 
@@ -327,7 +356,20 @@ function abrirEdicao(id) {
     inputTipoEntrada.checked = true;
     washOptions.classList.toggle("hidden", v.tipoEntrada !== "Lavagem");
     parkingOptions.classList.toggle("hidden", v.tipoEntrada !== "Estacionamento");
-    mensalOptions.classList.toggle("hidden", v.tipoEntrada !== "Mensal");
+    const usaValorFixo =
+  v.tipoEntrada === "Mensal" ||
+  v.tipoEntrada === "Diária";
+
+valorFixoOptions.classList.toggle("hidden", !usaValorFixo);
+
+if (v.tipoEntrada === "Mensal") {
+  tituloValorFixo.textContent = "Valor da mensalidade";
+  inputValorFixo.placeholder = "Informe o valor da mensalidade";
+}
+
+if (v.tipoEntrada === "Diária") {
+  tituloValorFixo.textContent = "Valor da diária";
+  inputValorFixo.placeholder = "Informe o valor da diária";
   }
 
   if (v.tipoEntrada === "Estacionamento") {
@@ -351,9 +393,9 @@ function abrirEdicao(id) {
     }
   }
 
-  if (v.tipoEntrada === "Mensal") {
-    document.getElementById("valorMensal").value = v.valor || "";
-  }
+  if (v.tipoEntrada === "Mensal" || v.tipoEntrada === "Diária") {
+  inputValorFixo.value = v.valor || "";
+}
 
   const btnSubmit = vehicleForm.querySelector("button[type='submit']");
   if (btnSubmit) btnSubmit.textContent = "Salvar Alterações";
@@ -521,17 +563,20 @@ function gerarCupomLavagem(d) {
   `;
 }
 
-function gerarCupomMensal(d) {
+function gerarCupomValorFixo(d) {
   coupon.classList.remove("hidden");
 
+  const nomeTipo = d.tipoEntrada === "Mensal"
+    ? "Mensalista"
+    : "Diária";
+
   cupomConteudo.innerHTML = `
-    <p><strong>Tipo:</strong> Mensalista</p>
+    <p><strong>Tipo:</strong> ${nomeTipo}</p>
     <p><strong>Cliente:</strong> ${d.nome}</p>
     <p><strong>Veículo:</strong> ${d.veiculo}</p>
     <p><strong>Placa:</strong> ${d.placa}</p>
     <p><strong>Telefone:</strong> ${d.telefone}</p>
-    <p><strong>Serviço:</strong> Mensalidade</p>
-    <p><strong>Pagamento:</strong> Mensal</p>
+    <p><strong>Serviço:</strong> ${d.servico}</p>
     <p><strong>Data:</strong> ${formatarData(d.data)}</p>
     <hr>
     <p><strong>Total:</strong> ${formatarValor(d.valor)}</p>
