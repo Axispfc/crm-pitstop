@@ -279,6 +279,7 @@ if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
       if (tipoEntrada === "Estacionamento") {
         gerarCupomEstacionamento({ id: docRef.id, ...dadosAtendimento, entrada: agora });
       }
+      }
 
       if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
   gerarCupomValorFixo({
