@@ -54,18 +54,24 @@ entradasFiltradas = entradas.filter(item => {
 });
 
 entradasFiltradas.forEach(item => {
-  const valor = item.valor || 0;
-  total += valor;
+  const valor = Number(item.valor || 0);
+const pagamento = item.pagamento || "Dinheiro";
 
-  if (item.tipoEntrada === "Lavagem") lavagens++;
-  if (item.tipoEntrada === "Estacionamento") estacionamentos++;
-
-  const pagamento = item.pagamento || "Dinheiro";
-  if (pagamento === "Dinheiro") dinheiro += valor;
-  if (pagamento === "Pix") pix += valor;
-  if (pagamento === "Débito") debito += valor;
-  if (pagamento === "Crédito") credito += valor;
-});
+if (pagamento === "Dinheiro/Crédito") {
+  dinheiro += Number(item.valorDinheiro || 0);
+  credito += Number(item.valorCredito || 0);
+} else if (pagamento === "Dinheiro/Débito") {
+  dinheiro += Number(item.valorDinheiro || 0);
+  debito += Number(item.valorDebito || 0);
+} else if (pagamento === "Dinheiro") {
+  dinheiro += valor;
+} else if (pagamento === "Pix") {
+  pix += valor;
+} else if (pagamento === "Débito") {
+  debito += valor;
+} else if (pagamento === "Crédito") {
+  credito += valor;
+}
 
 const inicio = (paginaMovimentacoes - 1) * movimentacoesPorPagina;
 const fim = inicio + movimentacoesPorPagina;
