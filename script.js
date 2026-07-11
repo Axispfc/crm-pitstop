@@ -461,34 +461,161 @@ function fecharCupom() {
   coupon.classList.add("hidden");
 }
 
-/* ENCERRAR ESTACIONAMENTO */
-async function encerrarEstacionamento(id) {
-  const v = estacionados.find(i => i.id === id);
-  const saida = new Date();
-  const valor = calcularEstacionamento(v.entrada, saida, v.tipoEstacionamento);
+function mostrarPagamentoComanda(v) {
+  if (v.pagamento === "Dinheiro/Crédito") {
+    return `
+      Dinheiro: ${formatarValor(v.valorDinheiro)}<br>
+      Crédito: ${formatarValor(v.valorCredito)}
+    `;
+  }
 
-  let opcao = prompt(
-    "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito\n\n0 - Excluir atendimento"
+  if (v.pagamento === "Dinheiro/Débito") {
+    return `
+      Dinheiro: ${formatarValor(v.valorDinheiro)}<br>
+      Débito: ${formatarValor(v.valorDebito)}
+    `;
+  }
+
+  return v.pagamento || "-";
+}
+
+/* ENCERRAR ESTACIONAMENTO */
+function solicitarFormaPagamento(valorTotal) {
+  const opcao = prompt(
+    "Escolha a forma de pagamento:\n" +
+    "1 - Dinheiro\n" +
+    "2 - Pix\n" +
+    "3 - Débito\n" +
+    "4 - Crédito\n" +
+    "5 - Dinheiro / Crédito\n" +
+    "6 - Dinheiro / Débito\n\n" +
+    "0 - Excluir atendimento"
   );
 
-  if (opcao === null) return;
+  if (opcao === null) {
+    return { cancelado: true };
+  }
 
   if (opcao === "0") {
-    if (!confirm("Tem certeza que deseja excluir este atendimento? Ele não será contabilizado no caixa.")) return;
+    return { excluir: true };
+  }
+
+  if (opcao === "1") {
+    return {
+      pagamento: "Dinheiro"
+    };
+  }
+
+  if (opcao === "2") {
+    return {
+      pagamento: "Pix"
+    };
+  }
+
+  if (opcao === "3") {
+    return {
+      pagamento: "Débito"
+    };
+  }
+
+  if (opcao === "4") {
+    return {
+      pagamento: "Crédito"
+    };
+  }
+
+  if (opcao === "5" || opcao === "6") {
+    const valorDinheiroDigitado = prompt(
+      `Total do atendimento: ${formatarValor(valorTotal)}\n\n` +
+      "Informe o valor pago em dinheiro:"
+    );
+
+    if (valorDinheiroDigitado === null) {
+      return { cancelado: true };
+    }
+
+    const valorDinheiro = Number(
+      valorDinheiroDigitado
+        .replace("R$", "")
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .trim()
+    );
+
+    if (
+      !Number.isFinite(valorDinheiro) ||
+      valorDinheiro <= 0 ||
+      valorDinheiro >= valorTotal
+    ) {
+      alert(
+        "O valor em dinheiro precisa ser maior que zero e menor que o total."
+      );
+
+      return { cancelado: true };
+    }
+
+    const valorRestante = Number(
+      (valorTotal - valorDinheiro).toFixed(2)
+    );
+
+    if (opcao === "5") {
+      return {
+        pagamento: "Dinheiro/Crédito",
+        valorDinheiro,
+        valorCredito: valorRestante
+      };
+    }
+
+    return {
+      pagamento: "Dinheiro/Débito",
+      valorDinheiro,
+      valorDebito: valorRestante
+    };
+  }
+
+  alert("Opção de pagamento inválida.");
+
+  return { cancelado: true };
+}
+
+async function encerrarEstacionamento(id) {
+  const v = estacionados.find(i => i.id === id);
+
+  if (!v) {
+    alert("Atendimento não encontrado.");
+    return;
+  }
+
+  const saida = new Date();
+
+  const valor = calcularEstacionamento(
+    v.entrada,
+    saida,
+    v.tipoEstacionamento
+  );
+
+  const resultadoPagamento = solicitarFormaPagamento(valor);
+
+  if (resultadoPagamento.cancelado) {
+    return;
+  }
+
+  if (resultadoPagamento.excluir) {
+    const confirmarExclusao = confirm(
+      "Tem certeza que deseja excluir este atendimento? " +
+      "Ele não será contabilizado no caixa."
+    );
+
+    if (!confirmarExclusao) return;
 
     await db.collection("atendimentos").doc(id).delete();
 
-    estacionados = estacionados.filter(i => i.id !== id);
+    estacionados = estacionados.filter(item => item.id !== id);
     atualizarListaEstacionamento();
 
     alert("Atendimento excluído com sucesso!");
     return;
   }
-
-  let pagamento = "Dinheiro";
-  if (opcao === "2") pagamento = "Pix";
-  if (opcao === "3") pagamento = "Débito";
-  if (opcao === "4") pagamento = "Crédito";
 
   atendimentoPendente = {
     id,
@@ -496,10 +623,10 @@ async function encerrarEstacionamento(id) {
     veiculo: v,
     saida,
     valor,
-    pagamento,
+    dadosPagamento: resultadoPagamento
   };
 
-  v.pagamento = pagamento;
+  Object.assign(v, resultadoPagamento);
 
   gerarCupomSaida(v, saida, valor);
 }
@@ -507,43 +634,47 @@ async function encerrarEstacionamento(id) {
 /* FINALIZAR LAVAGEM */
 async function finalizarLavagem(id) {
   const v = estacionados.find(i => i.id === id);
-  if (!v) return alert("Atendimento não encontrado.");
 
-  let opcao = prompt(
-    "Escolha a forma de pagamento:\n1 - Dinheiro\n2 - Pix\n3 - Débito\n4 - Crédito\n\n0 - Excluir atendimento"
-  );
+  if (!v) {
+    alert("Atendimento não encontrado.");
+    return;
+  }
 
-  if (opcao === null) return;
+  const valor = Number(v.valor || 0);
 
-  if (opcao === "0") {
-    if (!confirm("Tem certeza que deseja excluir este atendimento? Ele não será contabilizado no caixa.")) return;
+  const resultadoPagamento = solicitarFormaPagamento(valor);
+
+  if (resultadoPagamento.cancelado) {
+    return;
+  }
+
+  if (resultadoPagamento.excluir) {
+    const confirmarExclusao = confirm(
+      "Tem certeza que deseja excluir este atendimento? " +
+      "Ele não será contabilizado no caixa."
+    );
+
+    if (!confirmarExclusao) return;
 
     await db.collection("atendimentos").doc(id).delete();
 
-    estacionados = estacionados.filter(i => i.id !== id);
+    estacionados = estacionados.filter(item => item.id !== id);
     atualizarListaEstacionamento();
 
     alert("Atendimento excluído com sucesso!");
     return;
   }
 
-  if (!opcao) return;
-
-  let pagamento = "Dinheiro";
-  if (opcao === "2") pagamento = "Pix";
-  if (opcao === "3") pagamento = "Débito";
-  if (opcao === "4") pagamento = "Crédito";
-
   atendimentoPendente = {
     id,
     tipo: "Lavagem",
     veiculo: v,
     saida: new Date(),
-    valor: v.valor || 0,
-    pagamento,
+    valor,
+    dadosPagamento: resultadoPagamento
   };
 
-  v.pagamento = pagamento;
+  Object.assign(v, resultadoPagamento);
 
   gerarCupomLavagemFinal(v);
 }
@@ -571,7 +702,10 @@ function gerarCupomSaida(v, s, val) {
     <p><strong>Cliente:</strong> ${v.nome}</p>
     <p><strong>Veículo:</strong> ${v.veiculo}</p>
     <p><strong>Telefone:</strong> ${v.telefone}</p>
-    <p><strong>Pagamento:</strong> ${v.pagamento}</p>
+    <p>
+  <strong>Pagamento:</strong><br>
+  ${mostrarPagamentoComanda(v)}
+</p>
     <p><strong>Entrada:</strong> ${formatarHora(v.entrada)}</p>
     <p><strong>Saída:</strong> ${formatarData(s)} ${formatarHora(s)}</p>
   `;
@@ -630,7 +764,10 @@ function gerarCupomLavagemFinal(v) {
     <p><strong>Valor:</strong> ${formatarValor(v.valor)}</p>
     <p><strong>Data:</strong> ${formatarData(agora)}</p>
     <p><strong>Horário Entrada:</strong> ${formatarHora(v.entrada)}</p>
-    <p><strong>Pagamento:</strong> ${v.pagamento}</p>
+    <p>
+  <strong>Pagamento:</strong><br>
+  ${mostrarPagamentoComanda(v)}
+</p>
     <p><strong>Horário Saída:</strong> ${formatarHora(agora)}</p>
   `;
 }
@@ -740,27 +877,34 @@ async function confirmarFechamentoAtendimento() {
     return;
   }
 
-  const { id, tipo, saida, valor, pagamento } = atendimentoPendente;
+  const {
+    id,
+    tipo,
+    saida,
+    valor,
+    dadosPagamento
+  } = atendimentoPendente;
+
+  const dadosFinalizacao = {
+    status: "Finalizado",
+    valor,
+    ...dadosPagamento
+  };
 
   if (tipo === "Estacionamento") {
-    await db.collection("atendimentos").doc(id).update({
-      status: "Finalizado",
-      saida,
-      valor,
-      pagamento,
-    });
+    dadosFinalizacao.saida = saida;
   }
 
   if (tipo === "Lavagem") {
-    await db.collection("atendimentos").doc(id).update({
-      status: "Finalizado",
-      finalizadoEm: saida,
-      pagamento,
-      valor,
-    });
+    dadosFinalizacao.finalizadoEm = saida;
   }
 
-  estacionados = estacionados.filter(i => i.id !== id);
+  await db
+    .collection("atendimentos")
+    .doc(id)
+    .update(dadosFinalizacao);
+
+  estacionados = estacionados.filter(item => item.id !== id);
   atualizarListaEstacionamento();
 
   atendimentoPendente = null;
