@@ -6,11 +6,20 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  >
 
   <title>CRM Pit Stop</title>
-  <link rel="stylesheet" href="dashboard.css" />
+
+  <link rel="stylesheet" href="dashboard.css?v=2" />
 </head>
 
 <body>
@@ -18,37 +27,73 @@
 <section id="systemScreen" class="container">
 
   <aside class="finance-sidebar">
+
     <div>
       <img class="logo-icon" src="pitstop.png" alt="Logo">
     </div>
 
     <nav>
-      <a onclick="irParaDashboard()" class="active nav-item">Dashboard</a>
-      <a onclick="irParaVeiculos()" class="nav-item">Veículos Estacionados</a>
-      <a onclick="irParaCaixa()">Caixa</a>
-      <a onclick="irParaHistorico()">Histórico</a>
-      <a onclick="irParaFinanceiro()">Financeiro</a>
+      <a onclick="irParaDashboard()" class="active nav-item">
+        Dashboard
+      </a>
+
+      <a onclick="irParaVeiculos()" class="nav-item">
+        Veículos Estacionados
+      </a>
+
+      <a onclick="irParaCaixa()">
+        Caixa
+      </a>
+
+      <a onclick="irParaHistorico()">
+        Histórico
+      </a>
+
+      <a onclick="irParaFinanceiro()">
+        Financeiro
+      </a>
     </nav>
 
-    <a class="exit" href="index.html">Sair</a>
+    <a class="exit" href="index.html">
+      Sair
+    </a>
+
   </aside>
 
   <main class="content">
 
     <header class="topbar">
       <h2>Cadastro de Veículos</h2>
-      <button class="btn-exit" id="logoutBtn" onclick="logout()">Sair</button>
+
+      <button
+        class="btn-exit"
+        id="logoutBtn"
+        onclick="logout()"
+      >
+        Sair
+      </button>
     </header>
 
     <div class="grid">
 
+      <!-- FORMULÁRIO -->
       <section class="panel">
+
         <h3>Entrada</h3>
 
         <form id="vehicleForm">
 
-          <input id="nome" placeholder="Cliente" required />
-          <input id="veiculo" placeholder="Veículo" required />
+          <input
+            id="nome"
+            placeholder="Cliente"
+            required
+          />
+
+          <input
+            id="veiculo"
+            placeholder="Veículo"
+            required
+          />
 
           <input
             id="placa"
@@ -57,123 +102,220 @@
             onblur="buscarClientePorPlaca()"
           />
 
-          <input id="telefone" placeholder="Telefone" required />
+          <input
+            id="telefone"
+            placeholder="Telefone"
+            required
+          />
 
           <h4>Tipo</h4>
 
-          <div class="choice-row">
+          <div class="choice-row tipo-entrada-grid">
+
             <label class="choice">
-              <input type="radio" name="tipoEntrada" value="Estacionamento" checked />
+              <input
+                type="radio"
+                name="tipoEntrada"
+                value="Estacionamento"
+                checked
+              />
               Estacionamento
             </label>
 
             <label class="choice">
-              <input type="radio" name="tipoEntrada" value="Lavagem" />
+              <input
+                type="radio"
+                name="tipoEntrada"
+                value="Lavagem"
+              />
               Lavagem
             </label>
 
             <label class="choice">
-              <input type="radio" name="tipoEntrada" value="Mensal" />
+              <input
+                type="radio"
+                name="tipoEntrada"
+                value="Mensal"
+              />
               Mensal
             </label>
-          </div>
 
             <label class="choice">
-              <input type="radio" name="tipoEntrada" value="Diária" />
+              <input
+                type="radio"
+                name="tipoEntrada"
+                value="Diária"
+              />
               Diária
             </label>
+
           </div>
 
+          <!-- ESTACIONAMENTO -->
           <div id="parkingOptions">
+
             <h4>Tipo de veículo</h4>
 
             <div class="choice-row">
+
               <label class="choice">
-                <input type="radio" name="tipoEstacionamento" value="Carro Grande" />
+                <input
+                  type="radio"
+                  name="tipoEstacionamento"
+                  value="Carro Grande"
+                />
                 Carro Grande
               </label>
 
               <label class="choice">
-                <input type="radio" name="tipoEstacionamento" value="Moto" />
+                <input
+                  type="radio"
+                  name="tipoEstacionamento"
+                  value="Moto"
+                />
                 Moto
               </label>
+
             </div>
+
           </div>
 
+          <!-- LAVAGEM -->
           <div id="washOptions" class="hidden">
+
             <h4>Tipo de veículo</h4>
 
             <div class="choice-row">
+
               <label class="choice">
-                <input type="radio" name="tipoVeiculo" value="Hatch" />
+                <input
+                  type="radio"
+                  name="tipoVeiculo"
+                  value="Hatch"
+                />
                 Hatch
               </label>
 
               <label class="choice">
-                <input type="radio" name="tipoVeiculo" value="Sedan" />
+                <input
+                  type="radio"
+                  name="tipoVeiculo"
+                  value="Sedan"
+                />
                 Sedan
               </label>
 
               <label class="choice">
-                <input type="radio" name="tipoVeiculo" value="SUV" />
+                <input
+                  type="radio"
+                  name="tipoVeiculo"
+                  value="SUV"
+                />
                 SUV
               </label>
 
               <label class="choice">
-                <input type="radio" name="tipoVeiculo" value="Moto" />
+                <input
+                  type="radio"
+                  name="tipoVeiculo"
+                  value="Moto"
+                />
                 Moto
               </label>
 
               <label class="choice">
-                <input type="radio" name="tipoVeiculo" value="Caminhonete" />
+                <input
+                  type="radio"
+                  name="tipoVeiculo"
+                  value="Caminhonete"
+                />
                 Caminhonete
               </label>
+
             </div>
 
             <h4>Serviço</h4>
 
             <select class="form-control" id="servico">
-              <option class="control" value="">Selecione</option>
-              <option class="control">Lavagem completa</option>
-              <option class="control">Lavagem rápida</option>
-              <option class="control">Ducha com secagem</option>
+              <option class="control" value="">
+                Selecione
+              </option>
+
+              <option class="control">
+                Lavagem completa
+              </option>
+
+              <option class="control">
+                Lavagem rápida
+              </option>
+
+              <option class="control">
+                Ducha com secagem
+              </option>
             </select>
 
             <label class="choicec">
-              <input type="checkbox" id="cera" name="cera" value="cera" />
+              <input
+                type="checkbox"
+                id="cera"
+                name="cera"
+                value="cera"
+              />
               Cera (R$10)
             </label>
 
             <h4>Serviço Adicional</h4>
 
             <label class="adicional">
-              <input id="servicoad" placeholder="Serviço Adicional" />
+              <input
+                id="servicoad"
+                placeholder="Serviço Adicional"
+              />
             </label>
 
             <label class="adicional">
-              <input id="precoAd" placeholder="Preço do Serviço Adicional" />
+              <input
+                id="precoAd"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Preço do Serviço Adicional"
+              />
             </label>
+
           </div>
 
+          <!-- MENSAL OU DIÁRIA -->
           <div id="valorFixoOptions" class="hidden">
-  <h4 id="tituloValorFixo">Valor</h4>
 
-  <label class="adicional">
-    <input
-      id="valorFixo"
-      type="number"
-      min="0"
-      step="0.01"
-      placeholder="Informe o valor"
-    />
-  </label>
-</div>
+            <h4 id="tituloValorFixo">
+              Valor
+            </h4>
 
-          <button class="btn-register" type="submit">Cadastrar</button>
+            <label class="adicional">
+              <input
+                id="valorFixo"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Informe o valor"
+              />
+            </label>
+
+          </div>
+
+          <button
+            class="btn-register"
+            type="submit"
+          >
+            Cadastrar
+          </button>
 
         </form>
+
       </section>
 
+      <!-- TABELA -->
       <div class="table">
 
         <div class="table-header">
@@ -189,26 +331,39 @@
 
       </div>
 
-      <section id="coupon" class="coupon hidden">
-        <div class="coupon-box">
-          <h3>Comanda</h3>
-
-          <div id="cupomConteudo"></div>
-
-          <p>
-            Rua Limeira, 20 - Mauá/SP. <br>
-            CNPJ: 42.016.461/0001-00. <br>
-            Funcionamento: Seg a Sáb. <br>
-            Das 8h às 17h.
-          </p>
-
-          <button onclick="window.print()">Imprimir</button>
-          <button onclick="confirmarFechamentoAtendimento()">Fechar</button>
-          <button onclick="fecharCupom()">Sair</button>
-        </div>
-      </section>
-
     </div>
+
+    <!-- COMANDA -->
+    <section id="coupon" class="coupon hidden">
+
+      <div class="coupon-box">
+
+        <h3>Comanda</h3>
+
+        <div id="cupomConteudo"></div>
+
+        <p>
+          Rua Limeira, 20 - Mauá/SP. <br>
+          CNPJ: 42.016.461/0001-00. <br>
+          Funcionamento: Seg a Sáb. <br>
+          Das 8h às 17h.
+        </p>
+
+        <button onclick="window.print()">
+          Imprimir
+        </button>
+
+        <button onclick="confirmarFechamentoAtendimento()">
+          Fechar
+        </button>
+
+        <button onclick="fecharCupom()">
+          Sair
+        </button>
+
+      </div>
+
+    </section>
 
   </main>
 
@@ -230,11 +385,12 @@
   };
 
   firebase.initializeApp(firebaseConfig);
+
   const db = firebase.firestore();
 </script>
 
 <script src="auth-guard.js"></script>
-<script src="script.js?v=36"></script>
+<script src="script.js?v=38"></script>
 <script src="navigation/navigation.js"></script>
 
 </body>
