@@ -481,7 +481,8 @@ function mostrarPagamentoComanda(v) {
 
 /* ENCERRAR ESTACIONAMENTO */
 function solicitarFormaPagamento(valorTotal) {
-  const opcao = prompt(
+  const ehAdmin = localStorage.getItem("nivel") === "admin";
+  let mensagem =
     "Escolha a forma de pagamento:\n" +
     "1 - Dinheiro\n" +
     "2 - Pix\n" +
@@ -490,13 +491,22 @@ function solicitarFormaPagamento(valorTotal) {
     "5 - Dinheiro / Crédito\n" +
     "6 - Dinheiro / Débito\n\n" +
     "0 - Excluir atendimento"
-  );
+  ;
+
+  
+
+  const opcao = prompt(mensagem);
 
   if (opcao === null) {
     return { cancelado: true };
   }
 
   if (opcao === "0") {
+    if (!ehAdmin) {
+      alert("Você não possui permissão para excluir atendimentos.");
+      return { cancelado: true };
+    }
+
     return { excluir: true };
   }
 
