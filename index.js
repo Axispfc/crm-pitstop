@@ -27,8 +27,14 @@ function login() {
         window.location.href = "dashboard.html";
 
     }).catch(error => {
-        alert(getErrorMessage(error));
-    });
+    console.error("Erro no login:", error);
+
+    alert(
+        "Código: " + error.code +
+        "\n\nMensagem: " + error.message +
+        "\n\nTradução: " + getErrorMessage(error)
+    );
+});
 }
 
 function getErrorMessage(error) {
