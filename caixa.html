@@ -2,125 +2,287 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
   <title>Fluxo de Caixa - Pit Stop</title>
-  <link rel="stylesheet" href="caixa.css?v=1" />
+
+  <link
+    rel="stylesheet"
+    href="caixa.css?v=1"
+  />
 </head>
+
 <body>
 
 <div class="cash-layout">
 
   <aside class="finance-sidebar">
+
     <div>
-        <img class="logo-icon"src="pitstop.png" alt="Logo">
-      </div>
+      <img
+        class="logo-icon"
+        src="pitstop.png"
+        alt="Logo"
+      >
+    </div>
 
     <nav>
-      <a onclick="irParaDashboard()">Dashboard</a>
-      <a onclick="irParaVeiculos()">Veículos Estacionados</a>
-      <a onclick="irParaCaixa()" class="active">Caixa</a>
-      <a onclick="irParaHistorico()">Histórico</a>
-      <a onclick="irParaFinanceiro()">Financeiro</a> 
+      <a onclick="irParaDashboard()">
+        Dashboard
+      </a>
+
+      <a onclick="irParaVeiculos()">
+        Veículos Estacionados
+      </a>
+
+      <a
+        onclick="irParaCaixa()"
+        class="active"
+      >
+        Caixa
+      </a>
+
+      <a onclick="irParaHistorico()">
+        Histórico
+      </a>
+
+      <a onclick="irParaFinanceiro()">
+        Financeiro
+      </a>
     </nav>
 
-    <a class="exit" href="index.html">Sair</a>
+    <a
+      class="exit"
+      href="index.html"
+    >
+      Sair
+    </a>
+
   </aside>
 
   <main class="cash-main">
 
     <header class="cash-header">
+
       <div>
         <h1>Fluxo de Caixa</h1>
-        <p>Controle financeiro diário do Lava Rápido Pit Stop</p>
+
+        <p>
+          Controle financeiro diário do Lava Rápido Pit Stop
+        </p>
       </div>
 
       <div class="cash-user">
         <span>Administrador</span>
-        <div class="avatar">A</div>
+
+        <div class="avatar">
+          A
+        </div>
       </div>
+
     </header>
 
+    <!-- CARDS SUPERIORES -->
     <section class="cash-cards">
+
+      <!-- FATURAMENTO -->
       <div class="cash-card">
-        <div class="icon green">💰</div>
+
+        <div class="icon green">
+          💰
+        </div>
+
         <div>
           <span>Faturamento do dia</span>
-          <strong id="faturamento">R$ 0,00</strong>
+
+          <strong id="faturamento">
+            R$ 0,00
+          </strong>
+
           <small>Entradas</small>
         </div>
+
       </div>
 
+      <!-- LAVAGENS -->
       <div class="cash-card">
-        <div class="icon blue">🚗</div>
+
+        <div class="icon blue">
+          🚗
+        </div>
+
         <div>
           <span>Lavagens</span>
-          <strong id="lavagens">0</strong>
+
+          <strong id="lavagens">
+            0
+          </strong>
+
           <small>Finalizadas</small>
         </div>
+
       </div>
 
+      <!-- ESTACIONAMENTOS -->
       <div class="cash-card">
-        <div class="icon yellow">🅿️</div>
+
+        <div class="icon yellow">
+          🅿️
+        </div>
+
         <div>
           <span>Estacionamentos</span>
-          <strong id="estacionamentos">0</strong>
+
+          <strong id="estacionamentos">
+            0
+          </strong>
+
           <small>Encerrados</small>
         </div>
+
       </div>
 
+      <!-- TICKET MÉDIO -->
       <div class="cash-card">
-        <div class="icon purple">📈</div>
+
+        <div class="icon purple">
+          📈
+        </div>
+
         <div>
           <span>Ticket médio</span>
-          <strong id="ticket">R$ 0,00</strong>
+
+          <strong id="ticket">
+            R$ 0,00
+          </strong>
+
           <small>Por atendimento</small>
         </div>
+
       </div>
 
+      <!-- COMISSÕES -->
+      <div class="cash-card">
+
+        <div class="icon green">
+          💵
+        </div>
+
+        <div>
+          <span>Comissões</span>
+
+          <strong id="totalComissoes">
+            R$ 0,00
+          </strong>
+
+          <small id="quantidadeComissoes">
+            0 lavagens com comissão
+          </small>
+        </div>
+
+      </div>
+
+      <!-- FORMAS DE PAGAMENTO -->
       <div class="cash-card payment-card">
-  <div>
-    <span>Formas de pagamento</span>
 
-    <div class="payment-bars">
-      <div>
-        <small>Dinheiro</small>
-        <div class="bar"><i id="barDinheiro"></i></div>
-        <b id="valorDinheiro">R$ 0,00</b>
+        <div>
+          <span>Formas de pagamento</span>
+
+          <div class="payment-bars">
+
+            <div>
+              <small>Dinheiro</small>
+
+              <div class="bar">
+                <i id="barDinheiro"></i>
+              </div>
+
+              <b id="valorDinheiro">
+                R$ 0,00
+              </b>
+            </div>
+
+            <div>
+              <small>Pix</small>
+
+              <div class="bar">
+                <i id="barPix"></i>
+              </div>
+
+              <b id="valorPix">
+                R$ 0,00
+              </b>
+            </div>
+
+            <div>
+              <small>Débito</small>
+
+              <div class="bar">
+                <i id="barDebito"></i>
+              </div>
+
+              <b id="valorDebito">
+                R$ 0,00
+              </b>
+            </div>
+
+            <div>
+              <small>Crédito</small>
+
+              <div class="bar">
+                <i id="barCredito"></i>
+              </div>
+
+              <b id="valorCredito">
+                R$ 0,00
+              </b>
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
-      <div>
-        <small>Pix</small>
-        <div class="bar"><i id="barPix"></i></div>
-        <b id="valorPix">R$ 0,00</b>
-      </div>
-
-      <div>
-        <small>Débito</small>
-        <div class="bar"><i id="barDebito"></i></div>
-        <b id="valorDebito">R$ 0,00</b>
-      </div>
-
-      <div>
-        <small>Crédito</small>
-        <div class="bar"><i id="barCredito"></i></div>
-        <b id="valorCredito">R$ 0,00</b>
-      </div>
-    </div>
-  </div>
-</div>
     </section>
 
+    <!-- MOVIMENTAÇÕES E DESPESAS -->
     <section class="cash-grid">
 
+      <!-- MOVIMENTAÇÕES -->
       <div class="cash-panel movements">
+
         <div class="panel-title">
-    <h2>Movimentações do dia</h2>
-    <select id="filtroTipo" onchange="atualizarTela()">
-      <option value="Ambos">Todos os tipos</option>
-      <option value="Lavagem">Lavagem</option>
-      <option value="Estacionamento">Estacionamento</option>
-    </select>
-  </div>
+
+          <h2>
+            Movimentações do dia
+          </h2>
+
+          <select
+            id="filtroTipo"
+            onchange="paginaMovimentacoes = 1; atualizarTela()"
+          >
+            <option value="Ambos">
+              Todos os tipos
+            </option>
+
+            <option value="Lavagem">
+              Lavagem
+            </option>
+
+            <option value="Estacionamento">
+              Estacionamento
+            </option>
+
+            <option value="Comissões">
+              Comissões
+            </option>
+          </select>
+
+        </div>
 
         <div class="table-head">
           <span>Horário</span>
@@ -131,90 +293,158 @@
           <span>Valor</span>
         </div>
 
-        <div id="movimentacoes" class="table-body"></div>
+        <div
+          id="movimentacoes"
+          class="table-body"
+        ></div>
+
       </div>
 
+      <!-- DESPESAS -->
       <div class="cash-panel expenses">
-        
-        <div id="listaDespesas" class="expense-list">
-          <p class="empty">Nenhuma despesa lançada.</p>
+
+        <div
+          id="listaDespesas"
+          class="expense-list"
+        >
+          <p class="empty">
+            Nenhuma despesa lançada.
+          </p>
         </div>
 
-        <h3>Adicionar despesa</h3>
+        <h3>
+          Adicionar despesa
+        </h3>
 
-        <input type="text" id="descDespesa" placeholder="Descrição da despesa" />
-        <input type="number" id="valorDespesa" placeholder="Valor (R$)" />
+        <input
+          type="text"
+          id="descDespesa"
+          placeholder="Descrição da despesa"
+        />
 
-        <button class="add-expense" onclick="adicionarDespesa()">Adicionar despesa</button>
+        <input
+          type="number"
+          id="valorDespesa"
+          placeholder="Valor (R$)"
+        />
+
+        <button
+          class="add-expense"
+          onclick="adicionarDespesa()"
+        >
+          Adicionar despesa
+        </button>
+
       </div>
 
     </section>
 
+    <!-- FECHAMENTO -->
     <section class="closing-panel">
+
       <div class="closing-left">
-        <h2>Fechamento de Caixa</h2>
+
+        <h2>
+          Fechamento de Caixa
+        </h2>
 
         <div class="closing-cards">
+
           <div>
             <span>Entradas</span>
-            <strong id="totalEntradas">R$ 0,00</strong>
+
+            <strong id="totalEntradas">
+              R$ 0,00
+            </strong>
           </div>
 
           <b>-</b>
 
           <div>
             <span>Saídas</span>
-            <strong class="red" id="totalSaidas">R$ 0,00</strong>
+
+            <strong
+              class="red"
+              id="totalSaidas"
+            >
+              R$ 0,00
+            </strong>
           </div>
 
           <b>=</b>
 
           <div>
             <span>Saldo final</span>
-            <strong class="green-text" id="saldo">R$ 0,00</strong>
+
+            <strong
+              class="green-text"
+              id="saldo"
+            >
+              R$ 0,00
+            </strong>
           </div>
+
         </div>
+
       </div>
 
-
-      <button class="close-cash" onclick="irParaHistorico()">
+      <button
+        class="close-cash"
+        onclick="irParaHistorico()"
+      >
         HISTÓRICO
-        <small>Relatório de movimentações</small>
+
+        <small>
+          Relatório de movimentações
+        </small>
       </button>
 
-      <button class="close-cash" onclick="fecharCaixa()">
+      <button
+        class="close-cash"
+        onclick="fecharCaixa()"
+      >
         FECHAR CAIXA
-        <small>Encerrar e gerar relatório do dia</small>
+
+        <small>
+          Encerrar e gerar relatório do dia
+        </small>
       </button>
+
     </section>
 
   </main>
+
 </div>
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/12.12.1/firebase-auth-compat.js"></script>
+
+<!-- PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
   const firebaseConfig = {
-  apiKey: "AIzaSyBBZ5ASFYLufNB-sDQlZMIVqO5btdZGMGg",
-  authDomain: "crm-pitstop.firebaseapp.com",
-  projectId: "crm-pitstop",
-  storageBucket: "crm-pitstop.firebasestorage.app",
-  messagingSenderId: "216473068500",
-  appId: "1:216473068500:web:f67c8541cb5a1bbe8eac41",
-  measurementId: "G-9RSG9LYB5K"
-};
+    apiKey: "AIzaSyBBZ5ASFYLufNB-sDQlZMIVqO5btdZGMGg",
+    authDomain: "crm-pitstop.firebaseapp.com",
+    projectId: "crm-pitstop",
+    storageBucket: "crm-pitstop.firebasestorage.app",
+    messagingSenderId: "216473068500",
+    appId: "1:216473068500:web:f67c8541cb5a1bbe8eac41",
+    measurementId: "G-9RSG9LYB5K"
+  };
 
   firebase.initializeApp(firebaseConfig);
+
   const db = firebase.firestore();
 </script>
 
-<script src="caixa.js?v=22"></script>
+<script src="caixa.js?v=23"></script>
+
 <script src="navigation/navigation.js"></script>
 
 </body>
-
-
 </html>
