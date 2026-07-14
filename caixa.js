@@ -40,49 +40,74 @@ function atualizarTela() {
   const movimentacoes = document.getElementById("movimentacoes");
   movimentacoes.innerHTML = "";
 
-  // Lê o valor do filtro no HTML (se existir)
   const selectFiltro = document.getElementById("filtroTipo");
   const filtro = selectFiltro ? selectFiltro.value : "Ambos";
 
   let total = 0;
-let lavagens = 0;
-let estacionamentos = 0;
-let dinheiro = 0, pix = 0, debito = 0, credito = 0;
+  let lavagens = 0;
+  let estacionamentos = 0;
 
-entradasFiltradas = entradas.filter(item => {
-  return filtro === "Ambos" || item.tipoEntrada === filtro;
-});
+  let dinheiro = 0;
+  let pix = 0;
+  let debito = 0;
+  let credito = 0;
 
-entradasFiltradas.forEach(item => {
-  const valor = Number(item.valor || 0);
-const pagamento = item.pagamento || "Dinheiro";
+  entradasFiltradas = entradas.filter(item => {
+    return filtro === "Ambos" || item.tipoEntrada === filtro;
+  });
 
-if (pagamento === "Dinheiro/Crédito") {
-  dinheiro += Number(item.valorDinheiro || 0);
-  credito += Number(item.valorCredito || 0);
-} else if (pagamento === "Dinheiro/Débito") {
-  dinheiro += Number(item.valorDinheiro || 0);
-  debito += Number(item.valorDebito || 0);
-} else if (pagamento === "Dinheiro") {
-  dinheiro += valor;
-} else if (pagamento === "Pix") {
-  pix += valor;
-} else if (pagamento === "Débito") {
-  debito += valor;
-} else if (pagamento === "Crédito") {
-  credito += valor;
-}
+  /* SOMAR CARDS E FORMAS DE PAGAMENTO */
+  entradasFiltradas.forEach(item => {
+    const valor = Number(item.valor || 0);
+    const pagamento = item.pagamento || "Dinheiro";
 
-const inicio = (paginaMovimentacoes - 1) * movimentacoesPorPagina;
-const fim = inicio + movimentacoesPorPagina;
-const entradasPagina = entradasFiltradas.slice(inicio, fim);
+    total += valor;
 
+    if (item.tipoEntrada === "Lavagem") {
+      lavagens++;
+    }
+
+    if (item.tipoEntrada === "Estacionamento") {
+      estacionamentos++;
+    }
+
+    if (pagamento === "Dinheiro/Crédito") {
+      dinheiro += Number(item.valorDinheiro || 0);
+      credito += Number(item.valorCredito || 0);
+
+    } else if (pagamento === "Dinheiro/Débito") {
+      dinheiro += Number(item.valorDinheiro || 0);
+      debito += Number(item.valorDebito || 0);
+
+    } else if (pagamento === "Dinheiro") {
+      dinheiro += valor;
+
+    } else if (pagamento === "Pix") {
+      pix += valor;
+
+    } else if (pagamento === "Débito") {
+      debito += valor;
+
+    } else if (pagamento === "Crédito") {
+      credito += valor;
+    }
+  });
+
+  /* PAGINAÇÃO */
+  const inicio =
+    (paginaMovimentacoes - 1) * movimentacoesPorPagina;
+
+  const fim =
+    inicio + movimentacoesPorPagina;
+
+  const entradasPagina =
+    entradasFiltradas.slice(inicio, fim);
+
+  /* EXIBIR SOMENTE A PÁGINA ATUAL */
   entradasPagina.forEach(item => {
-
-    // 1. Soma para os cards superiores (Independente do filtro)
-    
-    // 2. Lógica do filtro para exibir ou não na lista
-    const mostrarItem = filtro === "Ambos" || item.tipoEntrada === filtro;
+    const mostrarItem =
+      filtro === "Ambos" ||
+      item.tipoEntrada === filtro;
 
     if (mostrarItem) {
       const div = document.createElement("div");
