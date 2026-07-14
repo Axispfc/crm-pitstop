@@ -4,19 +4,121 @@ let entradas = [];
 let despesas = [];
 let entradasFiltradas = [];
 let paginaMovimentacoes = 1;
-const movimentacoesPorPagina = 10;
 
-/* FORMATAR VALOR */
+const movimentacoesPorPagina = 10;
+const limiteLavagensSemComissao = 15;
+const valorComissaoPorLavagem = 5;
+
+/* =========================================================
+   FORMATAR VALOR
+========================================================= */
 function formatarValor(valor) {
-  return Number(valor).toLocaleString("pt-BR", {
+  return Number(valor || 0).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL"
   });
 }
 
-/* CARREGAR DADOS DO FIREBASE */
+/* =========================================================
+   CONVERTER DATA DO FIREBASE
+========================================================= */
+function obterDataMovimentacao(item) {
+  if (item.finalizadoEm) {
+    return item.finalizadoEm.toDate
+      ? item.finalizadoEm.toDate()
+      : new Date(item.finalizadoEm);
+  }
+
+  if (item.saida) {
+    return item.saida.toDate
+      ? item.saida.toDate()
+      : new Date(item.saida);
+  }
+
+  if (item.entrada) {
+    return item.entrada.toDate
+      ? item.entrada.toDate()
+      : new Date(item.entrada);
+  }
+
+  if (item.criadoEm) {
+    return item.criadoEm.toDate
+      ? item.criadoEm.toDate()
+      : new Date(item.criadoEm);
+  }
+
+  if (item.data) {
+    const horario = item.hora || "12:00";
+
+    return new Date(`${item.data}T${horario}:00`);
+  }
+
+  return new Date(0);
+}
+
+/* =========================================================
+   IDENTIFICAR LAVAGENS COM COMISSÃO
+========================================================= */
+function obterLavagensComComissao() {
+  const lavagens = entradas
+    .filter(item => item.tipoEntrada === "Lavagem")
+    .slice()
+    .sort((a, b) => {
+      return obterDataMovimentacao(a) - obterDataMovimentacao(b);
+    });
+
+  return lavagens
+    .slice(limiteLavagensSemComissao)
+    .map((item, index) => ({
+      ...item,
+      numeroLavagem:
+        limiteLavagensSemComissao + index + 1,
+      valorComissao: valorComissaoPorLavagem
+    }));
+}
+
+/* =========================================================
+   CALCULAR TOTAL DA COMISSÃO
+========================================================= */
+function calcularTotalComissao() {
+  const lavagensComComissao =
+    obterLavagensComComissao();
+
+  return lavagensComComissao.length *
+    valorComissaoPorLavagem;
+}
+
+/* =========================================================
+   ATUALIZAR CARD DE COMISSÃO
+========================================================= */
+function atualizarCardComissao() {
+  const totalComissao = calcularTotalComissao();
+  const lavagensComComissao =
+    obterLavagensComComissao().length;
+
+  const elementoValor =
+    document.getElementById("totalComissoes");
+
+  const elementoQuantidade =
+    document.getElementById("quantidadeComissoes");
+
+  if (elementoValor) {
+    elementoValor.textContent =
+      formatarValor(totalComissao);
+  }
+
+  if (elementoQuantidade) {
+    elementoQuantidade.textContent =
+      `${lavagensComComissao} lavagens com comissão`;
+  }
+}
+
+/* =========================================================
+   CARREGAR DADOS DO FIREBASE
+========================================================= */
 async function carregarCaixa() {
-  const snapshot = await db.collection("atendimentos")
+  const snapshot = await db
+    .collection("atendimentos")
     .where("status", "==", "Finalizado")
     .where("statusCaixa", "==", "aberto")
     .get();
@@ -36,14 +138,22 @@ async function carregarCaixa() {
   renderizarDespesas();
 }
 
-/* ATUALIZAR TELA PRINCIPAL E FILTRO */
+/* =========================================================
+   ATUALIZAR TELA PRINCIPAL E FILTRO
+========================================================= */
 function atualizarTela() {
-  const movimentacoes = document.getElementById("movimentacoes");
+  const movimentacoes =
+    document.getElementById("movimentacoes");
+
   movimentacoes.innerHTML = "";
 
-  // Lê o valor do filtro no HTML, se existir
-  const selectFiltro = document.getElementById("filtroTipo");
-  const filtro = selectFiltro ? selectFiltro.value : "Ambos";
+  const selectFiltro =
+    document.getElementById("filtroTipo");
+
+  const filtro =
+    selectFiltro
+      ? selectFiltro.value
+      : "Ambos";
 
   let total = 0;
   let lavagens = 0;
@@ -54,53 +164,109 @@ function atualizarTela() {
   let debito = 0;
   let credito = 0;
 
-  entradasFiltradas = entradas.filter(item => {
-    return filtro === "Ambos" || item.tipoEntrada === filtro;
-  });
+  /*
+   * Quando o filtro for Comissões, exibimos somente
+   * as lavagens a partir da 16ª.
+   */
+  if (filtro === "Comissões") {
+    entradasFiltradas =
+      obterLavagensComComissao();
+  } else {
+    entradasFiltradas = entradas.filter(item => {
+      return (
+        filtro === "Ambos" ||
+        item.tipoEntrada === filtro
+      );
+    });
+  }
 
   /*
    * Soma os cards e as formas de pagamento.
-   * Este forEach precisa ser fechado antes da paginação.
    */
-  entradasFiltradas.forEach(item => {
-    const valor = Number(item.valor || 0);
-    const pagamento = item.pagamento || "Dinheiro";
+  if (filtro !== "Comissões") {
+    entradasFiltradas.forEach(item => {
+      const valor = Number(item.valor || 0);
 
-    total += valor;
+      const pagamento =
+        item.pagamento || "Dinheiro";
 
-    if (item.tipoEntrada === "Lavagem") {
-      lavagens++;
-    }
+      total += valor;
 
-    if (item.tipoEntrada === "Estacionamento") {
-      estacionamentos++;
-    }
+      if (item.tipoEntrada === "Lavagem") {
+        lavagens++;
+      }
 
-    if (pagamento === "Dinheiro/Crédito") {
-      dinheiro += Number(item.valorDinheiro || 0);
-      credito += Number(item.valorCredito || 0);
+      if (
+        item.tipoEntrada === "Estacionamento"
+      ) {
+        estacionamentos++;
+      }
 
-    } else if (pagamento === "Dinheiro/Débito") {
-      dinheiro += Number(item.valorDinheiro || 0);
-      debito += Number(item.valorDebito || 0);
+      if (
+        pagamento === "Dinheiro/Crédito"
+      ) {
+        dinheiro += Number(
+          item.valorDinheiro || 0
+        );
 
-    } else if (pagamento === "Dinheiro") {
-      dinheiro += valor;
+        credito += Number(
+          item.valorCredito || 0
+        );
 
-    } else if (pagamento === "Pix") {
-      pix += valor;
+      } else if (
+        pagamento === "Dinheiro/Débito"
+      ) {
+        dinheiro += Number(
+          item.valorDinheiro || 0
+        );
 
-    } else if (pagamento === "Débito") {
-      debito += valor;
+        debito += Number(
+          item.valorDebito || 0
+        );
 
-    } else if (pagamento === "Crédito") {
-      credito += valor;
-    }
-  });
+      } else if (
+        pagamento === "Dinheiro"
+      ) {
+        dinheiro += valor;
+
+      } else if (
+        pagamento === "Pix"
+      ) {
+        pix += valor;
+
+      } else if (
+        pagamento === "Débito"
+      ) {
+        debito += valor;
+
+      } else if (
+        pagamento === "Crédito"
+      ) {
+        credito += valor;
+      }
+    });
+  }
+
+  /*
+   * Na aba Comissões, o card de faturamento
+   * mostrará o total das comissões da lista.
+   */
+  if (filtro === "Comissões") {
+    total = entradasFiltradas.reduce(
+      (acumulado, item) =>
+        acumulado +
+        Number(item.valorComissao || 0),
+      0
+    );
+
+    lavagens = entradasFiltradas.length;
+    estacionamentos = 0;
+  }
 
   /* PAGINAÇÃO */
   const inicio =
-    (paginaMovimentacoes - 1) * movimentacoesPorPagina;
+    (paginaMovimentacoes - 1) *
+    movimentacoesPorPagina;
 
   const fim =
     inicio + movimentacoesPorPagina;
@@ -109,44 +275,76 @@ function atualizarTela() {
     entradasFiltradas.slice(inicio, fim);
 
   entradasPagina.forEach(item => {
-    const mostrarItem =
-      filtro === "Ambos" ||
-      item.tipoEntrada === filtro;
+    const div =
+      document.createElement("div");
 
-    if (mostrarItem) {
-      const div = document.createElement("div");
-      div.classList.add("table-row");
+    div.classList.add("table-row");
 
+    if (filtro === "Comissões") {
       div.innerHTML = `
         <span>${item.hora || "-"}</span>
-        <span>${item.nome || "-"}</span>
-        <span>${item.placa || "-"}</span>
-        <span>${item.tipoEntrada || "-"}</span>
-        <span>${item.servico || "-"}</span>
-        <span>${formatarValor(item.valor || 0)}</span>
-      `;
 
-      movimentacoes.appendChild(div);
+        <span>${item.nome || "-"}</span>
+
+        <span>${item.placa || "-"}</span>
+
+        <span>Comissão</span>
+
+        <span>
+          ${item.numeroLavagem}ª lavagem
+        </span>
+
+        <span>
+          ${formatarValor(item.valorComissao)}
+        </span>
+      `;
+    } else {
+      div.innerHTML = `
+        <span>${item.hora || "-"}</span>
+
+        <span>${item.nome || "-"}</span>
+
+        <span>${item.placa || "-"}</span>
+
+        <span>${item.tipoEntrada || "-"}</span>
+
+        <span>${item.servico || "-"}</span>
+
+        <span>
+          ${formatarValor(item.valor || 0)}
+        </span>
+      `;
     }
+
+    movimentacoes.appendChild(div);
   });
 
-  // Atualiza os cards
+  /*
+   * Mantém o cálculo original do ticket
+   * para os filtros normais.
+   */
   const ticket =
-    entradas.length > 0
-      ? total / entradas.length
-      : 0;
+    filtro === "Comissões"
+      ? 0
+      : entradas.length > 0
+        ? total / entradas.length
+        : 0;
 
-  document.getElementById("faturamento").textContent =
-    formatarValor(total);
+  document
+    .getElementById("faturamento")
+    .textContent = formatarValor(total);
 
-  document.getElementById("lavagens").textContent =
-    lavagens;
+  document
+    .getElementById("lavagens")
+    .textContent = lavagens;
 
-  document.getElementById("estacionamentos").textContent =
-    estacionamentos;
+  document
+    .getElementById("estacionamentos")
+    .textContent = estacionamentos;
 
-  document.getElementById("ticket").textContent =
-    formatarValor(ticket);
+  document
+    .getElementById("ticket")
+    .textContent = formatarValor(ticket);
 
   renderizarPaginacaoMovimentacoes();
 
@@ -157,20 +355,26 @@ function atualizarTela() {
     credito
   );
 
+  atualizarCardComissao();
   atualizarResumo();
 }
 
-/* DESPESAS */
+/* =========================================================
+   DESPESAS
+========================================================= */
 async function adicionarDespesa() {
   const desc =
     document.getElementById("descDespesa").value;
 
-  const valor =
-    parseFloat(
-      document.getElementById("valorDespesa").value
-    );
+  const valor = parseFloat(
+    document.getElementById("valorDespesa").value
+  );
 
-  if (!desc || isNaN(valor) || valor <= 0) {
+  if (
+    !desc ||
+    isNaN(valor) ||
+    valor <= 0
+  ) {
     return alert(
       "Preencha uma descrição e um valor válido."
     );
@@ -187,20 +391,22 @@ async function adicionarDespesa() {
   };
 
   try {
-    // Salva no Firebase
     const docRef = await db
       .collection("despesas")
       .add(novaDespesa);
 
-    // Adiciona na lista local
     despesas.push({
       id: docRef.id,
       ...novaDespesa
     });
 
-    // Limpa os campos
-    document.getElementById("descDespesa").value = "";
-    document.getElementById("valorDespesa").value = "";
+    document
+      .getElementById("descDespesa")
+      .value = "";
+
+    document
+      .getElementById("valorDespesa")
+      .value = "";
 
     renderizarDespesas();
     atualizarResumo();
@@ -269,24 +475,37 @@ function renderizarDespesas() {
   }
 
   despesas.forEach((item, index) => {
-    const div = document.createElement("div");
+    const div =
+      document.createElement("div");
 
     div.style.display = "flex";
-    div.style.justifyContent = "space-between";
+    div.style.justifyContent =
+      "space-between";
     div.style.padding = "10px 15px";
-    div.style.borderBottom = "1px solid #eee";
+    div.style.borderBottom =
+      "1px solid #eee";
     div.style.alignItems = "center";
 
     div.innerHTML = `
       <span>${item.desc}</span>
 
-      <span style="color: #e74c3c; font-weight: bold;">
+      <span
+        style="
+          color: #e74c3c;
+          font-weight: bold;
+        "
+      >
         - ${formatarValor(item.valor)}
       </span>
 
       <button
         onclick="removerDespesa(${index})"
-        style="background: none; border: none; cursor: pointer; font-size: 16px;"
+        style="
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 16px;
+        "
         title="Excluir"
       >
         ❌
@@ -297,33 +516,50 @@ function renderizarDespesas() {
   });
 }
 
-/* RESUMO FINAL */
+/* =========================================================
+   RESUMO FINAL
+========================================================= */
 function atualizarResumo() {
   const totalEntradas = entradas.reduce(
-    (acc, item) => acc + (item.valor || 0),
+    (acc, item) =>
+      acc + Number(item.valor || 0),
     0
   );
 
   const totalSaidas = despesas.reduce(
-    (acc, item) => acc + item.valor,
+    (acc, item) =>
+      acc + Number(item.valor || 0),
     0
   );
 
-  const saldo = totalEntradas - totalSaidas;
+  const saldo =
+    totalEntradas - totalSaidas;
 
-  document.getElementById("totalEntradas").textContent =
-    formatarValor(totalEntradas);
+  document
+    .getElementById("totalEntradas")
+    .textContent =
+      formatarValor(totalEntradas);
 
-  document.getElementById("totalSaidas").textContent =
-    formatarValor(totalSaidas);
+  document
+    .getElementById("totalSaidas")
+    .textContent =
+      formatarValor(totalSaidas);
 
-  document.getElementById("saldo").textContent =
-    formatarValor(saldo);
+  document
+    .getElementById("saldo")
+    .textContent =
+      formatarValor(saldo);
 }
 
-/* FECHAR CAIXA */
+/* =========================================================
+   FECHAR CAIXA
+========================================================= */
 async function fecharCaixa() {
-  if (!confirm("Deseja realmente fechar o caixa?")) {
+  if (
+    !confirm(
+      "Deseja realmente fechar o caixa?"
+    )
+  ) {
     return;
   }
 
@@ -331,22 +567,30 @@ async function fecharCaixa() {
     entradas.length === 0 &&
     despesas.length === 0
   ) {
-    alert("Não há dados para fechar o caixa!");
+    alert(
+      "Não há dados para fechar o caixa!"
+    );
+
     return;
   }
 
   const totalEntradas = entradas.reduce(
-    (acc, item) => acc + (item.valor || 0),
+    (acc, item) =>
+      acc + Number(item.valor || 0),
     0
   );
 
   const totalSaidas = despesas.reduce(
-    (acc, item) => acc + item.valor,
+    (acc, item) =>
+      acc + Number(item.valor || 0),
     0
   );
 
   const saldo =
     totalEntradas - totalSaidas;
+
+  const totalComissoes =
+    calcularTotalComissao();
 
   const movimentacoesFechadas =
     entradas.map(item => ({
@@ -359,8 +603,9 @@ async function fecharCaixa() {
     totalEntradas,
     totalSaidas,
     saldo,
+    totalComissoes,
     quantidadeEntradas: entradas.length,
-    despesas: despesas,
+    despesas,
     movimentacoes: movimentacoesFechadas
   };
 
@@ -371,7 +616,6 @@ async function fecharCaixa() {
 
     const batch = db.batch();
 
-    // Fecha as entradas
     entradas.forEach(item => {
       const ref = db
         .collection("atendimentos")
@@ -382,7 +626,6 @@ async function fecharCaixa() {
       });
     });
 
-    // Fecha as despesas
     despesas.forEach(item => {
       if (item.id) {
         const ref = db
@@ -399,6 +642,8 @@ async function fecharCaixa() {
 
     entradas = [];
     despesas = [];
+    entradasFiltradas = [];
+    paginaMovimentacoes = 1;
 
     limparTela();
 
@@ -421,7 +666,9 @@ async function fecharCaixa() {
   }
 }
 
-/* GERAR PDF */
+/* =========================================================
+   GERAR PDF
+========================================================= */
 function gerarPDF(fechamento) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -429,6 +676,7 @@ function gerarPDF(fechamento) {
   let y = 10;
 
   doc.setFontSize(16);
+
   doc.text(
     "Relatório de Caixa - Pit Stop",
     10,
@@ -469,9 +717,21 @@ function gerarPDF(fechamento) {
     y
   );
 
+  y += 8;
+
+  doc.text(
+    `Comissões: ${formatarValor(fechamento.totalComissoes || 0)}`,
+    10,
+    y
+  );
+
   y += 12;
 
-  doc.text("Movimentações:", 10, y);
+  doc.text(
+    "Movimentações:",
+    10,
+    y
+  );
 
   y += 8;
 
@@ -493,7 +753,9 @@ function gerarPDF(fechamento) {
   return doc;
 }
 
-/* BARRAS DE PAGAMENTO */
+/* =========================================================
+   BARRAS DE PAGAMENTO
+========================================================= */
 function atualizarGraficoPagamentos(
   dinheiro,
   pix,
@@ -506,65 +768,114 @@ function atualizarGraficoPagamentos(
     debito +
     credito || 1;
 
-  document.getElementById("valorDinheiro").textContent =
-    formatarValor(dinheiro);
+  document
+    .getElementById("valorDinheiro")
+    .textContent =
+      formatarValor(dinheiro);
 
-  document.getElementById("valorPix").textContent =
-    formatarValor(pix);
+  document
+    .getElementById("valorPix")
+    .textContent =
+      formatarValor(pix);
 
-  document.getElementById("valorDebito").textContent =
-    formatarValor(debito);
+  document
+    .getElementById("valorDebito")
+    .textContent =
+      formatarValor(debito);
 
-  document.getElementById("valorCredito").textContent =
-    formatarValor(credito);
+  document
+    .getElementById("valorCredito")
+    .textContent =
+      formatarValor(credito);
 
-  document.getElementById("barDinheiro").style.width =
-    `${(dinheiro / total) * 100}%`;
+  document
+    .getElementById("barDinheiro")
+    .style.width =
+      `${(dinheiro / total) * 100}%`;
 
-  document.getElementById("barPix").style.width =
-    `${(pix / total) * 100}%`;
+  document
+    .getElementById("barPix")
+    .style.width =
+      `${(pix / total) * 100}%`;
 
-  document.getElementById("barDebito").style.width =
-    `${(debito / total) * 100}%`;
+  document
+    .getElementById("barDebito")
+    .style.width =
+      `${(debito / total) * 100}%`;
 
-  document.getElementById("barCredito").style.width =
-    `${(credito / total) * 100}%`;
+  document
+    .getElementById("barCredito")
+    .style.width =
+      `${(credito / total) * 100}%`;
 }
 
-/* LIMPAR TELA PÓS FECHAMENTO */
+/* =========================================================
+   LIMPAR TELA APÓS FECHAMENTO
+========================================================= */
 function limparTela() {
-  document.getElementById("movimentacoes").innerHTML = "";
+  document
+    .getElementById("movimentacoes")
+    .innerHTML = "";
 
-  document.getElementById("faturamento").textContent =
-    formatarValor(0);
+  document
+    .getElementById("faturamento")
+    .textContent = formatarValor(0);
 
-  document.getElementById("lavagens").textContent =
-    0;
+  document
+    .getElementById("lavagens")
+    .textContent = 0;
 
-  document.getElementById("estacionamentos").textContent =
-    0;
+  document
+    .getElementById("estacionamentos")
+    .textContent = 0;
 
-  document.getElementById("ticket").textContent =
-    formatarValor(0);
+  document
+    .getElementById("ticket")
+    .textContent = formatarValor(0);
 
-  document.getElementById("totalEntradas").textContent =
-    formatarValor(0);
+  document
+    .getElementById("totalEntradas")
+    .textContent = formatarValor(0);
 
-  document.getElementById("totalSaidas").textContent =
-    formatarValor(0);
+  document
+    .getElementById("totalSaidas")
+    .textContent = formatarValor(0);
 
-  document.getElementById("saldo").textContent =
-    formatarValor(0);
+  document
+    .getElementById("saldo")
+    .textContent = formatarValor(0);
+
+  const totalComissoes =
+    document.getElementById("totalComissoes");
+
+  if (totalComissoes) {
+    totalComissoes.textContent =
+      formatarValor(0);
+  }
+
+  const quantidadeComissoes =
+    document.getElementById(
+      "quantidadeComissoes"
+    );
+
+  if (quantidadeComissoes) {
+    quantidadeComissoes.textContent =
+      "0 lavagens com comissão";
+  }
 
   renderizarDespesas();
+  renderizarPaginacaoMovimentacoes();
 }
 
-/* LOGOUT */
+/* =========================================================
+   LOGOUT
+========================================================= */
 function logout() {
   firebase.auth()
     .signOut()
     .then(() => {
-      window.location.href = "index.html";
+      window.location.href =
+        "index.html";
     })
     .catch(error => {
       alert(
@@ -574,23 +885,30 @@ function logout() {
     });
 }
 
-/* INIT */
+/* =========================================================
+   INIT
+========================================================= */
 document.addEventListener(
   "DOMContentLoaded",
   () => {
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
+    firebase.auth()
+      .onAuthStateChanged(user => {
+        if (!user) {
+          window.location.href =
+            "index.html";
 
-      carregarCaixa();
-      carregarDespesasAbertas();
-    });
+          return;
+        }
+
+        carregarCaixa();
+        carregarDespesasAbertas();
+      });
   }
 );
 
-/* PAGINAÇÃO DAS MOVIMENTAÇÕES */
+/* =========================================================
+   PAGINAÇÃO DAS MOVIMENTAÇÕES
+========================================================= */
 function renderizarPaginacaoMovimentacoes() {
   let paginacao =
     document.getElementById(
@@ -608,11 +926,12 @@ function renderizarPaginacaoMovimentacoes() {
       "cash-pagination";
 
     const movimentacoes =
-      document.getElementById("movimentacoes");
+      document.getElementById(
+        "movimentacoes"
+      );
 
-    movimentacoes.parentElement.appendChild(
-      paginacao
-    );
+    movimentacoes.parentElement
+      .appendChild(paginacao);
   }
 
   const totalPaginas = Math.ceil(
@@ -628,25 +947,32 @@ function renderizarPaginacaoMovimentacoes() {
   paginacao.innerHTML = `
     <button
       onclick="mudarPaginaMovimentacoes(-1)"
-      ${paginaMovimentacoes === 1 ? "disabled" : ""}
+      ${paginaMovimentacoes === 1
+        ? "disabled"
+        : ""}
     >
       Anterior
     </button>
 
     <span>
-      Página ${paginaMovimentacoes} de ${totalPaginas}
+      Página ${paginaMovimentacoes}
+      de ${totalPaginas}
     </span>
 
     <button
       onclick="mudarPaginaMovimentacoes(1)"
-      ${paginaMovimentacoes === totalPaginas ? "disabled" : ""}
+      ${paginaMovimentacoes === totalPaginas
+        ? "disabled"
+        : ""}
     >
       Próxima
     </button>
   `;
 }
 
-function mudarPaginaMovimentacoes(direcao) {
+function mudarPaginaMovimentacoes(
+  direcao
+) {
   const totalPaginas = Math.ceil(
     entradasFiltradas.length /
     movimentacoesPorPagina
@@ -658,8 +984,11 @@ function mudarPaginaMovimentacoes(direcao) {
     paginaMovimentacoes = 1;
   }
 
-  if (paginaMovimentacoes > totalPaginas) {
-    paginaMovimentacoes = totalPaginas;
+  if (
+    paginaMovimentacoes > totalPaginas
+  ) {
+    paginaMovimentacoes =
+      totalPaginas;
   }
 
   atualizarTela();
