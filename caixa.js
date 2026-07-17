@@ -197,10 +197,12 @@ function atualizarTela() {
       }
 
       if (
-        item.tipoEntrada === "Estacionamento"
-      ) {
-        estacionamentos++;
-      }
+  item.tipoEntrada === "Estacionamento" ||
+  item.tipoEntrada === "Mensal" ||
+  item.tipoEntrada === "Diária"
+) {
+  estacionamentos++;
+}
 
       if (
         pagamento === "Dinheiro/Crédito"
