@@ -234,14 +234,19 @@ if (vehicleForm) {
 
     /* MENSAL OU DIÁRIA */
 if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
+  const campoValorFixo = document.getElementById("valorFixo");
+
   const valorFixo = parseFloat(
-    document.getElementById("valorFixo").value.replace(",", ".")
+    String(campoValorFixo.value || "")
+      .replace(/\./g, "")
+      .replace(",", ".")
   );
 
   if (isNaN(valorFixo) || valorFixo <= 0) {
-    const nomeValor = tipoEntrada === "Mensal"
-      ? "mensalidade"
-      : "diária";
+    const nomeValor =
+      tipoEntrada === "Mensal"
+        ? "mensalidade"
+        : "diária";
 
     return alert(`Informe o valor da ${nomeValor}.`);
   }
@@ -253,41 +258,68 @@ if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
       tipoEntrada === "Mensal"
         ? "Mensalidade"
         : "Diária de estacionamento",
-    pagamento: tipoEntrada,
-    status: "Finalizado",
+
+    status: "Aberto",
     entrada: agora,
     criadoEm: agora,
-    finalizadoEm: agora,
     data: hoje,
     hora,
     statusCaixa: "aberto"
   };
 }
-    
+
 
     /* SALVAR */
-    if (editId) {
-      await db.collection("atendimentos").doc(editId).update(dadosAtendimento);
-      alert("Cadastro atualizado com sucesso!");
-      editId = null;
+if (editId) {
+  await db
+    .collection("atendimentos")
+    .doc(editId)
+    .update(dadosAtendimento);
 
-      const btnSubmit = vehicleForm.querySelector("button[type='submit']");
-      if (btnSubmit) btnSubmit.textContent = "Cadastrar";
-    } else {
-      const docRef = await db.collection("atendimentos").add(dadosAtendimento);
+  alert("Cadastro atualizado com sucesso!");
 
-      if (tipoEntrada === "Estacionamento") {
-        gerarCupomEstacionamento({ id: docRef.id, ...dadosAtendimento, entrada: agora });
-      }
-      }
+  editId = null;
 
-      if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
-  gerarCupomValorFixo({
+  const btnSubmit = vehicleForm.querySelector(
+    "button[type='submit']"
+  );
+
+  if (btnSubmit) {
+    btnSubmit.textContent = "Cadastrar";
+  }
+
+} else {
+  const docRef = await db
+    .collection("atendimentos")
+    .add(dadosAtendimento);
+
+  const atendimentoSalvo = {
+    id: docRef.id,
     ...dadosAtendimento,
-    data: agora
-  });
-}
+    entrada: agora
+  };
 
+  if (tipoEntrada === "Estacionamento") {
+    gerarCupomEstacionamento(atendimentoSalvo);
+  }
+
+  if (tipoEntrada === "Lavagem") {
+    gerarCupomLavagem({
+      ...atendimentoSalvo,
+      data: agora
+    });
+  }
+
+  if (
+    tipoEntrada === "Mensal" ||
+    tipoEntrada === "Diária"
+  ) {
+    gerarCupomValorFixo({
+      ...atendimentoSalvo,
+      data: agora
+    });
+  }
+}
     vehicleForm.reset();
     washOptions.classList.add("hidden");
     parkingOptions.classList.add("hidden");
@@ -322,10 +354,10 @@ function atualizarListaEstacionamento() {
         <button onclick="verCupom('${v.id}')" title="Ver Cupom">🧾</button>
         <button onclick="window.location.href='dashboard.html?editar=${v.id}'" title="Editar">✏</button>
         ${
-          v.tipoEntrada === "Estacionamento"
-            ? `<button onclick="encerrarEstacionamento('${v.id}')" title="Finalizar">✔</button>`
-            : `<button onclick="finalizarLavagem('${v.id}')" title="Finalizar">✔</button>`
-        }
+  v.tipoEntrada === "Lavagem"
+    ? `<button onclick="finalizarLavagem('${v.id}')" title="Finalizar">✔</button>`
+    : `<button onclick="encerrarEstacionamento('${v.id}')" title="Finalizar">✔</button>`
+}
       </span>
     `;
 
@@ -598,13 +630,29 @@ async function encerrarEstacionamento(id) {
 
   const saida = new Date();
 
-  const valor = calcularEstacionamento(
-    v.entrada,
-    saida,
-    v.tipoEstacionamento
-  );
+  const usaValorFixo =
+    v.tipoEntrada === "Mensal" ||
+    v.tipoEntrada === "Diária";
 
-  const resultadoPagamento = solicitarFormaPagamento(valor);
+  let valor;
+
+  if (usaValorFixo) {
+    valor = Number(v.valor || 0);
+  } else {
+    valor = calcularEstacionamento(
+      v.entrada,
+      saida,
+      v.tipoEstacionamento
+    );
+  }
+
+  if (!Number.isFinite(valor) || valor <= 0) {
+    alert("O atendimento não possui um valor válido.");
+    return;
+  }
+
+  const resultadoPagamento =
+    solicitarFormaPagamento(valor);
 
   if (resultadoPagamento.cancelado) {
     return;
@@ -616,11 +664,19 @@ async function encerrarEstacionamento(id) {
       "Ele não será contabilizado no caixa."
     );
 
-    if (!confirmarExclusao) return;
+    if (!confirmarExclusao) {
+      return;
+    }
 
-    await db.collection("atendimentos").doc(id).delete();
+    await db
+      .collection("atendimentos")
+      .doc(id)
+      .delete();
 
-    estacionados = estacionados.filter(item => item.id !== id);
+    estacionados = estacionados.filter(
+      item => item.id !== id
+    );
+
     atualizarListaEstacionamento();
 
     alert("Atendimento excluído com sucesso!");
@@ -629,7 +685,7 @@ async function encerrarEstacionamento(id) {
 
   atendimentoPendente = {
     id,
-    tipo: "Estacionamento",
+    tipo: v.tipoEntrada,
     veiculo: v,
     saida,
     valor,
@@ -638,7 +694,11 @@ async function encerrarEstacionamento(id) {
 
   Object.assign(v, resultadoPagamento);
 
-  gerarCupomSaida(v, saida, valor);
+  if (usaValorFixo) {
+    gerarCupomValorFixoFinal(v, saida, valor);
+  } else {
+    gerarCupomSaida(v, saida, valor);
+  }
 }
 
 /* FINALIZAR LAVAGEM */
@@ -782,6 +842,46 @@ function gerarCupomLavagemFinal(v) {
   `;
 }
 
+function gerarCupomValorFixoFinal(v, saida, valor) {
+  coupon.classList.remove("hidden");
+
+  const nomeTipo =
+    v.tipoEntrada === "Mensal"
+      ? "Mensalidade"
+      : "Diária";
+
+  cupomConteudo.innerHTML = `
+    <p><strong>Tipo:</strong> ${nomeTipo}</p>
+    <p><strong>Cliente:</strong> ${v.nome}</p>
+    <p><strong>Veículo:</strong> ${v.veiculo}</p>
+    <p><strong>Placa:</strong> ${v.placa}</p>
+    <p><strong>Telefone:</strong> ${v.telefone}</p>
+    <p><strong>Serviço:</strong> ${v.servico}</p>
+
+    <p>
+      <strong>Pagamento:</strong><br>
+      ${mostrarPagamentoComanda(v)}
+    </p>
+
+    <p>
+      <strong>Data:</strong>
+      ${formatarData(saida)}
+    </p>
+
+    <p>
+      <strong>Horário:</strong>
+      ${formatarHora(saida)}
+    </p>
+
+    <hr>
+
+    <p>
+      <strong>Total:</strong>
+      ${formatarValor(valor)}
+    </p>
+  `;
+}
+
 /* EDITAR PELA URL */
 async function verificarEdicaoPelaURL() {
   const params = new URLSearchParams(window.location.search);
@@ -901,13 +1001,18 @@ async function confirmarFechamentoAtendimento() {
     ...dadosPagamento
   };
 
-  if (tipo === "Estacionamento") {
-    dadosFinalizacao.saida = saida;
-  }
+  if (
+  tipo === "Estacionamento" ||
+  tipo === "Mensal" ||
+  tipo === "Diária"
+) {
+  dadosFinalizacao.saida = saida;
+  dadosFinalizacao.finalizadoEm = saida;
+}
 
-  if (tipo === "Lavagem") {
-    dadosFinalizacao.finalizadoEm = saida;
-  }
+if (tipo === "Lavagem") {
+  dadosFinalizacao.finalizadoEm = saida;
+}
 
   await db
     .collection("atendimentos")
