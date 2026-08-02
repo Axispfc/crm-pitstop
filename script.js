@@ -10,9 +10,16 @@ const valorFixoOptions = document.getElementById("valorFixoOptions");
 const tituloValorFixo = document.getElementById("tituloValorFixo");
 const inputValorFixo = document.getElementById("valorFixo");
 
+const servicoSelect = document.getElementById("servico");
+const servicoDiversoOptions = document.getElementById("servicoDiversoOptions");
+const inputValorServicoDiverso = document.getElementById("valorServicoDiverso");
+
 const tipoEntradaInputs = document.querySelectorAll("input[name='tipoEntrada']");
+
 const listaEstacionamento = document.getElementById("listaEstacionamento");
+
 const coupon = document.getElementById("coupon");
+
 const cupomConteudo = document.getElementById("cupomConteudo");
 
 let atendimentoPendente = null;
@@ -40,6 +47,22 @@ tipoEntradaInputs.forEach((input) => {
     }
   });
 });
+
+/* CONTROLE DO CAMPO DE SERVIÇOS DIVERSOS */
+if (servicoSelect) {
+  servicoSelect.addEventListener("change", function () {
+    const ehServicoDiverso = this.value === "Serviços diversos";
+
+    servicoDiversoOptions.classList.toggle(
+      "hidden",
+      !ehServicoDiverso
+    );
+
+    if (!ehServicoDiverso && inputValorServicoDiverso) {
+      inputValorServicoDiverso.value = "";
+    }
+  });
+}
 
 /* PREÇO LAVAGEM */
 function calcularLavagem(tipoVeiculo, servico, cera) {
@@ -141,6 +164,7 @@ function carregarEstacionamentosAbertos() {
           pagamento: d.pagamento || null,
           cera: d.cera || false,
           valor: d.valor || null,
+          valorServicoDiverso: d.valorServicoDiverso || null,
         });
       });
 
@@ -194,43 +218,106 @@ if (vehicleForm) {
     }
 
     /* LAVAGEM */
-    if (tipoEntrada === "Lavagem") {
-      const tipoVeiculo =
-        document.querySelector("input[name='tipoVeiculo']:checked")?.value;
+if (tipoEntrada === "Lavagem") {
+  const tipoVeiculo =
+    document.querySelector(
+      "input[name='tipoVeiculo']:checked"
+    )?.value;
 
-      const servico = document.getElementById("servico").value;
-      const ceraCheckbox = document.getElementById("cera");
-      const temCera = ceraCheckbox ? ceraCheckbox.checked : false;
+  const servico =
+    document.getElementById("servico").value;
 
-      const servicoadicional = document.getElementById("servicoad").value;
-      const precoAdicional = document.getElementById("precoAd").value;
+  const ceraCheckbox =
+    document.getElementById("cera");
 
-      if (!tipoVeiculo) return alert("Selecione o tipo de veículo.");
-      if (tipoVeiculo !== "Moto" && !servico) return alert("Selecione o serviço.");
+  const temCera =
+    ceraCheckbox
+      ? ceraCheckbox.checked
+      : false;
 
-      const valor =
-        calcularLavagem(tipoVeiculo, servico, temCera) +
-        (precoAdicional ? parseFloat(precoAdicional) : 0);
+  const servicoadicional =
+    document.getElementById("servicoad").value;
 
-      dadosAtendimento = {
-        ...dadosAtendimento,
-        tipoVeiculo,
-        servico,
-        cera: temCera,
-        valor,
-        servicoadicional,
-        precoAdicional,
-      };
+  const precoAdicionalTexto =
+    document.getElementById("precoAd").value;
 
-      if (!editId) {
-        dadosAtendimento.status = "Aberto";
-        dadosAtendimento.entrada = agora;
-        dadosAtendimento.criadoEm = agora;
-        dadosAtendimento.data = hoje;
-        dadosAtendimento.hora = hora;
-        dadosAtendimento.statusCaixa = "aberto";
-      }
+  const precoAdicional =
+    precoAdicionalTexto
+      ? Number(
+          String(precoAdicionalTexto)
+            .replace(",", ".")
+        )
+      : 0;
+
+  if (!tipoVeiculo) {
+    return alert("Selecione o tipo de veículo.");
+  }
+
+  if (!servico) {
+    return alert("Selecione o serviço.");
+  }
+
+  let valorBase = 0;
+
+  if (servico === "Serviços diversos") {
+    const valorManualTexto =
+      inputValorServicoDiverso
+        ? inputValorServicoDiverso.value
+        : "";
+
+    const valorManual = Number(
+      String(valorManualTexto || "")
+        .replace(",", ".")
+    );
+
+    if (
+      !Number.isFinite(valorManual) ||
+      valorManual <= 0
+    ) {
+      return alert(
+        "Informe um valor válido para Serviços diversos."
+      );
     }
+
+    valorBase = valorManual;
+  } else {
+    valorBase = calcularLavagem(
+      tipoVeiculo,
+      servico,
+      false
+    );
+  }
+
+  const valorCera = temCera ? 10 : 0;
+
+  const valor =
+    valorBase +
+    valorCera +
+    precoAdicional;
+
+  dadosAtendimento = {
+    ...dadosAtendimento,
+    tipoVeiculo,
+    servico,
+    cera: temCera,
+    valor,
+    valorServicoDiverso:
+      servico === "Serviços diversos"
+        ? valorBase
+        : null,
+    servicoadicional,
+    precoAdicional
+  };
+
+  if (!editId) {
+    dadosAtendimento.status = "Aberto";
+    dadosAtendimento.entrada = agora;
+    dadosAtendimento.criadoEm = agora;
+    dadosAtendimento.data = hoje;
+    dadosAtendimento.hora = hora;
+    dadosAtendimento.statusCaixa = "aberto";
+  }
+}
 
     /* MENSAL OU DIÁRIA */
 if (tipoEntrada === "Mensal" || tipoEntrada === "Diária") {
@@ -325,6 +412,14 @@ if (editId) {
     parkingOptions.classList.add("hidden");
    valorFixoOptions.classList.add("hidden");
 inputValorFixo.value = "";
+
+if (servicoDiversoOptions) {
+  servicoDiversoOptions.classList.add("hidden");
+}
+
+if (inputValorServicoDiverso) {
+  inputValorServicoDiverso.value = "";
+}
   });
 }
 
@@ -440,6 +535,21 @@ function abrirEdicao(id) {
     }
 
     document.getElementById("servico").value = v.servico || "";
+
+const ehServicoDiverso =
+  v.servico === "Serviços diversos";
+
+servicoDiversoOptions.classList.toggle(
+  "hidden",
+  !ehServicoDiverso
+);
+
+if (inputValorServicoDiverso) {
+  inputValorServicoDiverso.value =
+    ehServicoDiverso
+      ? v.valorServicoDiverso || ""
+      : "";
+}
     document.getElementById("servicoad").value =
       v.servicoadicional || "";
 
@@ -915,6 +1025,7 @@ async function verificarEdicaoPelaURL() {
     pagamento: d.pagamento || null,
     cera: d.cera || false,
     valor: d.valor || null,
+valorServicoDiverso: d.valorServicoDiverso || null,
   };
 
   estacionados.push(atendimento);
