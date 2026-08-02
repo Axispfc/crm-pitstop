@@ -2,10 +2,21 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
@@ -19,25 +30,41 @@
 
   <title>CRM Pit Stop</title>
 
-  <link rel="stylesheet" href="dashboard.css?v=2" />
+  <link
+    rel="stylesheet"
+    href="dashboard.css?v=2"
+  />
 </head>
 
 <body>
 
-<section id="systemScreen" class="container">
+<section
+  id="systemScreen"
+  class="container"
+>
 
   <aside class="finance-sidebar">
 
     <div>
-      <img class="logo-icon" src="pitstop.png" alt="Logo">
+      <img
+        class="logo-icon"
+        src="pitstop.png"
+        alt="Logo"
+      >
     </div>
 
     <nav>
-      <a onclick="irParaDashboard()" class="active nav-item">
+      <a
+        onclick="irParaDashboard()"
+        class="active nav-item"
+      >
         Dashboard
       </a>
 
-      <a onclick="irParaVeiculos()" class="nav-item">
+      <a
+        onclick="irParaVeiculos()"
+        class="nav-item"
+      >
         Veículos Estacionados
       </a>
 
@@ -54,7 +81,10 @@
       </a>
     </nav>
 
-    <a class="exit" href="index.html">
+    <a
+      class="exit"
+      href="index.html"
+    >
       Sair
     </a>
 
@@ -181,7 +211,10 @@
           </div>
 
           <!-- LAVAGEM -->
-          <div id="washOptions" class="hidden">
+          <div
+            id="washOptions"
+            class="hidden"
+          >
 
             <h4>Tipo de veículo</h4>
 
@@ -236,23 +269,63 @@
 
             <h4>Serviço</h4>
 
-            <select class="form-control" id="servico">
-              <option class="control" value="">
+            <select
+              class="form-control"
+              id="servico"
+            >
+              <option
+                class="control"
+                value=""
+              >
                 Selecione
               </option>
 
-              <option class="control">
+              <option
+                class="control"
+                value="Lavagem completa"
+              >
                 Lavagem completa
               </option>
 
-              <option class="control">
+              <option
+                class="control"
+                value="Lavagem rápida"
+              >
                 Lavagem rápida
               </option>
 
-              <option class="control">
+              <option
+                class="control"
+                value="Ducha com secagem"
+              >
                 Ducha com secagem
               </option>
+
+              <option
+                class="control"
+                value="Serviços diversos"
+              >
+                Serviços diversos
+              </option>
             </select>
+
+            <!-- VALOR MANUAL PARA SERVIÇOS DIVERSOS -->
+            <div
+              id="servicoDiversoOptions"
+              class="hidden"
+            >
+              <h4>Valor do serviço</h4>
+
+              <label class="adicional">
+                <input
+                  id="valorServicoDiverso"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Informe o valor do serviço"
+                />
+              </label>
+            </div>
 
             <label class="choicec">
               <input
@@ -286,7 +359,10 @@
           </div>
 
           <!-- MENSAL OU DIÁRIA -->
-          <div id="valorFixoOptions" class="hidden">
+          <div
+            id="valorFixoOptions"
+            class="hidden"
+          >
 
             <h4 id="tituloValorFixo">
               Valor
@@ -334,7 +410,10 @@
     </div>
 
     <!-- COMANDA -->
-    <section id="coupon" class="coupon hidden">
+    <section
+      id="coupon"
+      class="coupon hidden"
+    >
 
       <div class="coupon-box">
 
@@ -390,7 +469,7 @@
 </script>
 
 <script src="auth-guard.js"></script>
-<script src="script.js?v=41"></script>
+<script src="script.js?v=42"></script>
 <script src="navigation/navigation.js"></script>
 
 </body>
