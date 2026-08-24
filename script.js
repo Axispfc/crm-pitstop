@@ -80,11 +80,23 @@ function calcularLavagem(tipoVeiculo, servico, cera) {
   }
 
   if (nomeServico === "Lavagem rápida") {
-    valor = 20;
+    if (tipo === "SUV") {
+      valor = 25;
+    } else if (tipo === "Caminhonete") {
+      valor = 30;
+    } else {
+      valor = 20;
+    }
   }
 
   if (nomeServico === "Ducha com secagem") {
-    valor = 30;
+    if (tipo === "SUV") {
+      valor = 35;
+    } else if (tipo === "Caminhonete") {
+      valor = 40;
+    } else {
+      valor = 30;
+    }
   }
 
   if (cera === true || cera === "true") {
